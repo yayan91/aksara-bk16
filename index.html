@@ -904,7 +904,7 @@
         // LETTER CONTENT RENDERER
         function LetterContent({ data, schoolData, isPreview }) {
             const containerClass = isPreview ? "bg-white shadow-2xl mx-auto w-[215mm] min-h-[330mm] p-[15mm_20mm] relative text-black leading-normal box-border" : "bg-white w-full h-full text-black leading-normal box-border"; 
-            const arialStyle = { fontFamily: 'Arial, Helvetica, sans-serif', fontSize: '12pt' };
+            const arialStyle = { fontFamily: 'Times', fontSize: '12pt' };
             const contentStyle = { fontSize: '11pt' }; 
             const renderLogo = (url) => url ? <img src={url} alt="Logo" className="max-h-full max-w-full object-contain" onError={(e) => {e.target.style.display='none'}} /> : null;
             
@@ -1190,3 +1190,4 @@
 </body>
 
 </html>
+
