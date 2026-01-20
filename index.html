@@ -25,11 +25,42 @@
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
         @media print {
+            /* Reset Margin Browser */
             @page { size: 215mm 330mm; margin: 0; }
-            body { background: white; }
+            
+            /* Paksa Body dan Root jadi Putih Murni */
+            html, body, #root { 
+                background-color: #ffffff !important; 
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Sembunyikan elemen UI */
             .no-print { display: none !important; }
-            .print-area { display: block !important; position: absolute; top: 0; left: 0; width: 215mm; height: 330mm; padding: 15mm 20mm; margin: 0; box-shadow: none; overflow: visible; }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+
+            /* Area Cetak: Pastikan Putih, Posisi Absolut menutupi segalanya */
+            .print-area { 
+                display: block !important; 
+                position: fixed; /* Menggunakan fixed agar menempel pas di layar cetak */
+                top: 0; 
+                left: 0; 
+                width: 215mm; 
+                height: 330mm; 
+                padding: 15mm 20mm; 
+                margin: 0; 
+                background-color: #ffffff !important; /* Kunci: Background Putih */
+                box-shadow: none !important; 
+                overflow: visible; 
+                z-index: 99999; /* Pastikan di paling depan */
+            }
+
+            /* Pastikan warna teks hitam pekat dan background grafis (seperti tabel) tetap tercetak */
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
         }
     </style>
 </head>
