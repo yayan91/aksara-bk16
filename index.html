@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKSARA - BK16</title>
+    <title>AKSARA - BK16 (V2 Secure)</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -18,49 +18,31 @@
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .loader { border-top-color: #3498db; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
 
-        /* Custom Scrollbar yang Elegan */
+        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
+        /* Autocomplete Dropdown Styles */
+        .autocomplete-items {
+            position: absolute; border: 1px solid #d4d4d4; border-bottom: none; border-top: none; z-index: 99;
+            top: 100%; left: 0; right: 0; max-height: 200px; overflow-y: auto; background-color: white; border-radius: 0 0 8px 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        .autocomplete-items div { padding: 10px; cursor: pointer; background-color: #fff; border-bottom: 1px solid #d4d4d4; font-size: 0.875rem; }
+        .autocomplete-items div:hover { background-color: #e9e9e9; }
+        .autocomplete-active { background-color: DodgerBlue !important; color: #ffffff; }
+
         @media print {
-            /* Reset Margin Browser */
             @page { size: 215mm 330mm; margin: 0; }
-            
-            /* Paksa Body dan Root jadi Putih Murni */
-            html, body, #root { 
-                background-color: #ffffff !important; 
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Sembunyikan elemen UI */
+            html, body, #root { background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100%; height: 100%; }
             .no-print { display: none !important; }
-
-            /* Area Cetak: Pastikan Putih, Posisi Absolut menutupi segalanya */
             .print-area { 
-                display: block !important; 
-                position: fixed; /* Menggunakan fixed agar menempel pas di layar cetak */
-                top: 0; 
-                left: 0; 
-                width: 215mm; 
-                height: 330mm; 
-                padding: 15mm 20mm; 
-                margin: 0; 
-                background-color: #ffffff !important; /* Kunci: Background Putih */
-                box-shadow: none !important; 
-                overflow: visible; 
-                z-index: 99999; /* Pastikan di paling depan */
+                display: block !important; position: fixed; top: 0; left: 0; width: 215mm; height: 330mm; 
+                padding: 15mm 20mm; margin: 0; background-color: #ffffff !important; box-shadow: none !important; 
+                overflow: visible; z-index: 99999; 
             }
-
-            /* Pastikan warna teks hitam pekat dan background grafis (seperti tabel) tetap tercetak */
-            * { 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -71,14 +53,13 @@
         // ==========================================
         // CONFIGURATION
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzr0Ss60k9CCCKV3E1mCCS70YKOMSJnmrT-hgyJ1pvfwaOBarlWYSPBQqn9ui8GO-gRmw/exec"; 
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMEVvwH8q8spX3ECAZwgIh27eQskHtpKavLMZHMSo0RM9sq_BuExIdSStQptkXl7cgXQ/exec"; 
         // ==========================================
 
         const { useState, useEffect, useRef } = React;
 
         // --- ICONS ---
         const IconBase = ({ children, size = 24, className = "" }) => (<svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{children}</svg>);
-        const FileText = (props) => <IconBase {...props}><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></IconBase>;
         const Plus = (props) => <IconBase {...props}><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></IconBase>;
         const Trash2 = (props) => <IconBase {...props}><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></IconBase>;
         const Edit = (props) => <IconBase {...props}><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></IconBase>;
@@ -122,28 +103,47 @@
                 </div>
             );
         }
-
-        // --- LOGIN VIEW ---
-        function LoginView({ users, onLogin }) {
+		
+		// --- LOGIN VIEW (UPDATED: SERVER-SIDE CHECK) ---
+        function LoginView({ onLogin }) {
             const [username, setUsername] = useState('');
             const [password, setPassword] = useState('');
             const [showPass, setShowPass] = useState(false);
             const [error, setError] = useState('');
+            const [isLoading, setIsLoading] = useState(false);
 
-            const handleLogin = (e) => {
+            const handleLogin = async (e) => {
                 e.preventDefault();
-                const validUsers = users && users.length > 0 ? users : [{username: 'admin', password: 'admin123'}];
-                
-                const user = validUsers.find(u => u.username === username && u.password === password);
-                if (user) {
-                    onLogin(user);
-                } else {
-                    setError('Username atau Password salah!');
+                setError('');
+                setIsLoading(true);
+
+                try {
+                    // MENGIRIM PERMINTAAN LOGIN KE SERVER (GOOGLE APPS SCRIPT)
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'login',
+                            payload: { username, password }
+                        })
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        // JIKA SERVER BILANG OKE, BARU MASUK
+                        onLogin(result.user);
+                    } else {
+                        setError(result.message || 'Username atau Password Salah!');
+                    }
+                } catch (err) {
+                    setError('Gagal terhubung ke server. Pastikan internet lancar.');
+                } finally {
+                    setIsLoading(false);
                 }
             };
 
             return (
                 <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+                    {isLoading && <LoadingOverlay message="Memeriksa Password..." />}
                     <div className="absolute inset-0 bg-[url('https://source.unsplash.com/random/1920x1080/?school,book')] bg-cover opacity-20"></div>
                     <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10 animate-fade-in-up">
                         <div className="text-center mb-8">
@@ -203,6 +203,11 @@
             });
 
             const [letters, setLetters] = useState([]);
+            // DATA BARU DARI BACKEND
+            const [students, setStudents] = useState([]);
+            const [classes, setClasses] = useState([]);
+            const [officials, setOfficials] = useState([]);
+
             const [loadingState, setLoadingState] = useState({ isLoading: false, message: '' });
 
             useEffect(() => {
@@ -218,10 +223,16 @@
                     const result = await response.json();
                     
                     if (result.status === 'success') {
-                        setLetters(result.data.letters);
+                        // Data Surat & Sekolah
+                        setLetters(result.data.letters || []);
                         if (result.data.school) {
                             setSchoolData(result.data.school);
                         }
+                        // DATA BARU: Simpan ke state
+                        if (result.data.students) setStudents(result.data.students);
+                        if (result.data.classes) setClasses(result.data.classes);
+                        if (result.data.officials) setOfficials(result.data.officials);
+
                     } else {
                         alert('Gagal mengambil data: ' + result.message);
                     }
@@ -360,7 +371,7 @@
             };
 
             if (!currentUser) {
-                return <LoginView users={schoolData.users} onLogin={setCurrentUser} />;
+                return <LoginView onLogin={setCurrentUser} />;
             }
 
             return (
@@ -522,7 +533,7 @@
                                      </div>
                                 </div>
                             )}
-
+                            
                             {viewState === 'school_settings' && (
                                 <SettingsView 
                                     schoolData={schoolData} 
@@ -530,7 +541,17 @@
                                     onCancel={() => setViewState('list')} 
                                 />
                             )}
-                            {(viewState === 'create' || viewState === 'edit') && <LetterForm initialData={selectedLetter} onSave={handleSaveLetter} onCancel={() => {setViewState('list'); setSelectedLetter(null);}} currentUser={currentUser}/>}
+                            {(viewState === 'create' || viewState === 'edit') && (
+                                <LetterForm 
+                                    initialData={selectedLetter} 
+                                    onSave={handleSaveLetter} 
+                                    onCancel={() => {setViewState('list'); setSelectedLetter(null);}} 
+                                    currentUser={currentUser}
+                                    students={students}
+                                    classes={classes}
+                                    officials={officials}
+                                />
+                            )}
                             
                             {viewState === 'detail' && selectedLetter && (
                                 <div className="flex flex-col h-full bg-gray-100">
@@ -592,15 +613,6 @@
 
         function SidebarItem({ icon, label, active, onClick }) {
             return (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${active ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="shrink-0">{icon}</span><span className="font-medium text-sm whitespace-nowrap">{label}</span></button>);
-        }
-
-        function StatItem({ label, value, color }) {
-            return (
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                    <span className="text-sm font-medium text-gray-600">{label}</span>
-                    <span className={`text-sm font-bold text-white px-2 py-1 rounded ${color}`}>{value}</span>
-                </div>
-            )
         }
 
         // SETTINGS (UPDATED WITH USER MANAGEMENT)
@@ -695,8 +707,8 @@
             );
         }
 
-        // LETTER FORM
-        function LetterForm({ initialData, onSave, onCancel, currentUser }) {
+        // LETTER FORM (UPDATED WITH SMART FEATURES)
+        function LetterForm({ initialData, onSave, onCancel, currentUser, students, classes, officials }) {
             const defaults = { 
                 type: 'SKORSING', 
                 nomorSurat: '', 
@@ -710,17 +722,77 @@
                 namaWaliKelas: '', nipWaliKelas: '', 
                 tanggalKontrak: new Date().toISOString().split('T')[0], tanggalTinjauan: '', deskripsiPerilaku: '', tujuanPerubahan: '', rencanaTindakan: '', konsekuensi: '', statusKontrak: 'Aktif', 
                 // NEW FIELDS for V2
-                namaPetugas: '', nipPetugas: '', // For Tugas HV
-                pihakDitemui: '', statusPihakDitemui: 'Orang Tua', // For Laporan HV
-                gambaranMasalah: '', hasilPembicaraan: '', tindakLanjut: '', // For Laporan HV
-                pihakTujuan: '', rincianMasalah: '', riwayatPenanganan: '', // For Alih Kasus (referral)
+                namaPetugas: '', nipPetugas: '', 
+                pihakDitemui: '', statusPihakDitemui: 'Orang Tua', 
+                gambaranMasalah: '', hasilPembicaraan: '', tindakLanjut: '', 
+                pihakTujuan: '', rincianMasalah: '', riwayatPenanganan: '', 
                 // Shared fields
                 penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah', 
                 createdBy: currentUser.username 
             };
             
             const [formData, setFormData] = useState(initialData || defaults);
+            const [showStudentSuggestions, setShowStudentSuggestions] = useState(false);
+            const [filteredStudents, setFilteredStudents] = useState([]);
+
             const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+
+            // --- SMART LOGIC: STUDENT SEARCH ---
+            const handleSearchStudent = (e) => {
+                const value = e.target.value;
+                setFormData(prev => ({ ...prev, namaSiswa: value }));
+                
+                if (value.length > 2 && students.length > 0) {
+                    const filtered = students.filter(s => 
+                        s['Nama Lengkap'].toLowerCase().includes(value.toLowerCase()) || 
+                        String(s['NISN']).includes(value)
+                    );
+                    setFilteredStudents(filtered);
+                    setShowStudentSuggestions(true);
+                } else {
+                    setShowStudentSuggestions(false);
+                }
+            };
+
+            const handleSelectStudent = (student) => {
+                // 1. Auto Fill Siswa
+                setFormData(prev => ({
+                    ...prev,
+                    namaSiswa: student['Nama Lengkap'],
+                    nisn: student['NISN'],
+                    kelas: student['Kelas'],
+                    jenisKelamin: student['Jenis Kelamin'] || 'Laki-laki'
+                }));
+                setShowStudentSuggestions(false);
+
+                // 2. Auto Fill Wali Kelas (Cari di DB Kelas)
+                if (classes && classes.length > 0) {
+                    const kelasInfo = classes.find(c => String(c['Nama Kelas']).toLowerCase() === String(student['Kelas']).toLowerCase());
+                    if (kelasInfo) {
+                        setFormData(prev => ({
+                            ...prev,
+                            namaWaliKelas: kelasInfo['Nama Wali Kelas'],
+                            nipWaliKelas: kelasInfo['NIP Wali Kelas']
+                        }));
+                    }
+                }
+            };
+
+            // --- SMART LOGIC: PEJABAT ---
+            const handleSelectOfficial = (e) => {
+                const selectedName = e.target.value;
+                if (!selectedName) return;
+
+                const official = officials.find(o => o['Nama Pejabat'] === selectedName);
+                if (official) {
+                    setFormData(prev => ({
+                        ...prev,
+                        penandaTangan: official['Nama Pejabat'],
+                        nipPenandaTangan: official['NIP'],
+                        jabatan: official['Jabatan']
+                    }));
+                }
+            };
 
             return (
                 <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-20 flex flex-col max-h-[90vh]">
@@ -761,11 +833,34 @@
                                 <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tanggal Surat</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tempat Penetapan</label><input type="text" name="tempat" value={formData.tempat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div></div>
                             </div>
                             
-                            {/* IDENTITAS SISWA - SELALU MUNCUL */}
-                            <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100">
+                            {/* IDENTITAS SISWA - WITH AUTOCOMPLETE */}
+                            <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
                                 <h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa</label><input type="text" name="namaSiswa" value={formData.namaSiswa} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" required /></div>
+                                    <div className="relative">
+                                        <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa (Cari disini...)</label>
+                                        <input 
+                                            type="text" 
+                                            name="namaSiswa" 
+                                            value={formData.namaSiswa} 
+                                            onChange={handleSearchStudent} 
+                                            autoComplete="off"
+                                            className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold" 
+                                            required 
+                                            placeholder="Ketik nama siswa..."
+                                        />
+                                        {/* Suggestions Dropdown */}
+                                        {showStudentSuggestions && (
+                                            <div className="autocomplete-items">
+                                                {filteredStudents.map((s, idx) => (
+                                                    <div key={idx} onClick={() => handleSelectStudent(s)}>
+                                                        <strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
+                                                    </div>
+                                                ))}
+                                                {filteredStudents.length === 0 && <div className="text-gray-400 italic">Siswa tidak ditemukan</div>}
+                                            </div>
+                                        )}
+                                    </div>
                                     <div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" name="nisn" value={formData.nisn} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" /></div>
                                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Jenis Kelamin</label><select name="jenisKelamin" value={formData.jenisKelamin} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
                                     <div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" name="kelas" value={formData.kelas} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" required /></div>
@@ -821,7 +916,7 @@
                                         <div className="col-span-2"><label className="block text-sm font-medium text-gray-700">Tempat Acara</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ruang Guru" required /></div>
                                     </div>
                                     <div><label className="block text-sm font-medium text-gray-700">Keperluan</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
-                                    <div className="bg-gray-100 p-4 rounded-md"><h4 className="font-semibold text-xs uppercase mb-2">Data Wali Kelas (Opsional)</h4><div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-medium text-gray-600">Nama Wali Kelas</label><input type="text" name="namaWaliKelas" value={formData.namaWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div><div><label className="block text-xs font-medium text-gray-600">NIP Wali Kelas</label><input type="text" name="nipWaliKelas" value={formData.nipWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div></div></div>
+                                    <div className="bg-gray-100 p-4 rounded-md"><h4 className="font-semibold text-xs uppercase mb-2">Data Wali Kelas (Otomatis jika data kelas tersedia)</h4><div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-medium text-gray-600">Nama Wali Kelas</label><input type="text" name="namaWaliKelas" value={formData.namaWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div><div><label className="block text-xs font-medium text-gray-600">NIP Wali Kelas</label><input type="text" name="nipWaliKelas" value={formData.nipWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div></div></div>
                                 </div>
                             )}
 
@@ -911,9 +1006,18 @@
                                 </div>
                             )}
 
-                            {/* TANDA TANGAN KEPALA SEKOLAH - SELALU MUNCUL */}
+                            {/* TANDA TANGAN KEPALA SEKOLAH - DENGAN DROPDOWN PEJABAT */}
                             <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                <h3 className="font-semibold text-gray-800 text-sm uppercase mb-3 flex items-center gap-2"><Briefcase size={16}/> Pejabat Penanda Tangan (Kepala Sekolah)</h3>
+                                <h3 className="font-semibold text-gray-800 text-sm uppercase mb-3 flex items-center gap-2"><Briefcase size={16}/> Pejabat Penanda Tangan</h3>
+                                <div className="mb-3">
+                                    <label className="block text-xs font-medium text-gray-600 mb-1">Pilih Cepat Pejabat (Opsional)</label>
+                                    <select onChange={handleSelectOfficial} className="w-full p-2 border border-gray-300 rounded-md text-sm bg-white">
+                                        <option value="">-- Pilih Pejabat --</option>
+                                        {officials && officials.map((off, idx) => (
+                                            <option key={idx} value={off['Nama Pejabat']}>{off['Jabatan']} - {off['Nama Pejabat']}</option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nama</label><input type="text" name="penandaTangan" value={formData.penandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                     <div><label className="block text-sm font-medium text-gray-700">NIP</label><input type="text" name="nipPenandaTangan" value={formData.nipPenandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
@@ -932,7 +1036,7 @@
             );
         }
 
-        // LETTER CONTENT RENDERER
+        // LETTER CONTENT RENDERER (NO CHANGES NEEDED, DATA MAPPED AUTOMATICALLY)
         function LetterContent({ data, schoolData, isPreview }) {
             const containerClass = isPreview ? "bg-white shadow-2xl mx-auto w-[215mm] min-h-[330mm] p-[15mm_20mm] relative text-black leading-normal box-border" : "bg-white w-full h-full text-black leading-normal box-border"; 
             const arialStyle = { fontFamily: 'Times', fontSize: '12pt' };
@@ -952,7 +1056,7 @@
                             <h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
                             <h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
                             {!['SKORSING', 'TUGAS_HOMEVISIT', 'ALIH_KASUS', 'SKBB'].includes(data.type) && (<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
-							)}
+                            )}
                             <p className="text-[10pt] italic mt-1 whitespace-pre-line leading-tight">{schoolData.alamat}</p>
                         </div>
                         <div className="w-[2.5cm] h-[2.5cm] flex items-center justify-center shrink-0">{renderLogo(schoolData.logoKanan)}</div>
@@ -987,7 +1091,6 @@
                         
                         {data.type === 'KONTRAK' && (<div><div className="text-center mb-4"><h3 className="font-bold underline text-[12pt] uppercase">KONTRAK PERILAKU SISWA</h3></div><table className="w-full mb-2 border-collapse border border-black text-[11pt]"><tbody><tr><td className="border border-black p-1 font-bold bg-gray-100" colSpan="2">INFORMASI SISWA</td></tr><tr><td className="border border-black p-1 w-48">Nama Siswa</td><td className="border border-black p-1 font-bold">{data.namaSiswa}</td></tr><tr><td className="border border-black p-1">NISN</td><td className="border border-black p-1">{data.nisn}</td></tr><tr><td className="border border-black p-1">Kelas / Gender</td><td className="border border-black p-1">{data.kelas} / {data.jenisKelamin}</td></tr><tr><td className="border border-black p-1">Tanggal Kontrak</td><td className="border border-black p-1">{formatDate(data.tanggalKontrak)}</td></tr><tr><td className="border border-black p-1">Tanggal Tinjauan</td><td className="border border-black p-1">{formatDate(data.tanggalTinjauan) || '-'}</td></tr></tbody></table><div className="space-y-2 text-[11pt]"><div className="border border-black p-1"><p className="font-bold underline mb-0.5">Deskripsi Perilaku yang Akan Diubah:</p><p className="whitespace-pre-line leading-snug">{data.deskripsiPerilaku}</p></div><div className="border border-black p-1"><p className="font-bold underline mb-0.5">Tujuan Perubahan Perilaku:</p><p className="whitespace-pre-line leading-snug">{data.tujuanPerubahan}</p></div><div className="border border-black p-1"><p className="font-bold underline mb-0.5">Rencana Tindakan Siswa:</p><p className="whitespace-pre-line leading-snug">{data.rencanaTindakan}</p></div><div className="grid grid-cols-2 gap-2"><div className="border border-black p-1"><p className="font-bold underline mb-0.5">Konsekuensi:</p><p className="whitespace-pre-line leading-snug">{data.konsekuensi}</p></div><div className="border border-black p-1"><p className="font-bold underline mb-0.5">Status Kontrak:</p><p className="font-bold uppercase leading-snug">{data.statusKontrak}</p></div></div></div><p className="mt-4 mb-2 text-justify text-[11pt] leading-snug">Saya telah membaca dan memahami isi kontrak ini. Saya setuju untuk mengikuti rencana di atas dan menerima konsekuensi yang telah ditetapkan.</p><div className="flex justify-between items-end mt-4 px-2 text-[11pt]"><div className="text-center min-w-[200px] mb-8"><p className="mb-12">Siswa,</p><p className="font-bold underline whitespace-nowrap">{data.namaSiswa}</p></div><div className="text-center min-w-[200px] mb-8"><p className="mb-12">Orang Tua / Wali,</p><p className="font-bold underline">..............................</p></div></div><div className="flex justify-center mt-0 gap-4 items-end"><div className="flex flex-col items-center justify-end h-full pb-2"><img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" /></div><div className="text-center min-w-[250px]"><p className="mb-1">Mengetahui,</p><p className="mb-12">{data.jabatan}</p><p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p><p>NIP. {data.nipPenandaTangan}</p></div></div></div>)}
 
-                        {/* TEMPLATE BARU 1: SURAT TUGAS HOME VISIT */}
                         {data.type === 'TUGAS_HOMEVISIT' && (
                             <div>
                                 <div className="text-center mb-6">
@@ -1047,7 +1150,6 @@
                             </div>
                         )}
 
-                        {/* TEMPLATE BARU 2: LAPORAN HOME VISIT */}
                         {data.type === 'LAPORAN_HOMEVISIT' && (
                             <div>
                                 <div className="text-center mb-6">
@@ -1062,7 +1164,6 @@
                                         <tr><td className="border border-black p-2 font-bold bg-gray-100">Pihak yang Ditemui</td><td className="border border-black p-2">{data.pihakDitemui} ({data.statusPihakDitemui})</td></tr>
                                     </tbody>
                                 </table>
-
                                 <div className="mb-4">
                                     <h4 className="font-bold underline mb-1">A. GAMBARAN MASALAH / TUJUAN KUNJUNGAN</h4>
                                     <div className="border border-black p-2 min-h-[80px] text-justify whitespace-pre-line">{data.gambaranMasalah}</div>
@@ -1075,7 +1176,6 @@
                                     <h4 className="font-bold underline mb-1">C. RENCANA TINDAK LANJUT (KESEPAKATAN)</h4>
                                     <div className="border border-black p-2 min-h-[80px] text-justify whitespace-pre-line">{data.tindakLanjut}</div>
                                 </div>
-
                                 <div className="flex justify-between items-end mt-8 px-2">
                                     <div className="text-center min-w-[200px] mb-4">
                                         <p className="mb-16">Orang Tua / Wali,</p>
@@ -1099,7 +1199,6 @@
                             </div>
                         )}
 
-                        {/* TEMPLATE BARU 3: SURAT ALIH TANGAN KASUS */}
                         {data.type === 'ALIH_KASUS' && (
                             <div>
                                 <div className="flex justify-between mb-8">
@@ -1162,7 +1261,6 @@
                             </div>
                         )}
 
-                        {/* TEMPLATE BARU 4: SURAT KETERANGAN BERKELAKUAN BAIK (SKBB) */}
                         {data.type === 'SKBB' && (
                             <div>
                                 <div className="text-center mb-6">
@@ -1185,7 +1283,7 @@
                                 <div className="border-2 border-black p-4 mb-4 mx-8 font-bold text-center uppercase bg-gray-50">
                                     BERKELAKUAN BAIK
                                 </div>
-								
+                                
                                 <p className="mb-4 text-justify indent-8">Serta tidak pernah terlibat dalam tindakan Kriminal, Penyalahgunaan Narkoba, maupun Pelanggaran Berat Tata Tertib sekolah lainnya.</p>
                                 
                                 <p className="mb-2">Surat keterangan ini diberikan untuk keperluan:</p>
