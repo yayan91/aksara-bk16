@@ -265,9 +265,18 @@
             const [viewState, setViewState] = useState('list');
             const [selectedLetter, setSelectedLetter] = useState(null);
             const [searchTerm, setSearchTerm] = useState('');
+			// --- STATE FILTER LANJUTAN ---
+            const [filterType, setFilterType] = useState('Semua');
+            const [filterCreator, setFilterCreator] = useState('Semua');
+            const [filterStartDate, setFilterStartDate] = useState('');
+            const [filterEndDate, setFilterEndDate] = useState('');
+
+            // --- PILIHAN DROPDOWN DINAMIS ---
+            const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'SKBB', 'BERHENTI'];
             const [historyStudent, setHistoryStudent] = useState(null);
 
-            useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage]);
+            useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
 
             // ACTIONS
             const handleDelete = (id) => {
@@ -372,33 +381,80 @@
             };
 
             const handleExportExcel = () => {
-                const header = ["ID", "Jenis Surat", "Nomor Surat", "Tanggal", "Nama Siswa", "Kelas", "Pelanggaran/Perihal", "Pembuat"];
-                const rows = letters.map(l => [
-                    l.id, l.type, `"${l.nomorSurat}"`, formatDate(l.tanggal), `"${l.namaSiswa}"`, l.kelas, `"${l.alasan || l.permasalahan || l.perihal || '-'}"`, l.createdBy || '-'
+                // 1. Fungsi kecil pelindung (escape) agar tanda kutip (") atau koma (,) di inputan guru tidak merusak kolom Excel
+                const escapeCSV = (str) => {
+                    if (str === null || str === undefined) return '""';
+                    const text = String(str);
+                    return `"${text.replace(/"/g, '""')}"`; // Ubah " jadi "" sesuai standar CSV
+                };
+
+                // 2. Header kolom Excel
+                const header = ["ID", "Jenis Surat", "Nomor Surat", "Tanggal", "Nama Siswa", "Kelas", "Keterangan/Perihal", "Pembuat"];
+                
+                // 3. Menggunakan 'filteredLetters' (Bukan 'letters') agar yang diekspor HANYA yang tampil di tabel saat ini
+                const rows = filteredLetters.map(l => [
+                    l.id, 
+                    escapeCSV(l.type.replace('_', ' ')), 
+                    escapeCSV(l.nomorSurat || '-'), 
+                    escapeCSV(formatDate(l.tanggal)), 
+                    escapeCSV(l.namaSiswa), 
+                    escapeCSV(l.kelas), 
+                    escapeCSV(l.alasan || l.permasalahan || l.perihal || l.keperluan || l.gambaranMasalah || l.alasanBerhenti || '-'), 
+                    escapeCSV(l.createdBy || '-')
                 ]);
                 
-                const csvContent = "data:text/csv;charset=utf-8," 
-                    + header.join(",") + "\n" 
-                    + rows.map(e => e.join(",")).join("\n");
+                const csvContent = header.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
                 
-                const encodedUri = encodeURI(csvContent);
+                // 4. Menggunakan Blob & BOM (\ufeff) agar Excel membaca karakter khusus dengan sempurna (UTF-8 format)
+                const blob = new Blob(["\ufeff", csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                
                 const link = document.createElement("a");
-                link.setAttribute("href", encodedUri);
-                link.setAttribute("download", `Data_Surat_BK_${new Date().toISOString().slice(0,10)}.csv`);
+                link.setAttribute("href", url);
+                link.setAttribute("download", `Laporan_Surat_BK_${new Date().toISOString().slice(0,10)}.csv`);
                 document.body.appendChild(link);
                 link.click();
+                document.body.removeChild(link); // Bersihkan sisa link setelah download
+                
+                // Alert kecil sebagai pemanis
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil Diunduh!',
+                    text: `Laporan sebanyak ${filteredLetters.length} surat telah diekspor.`,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             };
 
             // Filtering
+            // Filtering Lanjutan
             const filteredLetters = letters
                 .filter(l => {
                     if (viewState === 'history' && historyStudent) {
                         return l.namaSiswa.toLowerCase() === historyStudent.toLowerCase();
                     }
+                    
+                    // 1. Filter Menu Samping (Active Tab)
+                    if (activeTab !== 'dashboard' && l.type !== activeTab) return false;
+
+                    // 2. Filter Pencarian Teks
                     const search = searchTerm.toLowerCase();
-                    const matchesSearch = (l.namaSiswa && l.namaSiswa.toLowerCase().includes(search)) || (l.nomorSurat && l.nomorSurat.toLowerCase().includes(search));
-                    if (activeTab === 'dashboard') return matchesSearch;
-                    return matchesSearch && l.type === activeTab;
+                    const matchesSearch = (l.namaSiswa && l.namaSiswa.toLowerCase().includes(search)) || 
+                                          (l.nomorSurat && l.nomorSurat.toLowerCase().includes(search));
+                    if (!matchesSearch) return false;
+
+                    // 3. Filter Jenis Surat
+                    if (filterType !== 'Semua' && l.type !== filterType) return false;
+
+                    // 4. Filter Nama Guru (Pembuat)
+                    if (filterCreator !== 'Semua' && l.createdBy !== filterCreator) return false;
+
+                    // 5. Filter Rentang Tanggal
+                    const letterDate = new Date(l.tanggal);
+                    if (filterStartDate && letterDate < new Date(filterStartDate)) return false;
+                    if (filterEndDate && letterDate > new Date(filterEndDate)) return false;
+
+                    return true; // Jika lolos semua filter, tampilkan!
                 })
                 .sort((a, b) => new Date(b.tanggal) - new Date(a.tanggal));
 
@@ -507,6 +563,34 @@
                                         <div className="flex gap-2 w-full md:w-auto">
                                             <button onClick={fetchData} className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors"><RotateCcw size={20} /></button>
                                             <button onClick={() => {setSelectedLetter(null); setViewState('create');}} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors flex-1 md:flex-none font-medium"><Plus size={20} /> <span className="hidden sm:inline">Buat</span> Surat Baru</button>
+                                        </div>
+                                    </div>
+									{/* PANEL FILTER LANJUTAN */}
+                                    <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex flex-wrap gap-3 items-end mb-4 animate-fade-in-up">
+                                        <div className="flex-1 min-w-[140px]">
+                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Jenis Surat</label>
+                                            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none cursor-pointer">
+                                                {letterTypesList.map(t => <option key={t} value={t}>{t === 'Semua' ? 'Semua Jenis' : t.replace('_', ' ')}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="flex-1 min-w-[140px]">
+                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Guru Pembuat</label>
+                                            <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none cursor-pointer">
+                                                {uniqueCreators.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="flex-1 min-w-[130px]">
+                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Dari Tanggal</label>
+                                            <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none" />
+                                        </div>
+                                        <div className="flex-1 min-w-[130px]">
+                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sampai Tanggal</label>
+                                            <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none" />
+                                        </div>
+                                        <div>
+                                            <button onClick={() => { setFilterType('Semua'); setFilterCreator('Semua'); setFilterStartDate(''); setFilterEndDate(''); setSearchTerm(''); }} className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md text-sm font-medium border border-gray-300 h-[38px] transition-colors" title="Reset Semua Filter">
+                                                Reset
+                                            </button>
                                         </div>
                                     </div>
 
