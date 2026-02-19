@@ -34,14 +34,35 @@
         .autocomplete-active { background-color: DodgerBlue !important; color: #ffffff; }
 
         @media print {
-            @page { size: 215mm 330mm; margin: 0; }
-            html, body, #root { background-color: #ffffff !important; margin: 0 !important; padding: 0 !important; width: 100%; height: 100%; }
-            .no-print { display: none !important; }
-            .print-area { 
-                display: block !important; position: fixed; top: 0; left: 0; width: 215mm; height: 330mm; 
-                padding: 15mm 20mm; margin: 0; background-color: #ffffff !important; box-shadow: none !important; 
-                overflow: visible; z-index: 99999; 
+            /* Kita atur margin langsung di kertas cetak, bukan di div-nya */
+            @page { size: 215mm 330mm; margin: 15mm 20mm; } 
+            
+            /* Hancurkan semua kuncian tinggi layar agar kertas bisa panjang ke bawah */
+            html, body, #root, .min-h-screen { 
+                background-color: #ffffff !important; 
+                height: auto !important; 
+                min-height: auto !important; 
+                overflow: visible !important; 
+                position: relative !important;
             }
+            
+            /* Sembunyikan elemen UI aplikasi (Sidebar, Navbar, dll) */
+            aside, main, .no-print { 
+                display: none !important; 
+            }
+            
+            /* Bebaskan area surat agar mengalir alami mengikuti isi teks */
+            .print-area { 
+                display: block !important; 
+                position: relative !important; /* Ini kunci utamanya! Harus relative */
+                width: 100% !important; 
+                height: auto !important;
+                padding: 0 !important; 
+                margin: 0 !important;
+                box-shadow: none !important; 
+                overflow: visible !important;
+            }
+            
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -273,7 +294,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'SKBB', 'BERHENTI'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'SKBB', 'BERHENTI'];
             const [historyStudent, setHistoryStudent] = useState(null);
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
@@ -474,7 +495,10 @@
                     { key: 'TUGAS_HOMEVISIT', label: 'Tugas H.Visit', icon: <Briefcase/>, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
                     { key: 'LAPORAN_HOMEVISIT', label: 'Laporan H.Visit', icon: <ClipboardList/>, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
 					{ key: 'MEDIASI', label: 'Mediasi', icon: <Users/>, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
+					{ key: 'ADVOKASI', label: 'Advokasi', icon: <MessageCircle/>, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
+					{ key: 'BIMBINGAN_KELOMPOK', label: 'Bimpok', icon: <Users/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
                     { key: 'ALIH_KASUS', label: 'Alih Kasus', icon: <Share/>, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
+					{ key: 'KONFERENSI_KASUS', label: 'Konf. Kasus', icon: <Users/>, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
                     { key: 'SKBB', label: 'Ket. Baik', icon: <ShieldCheck/>, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
 					{ key: 'BERHENTI', label: 'Berhenti/Keluar', icon: <UserMinus/>, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' },
                 ];
@@ -739,7 +763,10 @@
                         <SidebarItem icon={<Briefcase size={20}/>} label="Surat Tugas Home Visit" active={activeTab === 'TUGAS_HOMEVISIT'} onClick={() => {setActiveTab('TUGAS_HOMEVISIT'); setViewState('list');}} />
                         <SidebarItem icon={<ClipboardList size={20}/>} label="Laporan Home Visit" active={activeTab === 'LAPORAN_HOMEVISIT'} onClick={() => {setActiveTab('LAPORAN_HOMEVISIT'); setViewState('list');}} />
                         <SidebarItem icon={<Share size={20}/>} label="Alih Tangan Kasus" active={activeTab === 'ALIH_KASUS'} onClick={() => {setActiveTab('ALIH_KASUS'); setViewState('list');}} />
+						<SidebarItem icon={<Users size={20}/>} label="Konferensi Kasus" active={activeTab === 'KONFERENSI_KASUS'} onClick={() => {setActiveTab('KONFERENSI_KASUS'); setViewState('list');}} />
 						<SidebarItem icon={<Users size={20}/>} label="Berita Acara Mediasi" active={activeTab === 'MEDIASI'} onClick={() => {setActiveTab('MEDIASI'); setViewState('list');}} />
+						<SidebarItem icon={<MessageCircle size={20}/>} label="Berita Acara Advokasi" active={activeTab === 'ADVOKASI'} onClick={() => {setActiveTab('ADVOKASI'); setViewState('list');}} />
+						<SidebarItem icon={<Users size={20}/>} label="Bimbingan Kelompok" active={activeTab === 'BIMBINGAN_KELOMPOK'} onClick={() => {setActiveTab('BIMBINGAN_KELOMPOK'); setViewState('list');}} />
                         <SidebarItem icon={<ShieldCheck size={20}/>} label="Ket. Berkelakuan Baik" active={activeTab === 'SKBB'} onClick={() => {setActiveTab('SKBB'); setViewState('list');}} />
 						<SidebarItem icon={<UserMinus size={20}/>} label="Berhenti / Keluar" active={activeTab === 'BERHENTI'} onClick={() => {setActiveTab('BERHENTI'); setViewState('list');}} />
 
@@ -899,6 +926,9 @@
                 hasilMediasi: '', kesepakatan: '',
                 namaSaksi: '', nipSaksi: '', statusSaksi: 'Wali Kelas', // Saksi BK or General
                 alasanBerhenti: '',
+				hasilKonferensi: '', tempatAcara: 'Ruang BK', pesertaKonferensi: [{ nama: '', unsur: 'Wali Kelas' }],
+				pihakTerkait: '', statusPihakTerkait: '', latarBelakang: '', tujuanAdvokasi: '', hasilAdvokasi: '',
+				topikBimbingan: '', tujuanBimbingan: '', uraianKegiatan: '', hasilBimbingan: '', pesertaBimbingan: [{ nama: '', kelas: '' }],
                 // Shared fields
                 penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah', 
                 createdBy: currentUser.username 
@@ -907,6 +937,7 @@
             const [formData, setFormData] = useState(initialData || defaults);
             const [showStudentSuggestions, setShowStudentSuggestions] = useState(false);
 			const [showStudentSuggestions2, setShowStudentSuggestions2] = useState(false); // For Student 2
+			const [activePesertaIndex, setActivePesertaIndex] = useState(null);
             const [filteredStudents, setFilteredStudents] = useState([]);
 
             const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -985,6 +1016,40 @@
                     }));
                 }
             };
+			
+			const handleAddPeserta = () => setFormData(prev => ({ ...prev, pesertaKonferensi: [...(prev.pesertaKonferensi || []), { nama: '', unsur: '' }] }));
+			const handleRemovePeserta = (index) => setFormData(prev => ({ ...prev, pesertaKonferensi: prev.pesertaKonferensi.filter((_, i) => i !== index) }));
+			const handleChangePeserta = (index, field, value) => {
+				const newPeserta = [...(formData.pesertaKonferensi || [])];
+				newPeserta[index][field] = value;
+				setFormData(prev => ({ ...prev, pesertaKonferensi: newPeserta }));
+			};
+			
+			const handleAddPesertaBimbingan = () => setFormData(prev => ({ ...prev, pesertaBimbingan: [...(prev.pesertaBimbingan || []), { nama: '', kelas: '' }] }));
+            const handleRemovePesertaBimbingan = (index) => setFormData(prev => ({ ...prev, pesertaBimbingan: prev.pesertaBimbingan.filter((_, i) => i !== index) }));
+            const handleChangePesertaBimbingan = (index, value) => {
+                const newPeserta = [...(formData.pesertaBimbingan || [])];
+                newPeserta[index].nama = value;
+                setFormData(prev => ({ ...prev, pesertaBimbingan: newPeserta }));
+                
+                if (value.length > 2) {
+                    const filtered = students.filter(s => 
+                        s['Nama Lengkap'].toLowerCase().includes(value.toLowerCase())
+                    );
+                    setFilteredStudents(filtered);
+                    setActivePesertaIndex(index); // Menandai baris mana yang sedang mengetik
+                } else {
+                    setActivePesertaIndex(null);
+                }
+            };
+
+            const handleSelectPesertaBimbingan = (student, index) => {
+                const newPeserta = [...(formData.pesertaBimbingan || [])];
+                newPeserta[index].nama = student['Nama Lengkap'];
+                newPeserta[index].kelas = student['Kelas'];
+                setFormData(prev => ({ ...prev, pesertaBimbingan: newPeserta }));
+                setActivePesertaIndex(null); // Tutup dropdown
+            };
 
             return (
                 <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-20 flex flex-col max-h-[90vh]">
@@ -1019,6 +1084,9 @@
                                             <option value="TUGAS_HOMEVISIT">Surat Tugas Home Visit</option>
                                             <option value="LAPORAN_HOMEVISIT">Laporan Hasil Home Visit</option>
                                             <option value="ALIH_KASUS">Alih Tangan Kasus (Referral)</option>
+											<option value="KONFERENSI_KASUS">Berita Acara Konferensi Kasus</option>
+											<option value="ADVOKASI">Berita Acara Advokasi</option>
+											<option value="BIMBINGAN_KELOMPOK">Berita Acara Bimbingan Kelompok</option>
                                             <option value="SKBB">Ket. Berkelakuan Baik</option>
 											<option value="BERHENTI">Surat Berhenti / Keluar</option>
                                         </optgroup>
@@ -1027,42 +1095,44 @@
                                 <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tanggal Surat</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tempat Penetapan</label><input type="text" name="tempat" value={formData.tempat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div></div>
                             </div>
                             
-                            {/* IDENTITAS SISWA - WITH AUTOCOMPLETE */}
-                            <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
-                                <h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="relative">
-                                        <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa (Cari disini...)</label>
-                                        <input 
-                                            type="text" 
-                                            name="namaSiswa" 
-                                            value={formData.namaSiswa} 
-                                            onChange={handleSearchStudent} 
-                                            autoComplete="off"
-                                            className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold" 
-                                            required 
-                                            placeholder="Ketik nama siswa..."
-                                        />
-                                        {/* Suggestions Dropdown */}
-                                        {showStudentSuggestions && (
-                                            <div className="autocomplete-items">
-                                                {filteredStudents.map((s, idx) => (
-                                                    <div key={idx} onClick={() => handleSelectStudent(s)}>
-                                                        <strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
-                                                    </div>
-                                                ))}
-                                                {filteredStudents.length === 0 && <div className="text-gray-400 italic">Siswa tidak ditemukan</div>}
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" name="nisn" value={formData.nisn} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" /></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Jenis Kelamin</label><select name="jenisKelamin" value={formData.jenisKelamin} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" name="kelas" value={formData.kelas} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" required /></div>
-                                    {formData.type !== 'SKORSING' && formData.type !== 'KONTRAK' && formData.type !== 'SKBB' && (
-                                        <div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Alamat Siswa</label><input type="text" name="alamatOrangTua" value={formData.alamatOrangTua} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" /></div>
-                                    )}
-                                </div>
-                            </div>
+                            {/* IDENTITAS SISWA - OTOMATIS SEMBUNYI JIKA BIMBINGAN KELOMPOK */}
+							{formData.type !== 'BIMBINGAN_KELOMPOK' && (
+								<div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
+									<h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div className="relative">
+											<label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa (Cari disini...)</label>
+											<input 
+												type="text" 
+												name="namaSiswa" 
+												value={formData.namaSiswa} 
+												onChange={handleSearchStudent} 
+												autoComplete="off"
+												className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold" 
+												required 
+												placeholder="Ketik nama siswa..."
+											/>
+											{/* Suggestions Dropdown */}
+											{showStudentSuggestions && (
+												<div className="autocomplete-items">
+													{filteredStudents.map((s, idx) => (
+														<div key={idx} onClick={() => handleSelectStudent(s)}>
+															<strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
+														</div>
+													))}
+													{filteredStudents.length === 0 && <div className="text-gray-400 italic">Siswa tidak ditemukan</div>}
+												</div>
+											)}
+										</div>
+										<div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" name="nisn" value={formData.nisn} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" /></div>
+										<div><label className="block text-xs font-medium text-gray-600 mb-1">Jenis Kelamin</label><select name="jenisKelamin" value={formData.jenisKelamin} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
+										<div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" name="kelas" value={formData.kelas} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" required /></div>
+										{formData.type !== 'SKORSING' && formData.type !== 'KONTRAK' && formData.type !== 'SKBB' && (
+											<div className="md:col-span-2"><label className="block text-xs font-medium text-gray-600 mb-1">Alamat Siswa</label><input type="text" name="alamatOrangTua" value={formData.alamatOrangTua} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none" /></div>
+										)}
+									</div>
+								</div>
+							)}
 							
 							{/* KHUSUS MEDIASI: IDENTITAS SISWA 2 */}
                              {formData.type === 'MEDIASI' && (
@@ -1101,7 +1171,7 @@
 							
 
                             {/* IDENTITAS ORANG TUA - CONDITIONAL */}
-                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI') && (
+                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI') && (
                                 <div className="bg-green-50 p-4 rounded-lg space-y-4 border border-green-100">
                                     <h3 className="font-semibold text-green-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Orang Tua / Wali {formData.type === 'MEDIASI' ? '(Pihak 1 & 2)' : ''}</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1218,6 +1288,44 @@
                                     </div>
                                 </div>
                             )}
+							
+							{formData.type === 'KONFERENSI_KASUS' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Tempat</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									</div>
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal Konferensi</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2026" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Waktu</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
+									</div>
+									<div><label className="block text-sm font-medium text-gray-700">Gambaran Masalah / Topik Bahasan</label><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Hasil Konferensi / Kesepakatan</label><textarea name="hasilKonferensi" value={formData.hasilKonferensi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+
+									<div className="bg-indigo-50 p-4 rounded-md border border-indigo-100">
+										<div className="flex justify-between items-center mb-3">
+											<h4 className="font-semibold text-xs text-indigo-800 uppercase">Daftar Hadir (Lampiran)</h4>
+											<button type="button" onClick={handleAddPeserta} className="text-xs bg-indigo-600 text-white px-2 py-1 rounded hover:bg-indigo-700">+ Tambah Peserta</button>
+										</div>
+										<p className="text-[10px] text-indigo-600 mb-2 italic">*Siswa, Ortu, BK, & Kepsek sudah otomatis masuk. Masukkan peserta tambahan di sini (Wali kelas, Waka Kesiswaan, dll).</p>
+										{(formData.pesertaKonferensi || []).map((p, index) => (
+											<div key={index} className="flex gap-2 mb-2 items-end">
+												<div className="flex-1"><label className="block text-[10px] text-gray-600">Nama Lengkap</label><input type="text" value={p.nama} onChange={(e) => handleChangePeserta(index, 'nama', e.target.value)} className="w-full p-1.5 text-sm border rounded" placeholder="Contoh: Budi Santoso, S.Pd" /></div>
+												<div className="flex-1"><label className="block text-[10px] text-gray-600">Unsur/Jabatan</label><input type="text" value={p.unsur} onChange={(e) => handleChangePeserta(index, 'unsur', e.target.value)} className="w-full p-1.5 text-sm border rounded" placeholder="Wali Kelas" /></div>
+												<button type="button" onClick={() => handleRemovePeserta(index)} className="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 mb-[1px]"><Trash2 size={16}/></button>
+											</div>
+										))}
+									</div>
+
+									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Guru BK / Konselor</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+										</div>
+									</div>
+								</div>
+							)}
 
                             {/* FORM KHUSUS ALIH TANGAN KASUS */}
                             {formData.type === 'ALIH_KASUS' && (
@@ -1235,6 +1343,89 @@
                                     </div>
                                 </div>
                             )}
+							
+							{formData.type === 'ADVOKASI' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Nama Pihak Terkait</label><input type="text" name="pihakTerkait" value={formData.pihakTerkait} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Budi Santoso" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Sebagai (Jabatan)</label><input type="text" name="statusPihakTerkait" value={formData.statusPihakTerkait} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Guru Matematika" required /></div>
+									</div>
+									<div><label className="block text-sm font-medium text-gray-700">Latar Belakang Masalah</label><textarea name="latarBelakang" value={formData.latarBelakang} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Jelaskan masalah atau hak siswa yang terancam..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Tujuan Advokasi</label><textarea name="tujuanAdvokasi" value={formData.tujuanAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang ingin dicapai (misal: keringanan SPP, izin ujian)..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Hasil / Keputusan</label><textarea name="hasilAdvokasi" value={formData.hasilAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Hasil kesepakatan setelah negosiasi..." required></textarea></div>
+									
+									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Pelaksana Advokasi (Guru BK)</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{formData.type === 'BIMBINGAN_KELOMPOK' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Tempat Bimbingan</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Ruang BK / Taman" required /></div>
+									</div>
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2026" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Waktu Pelaksanaan</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 - 10.30 WITA" required /></div>
+									</div>
+									
+									<div><label className="block text-sm font-medium text-gray-700">Topik / Materi Bahasan</label><input type="text" name="topikBimbingan" value={formData.topikBimbingan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Bahaya Bullying di Sekolah" required /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Tujuan Bimbingan</label><textarea name="tujuanBimbingan" value={formData.tujuanBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Target dari materi yang disampaikan..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Uraian Kegiatan</label><textarea name="uraianKegiatan" value={formData.uraianKegiatan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsikan dinamika kelompok dan proses berjalannya kegiatan..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Hasil Bimbingan</label><textarea name="hasilBimbingan" value={formData.hasilBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kesimpulan yang didapat oleh para siswa..." required></textarea></div>
+
+									<div className="bg-blue-50 p-4 rounded-md border border-blue-100">
+										<div className="flex justify-between items-center mb-3">
+											<h4 className="font-semibold text-xs text-blue-800 uppercase">Daftar Siswa (Anggota Kelompok)</h4>
+											<button type="button" onClick={handleAddPesertaBimbingan} className="text-xs bg-blue-600 text-white px-2 py-1 rounded hover:bg-blue-700">+ Tambah Siswa</button>
+										</div>
+										{(formData.pesertaBimbingan || []).map((p, index) => (
+											<div key={index} className="flex gap-2 mb-2 items-end">
+												<div className="flex-1 relative">
+													<label className="block text-[10px] text-gray-600">Nama Lengkap Siswa</label>
+													<input 
+														type="text" 
+														value={p.nama} 
+														onChange={(e) => handleChangePesertaBimbingan(index, e.target.value)} 
+														className="w-full p-1.5 text-sm border rounded focus:ring-2 focus:ring-blue-200 outline-none" 
+														placeholder="Cari nama siswa..." 
+														required
+														autoComplete="off"
+													/>
+													{/* Dropdown Saran Nama Khusus Baris Ini */}
+													{activePesertaIndex === index && (
+														<div className="autocomplete-items shadow-xl border border-gray-200">
+															{filteredStudents.map((s, idx) => (
+																<div key={idx} onClick={() => handleSelectPesertaBimbingan(s, index)}>
+																	<strong>{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+																</div>
+															))}
+															{filteredStudents.length === 0 && <div className="p-2 text-gray-400 italic text-xs">Siswa tidak ditemukan</div>}
+														</div>
+													)}
+												</div>
+												<div className="w-1/3"><label className="block text-[10px] text-gray-600">Kelas</label><input type="text" value={p.kelas} onChange={(e) => handleChangePesertaBimbingan(index, 'kelas', e.target.value)} className="w-full p-1.5 text-sm border rounded" placeholder="Kelas..." required/></div>
+												<button type="button" onClick={() => handleRemovePesertaBimbingan(index)} className="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 mb-[1px]"><Trash2 size={16}/></button>
+											</div>
+										))}
+									</div>
+
+									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Pemimpin Kelompok (Guru BK)</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+										</div>
+									</div>
+								</div>
+							)}
 
                             {/* FORM KHUSUS SKBB */}
                             {formData.type === 'SKBB' && (
@@ -1480,6 +1671,77 @@
                                 </div>
                             </div>
                         )}
+						
+						{data.type === 'KONFERENSI_KASUS' && (
+							<div>
+								{/* HALAMAN 1: BERITA ACARA */}
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA KONFERENSI KASUS</h3>
+									<p>Nomor: {data.nomorSurat}</p>
+								</div>
+								<p className="mb-4 text-justify">Pada hari ini <strong>{data.hariTanggalAcara}</strong>, bertempat di <strong>{data.tempatAcara}</strong>, telah dilaksanakan kegiatan Konferensi Kasus untuk membahas permasalahan dan menyepakati solusi penanganan bagi siswa:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-1">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-1">NISN</td><td>: {data.nisn || '-'}</td></tr>
+										<tr><td className="py-1">Kelas / Gender</td><td>: {data.kelas} / {data.jenisKelamin}</td></tr>
+										<tr><td className="py-1">Orang Tua / Wali</td><td>: {data.namaOrangTua}</td></tr>
+									</tbody>
+								</table>
+								<div className="mb-2">
+                                    <h4 className="font-bold text-sm mb-0.5">A. Gambaran Masalah / Topik Bahasan</h4>
+                                    <div className="text-justify whitespace-pre-line pl-4">{data.permasalahan}</div>
+                                </div>
+                                <div className="mb-4">
+                                    <h4 className="font-bold text-sm mb-0.5">B. Hasil Konferensi / Kesepakatan</h4>
+                                    <div className="text-justify whitespace-pre-line pl-4">{data.hasilKonferensi}</div>
+                                </div>
+                                <p className="mb-6 text-sm text-justify">Demikian berita acara konferensi kasus ini dibuat untuk ditindaklanjuti bersama secara kooperatif.</p>
+
+                                {/* Tanda Tangan Konferensi Kasus */}
+                                <div className="flex justify-between items-end mt-8 px-4 text-[11pt]">
+                                    <div className="text-center min-w-[250px]">
+                                        <p>Mengetahui,</p>
+                                        <p className="mb-12">{data.jabatan}</p>
+                                        <p className="font-bold underline">{data.penandaTangan}</p>
+                                        <p>NIP. {data.nipPenandaTangan}</p>
+                                    </div>
+                                    <div className="text-center min-w-[250px]">
+                                        <p className="invisible">Mengetahui,</p>
+                                        <p className="mb-12">Guru BK / Konselor,</p>
+                                        <p className="font-bold underline">{data.namaPetugas}</p>
+                                        <p>NIP. {data.nipPetugas || '-'}</p>
+                                    </div>
+                                </div>
+
+								{/* HALAMAN 2: LAMPIRAN (Akan tercetak di halaman baru otomatis saat print) */}
+								<div style={{ pageBreakBefore: 'always' }} className="pt-8">
+									<div className="text-center mb-6">
+										<h3 className="font-bold underline text-[12pt] uppercase">LAMPIRAN DAFTAR HADIR</h3>
+										<p>Kegiatan Konferensi Kasus Siswa a.n. {data.namaSiswa}</p>
+									</div>
+									<table className="w-full border-collapse border border-black text-sm">
+										<thead>
+											<tr className="bg-gray-100">
+												<th className="border border-black p-2 w-10">No</th>
+												<th className="border border-black p-2">Nama Lengkap</th>
+												<th className="border border-black p-2 w-48">Unsur / Jabatan</th>
+												<th className="border border-black p-2 w-40">Tanda Tangan</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr><td className="border border-black p-3 text-center">1</td><td className="border border-black p-3">{data.namaSiswa}</td><td className="border border-black p-3 text-center">Siswa</td><td className="border border-black p-3"></td></tr>
+											<tr><td className="border border-black p-3 text-center">2</td><td className="border border-black p-3">{data.namaOrangTua}</td><td className="border border-black p-3 text-center">Orang Tua / Wali</td><td className="border border-black p-3"></td></tr>
+											<tr><td className="border border-black p-3 text-center">3</td><td className="border border-black p-3">{data.namaPetugas}</td><td className="border border-black p-3 text-center">Guru BK</td><td className="border border-black p-3"></td></tr>
+											<tr><td className="border border-black p-3 text-center">4</td><td className="border border-black p-3">{data.penandaTangan}</td><td className="border border-black p-3 text-center">Kepala Sekolah</td><td className="border border-black p-3"></td></tr>
+											{(data.pesertaKonferensi || []).map((p, i) => (
+												<tr key={i}><td className="border border-black p-3 text-center">{i + 5}</td><td className="border border-black p-3">{p.nama}</td><td className="border border-black p-3 text-center">{p.unsur}</td><td className="border border-black p-3"></td></tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						)}
 
                         {data.type === 'ALIH_KASUS' && (
                             <div>
@@ -1542,6 +1804,155 @@
                                 </div>
                             </div>
                         )}
+						
+						{data.type === 'ADVOKASI' && (
+							<div>
+								<div className="text-center mb-4">
+									<h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA ADVOKASI SISWA</h3>
+									<p>Nomor: {data.nomorSurat}</p>
+								</div>
+								<p className="mb-3 text-justify">Pada hari ini <strong>{formatDate(data.tanggal)}</strong>, bertempat di <strong>{data.tempat || 'Ruang BK'}</strong>, telah dilaksanakan upaya pendampingan/advokasi untuk menjembatani penyelesaian masalah dan pemenuhan hak belajar bagi siswa:</p>
+								
+								<table className="w-full mb-3 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-0.5">Kelas</td><td>: {data.kelas}</td></tr>
+										<tr><td className="py-0.5">Nama Orang Tua</td><td>: {data.namaOrangTua}</td></tr>
+										<tr><td className="py-0.5">Pihak Terkait</td><td>: <strong>{data.pihakTerkait} ({data.statusPihakTerkait})</strong></td></tr>
+									</tbody>
+								</table>
+
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">A. Latar Belakang Masalah</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.latarBelakang}</div>
+								</div>
+								
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">B. Tujuan Advokasi</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.tujuanAdvokasi}</div>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-0.5">C. Hasil Kesepakatan / Keputusan</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.hasilAdvokasi}</div>
+								</div>
+
+								<p className="mb-4 text-sm text-justify">Demikian berita acara ini dibuat sebagai bentuk pertanggungjawaban profesional dan untuk dipergunakan sebagaimana mestinya.</p>
+
+								{/* Tanda Tangan Khusus Advokasi - Formasi 2 Di Atas, 1 Di Tengah Bawah */}
+								<div className="mt-6 text-[11pt]">
+									<div className="flex justify-between text-center px-4 mb-6">
+										<div className="min-w-[200px]">
+											<p className="mb-12">Siswa / Klien,</p>
+											<p className="font-bold underline">{data.namaSiswa}</p>
+										</div>
+										<div className="min-w-[200px]">
+											<p className="mb-12">{data.statusPihakTerkait || 'Pihak Terkait'},</p>
+											<p className="font-bold underline">{data.pihakTerkait}</p>
+										</div>
+									</div>
+									<div className="flex justify-center text-center">
+										<div className="min-w-[250px]">
+											<p className="mb-12">Guru BK / Konselor,</p>
+											<p className="font-bold underline">{data.namaPetugas}</p>
+											<p>NIP. {data.nipPetugas || '-'}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
+						
+						{data.type === 'BIMBINGAN_KELOMPOK' && (
+							<div>
+								{/* HALAMAN 1: BERITA ACARA INTI */}
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA BIMBINGAN KELOMPOK</h3>
+									<p>Nomor: {data.nomorSurat}</p>
+								</div>
+								<p className="mb-4 text-justify">Pada hari ini telah dilaksanakan layanan Bimbingan Kelompok (BKP) dengan rincian kegiatan sebagai berikut:</p>
+								
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-48 py-1 align-top">Hari / Tanggal</td><td className="align-top">: <strong>{data.hariTanggalAcara}</strong></td></tr>
+										<tr><td className="py-1 align-top">Waktu</td><td className="align-top">: {data.waktuAcara}</td></tr>
+										<tr><td className="py-1 align-top">Tempat</td><td className="align-top">: {data.tempatAcara}</td></tr>
+										<tr><td className="py-1 align-top">Topik / Materi</td><td className="align-top">: <strong>{data.topikBimbingan}</strong></td></tr>
+										<tr><td className="py-1 align-top">Jumlah Peserta</td><td className="align-top">: {(data.pesertaBimbingan || []).length} Orang Siswa</td></tr>
+									</tbody>
+								</table>
+								
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">A. Tujuan Bimbingan</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.tujuanBimbingan}</div>
+								</div>
+								
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">B. Uraian Kegiatan</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.uraianKegiatan}</div>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-0.5">C. Hasil Bimbingan</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.hasilBimbingan}</div>
+								</div>
+								
+								<p className="mb-6 text-sm text-justify">Demikian berita acara ini dibuat sebagai bukti fisik pelaksanaan layanan Bimbingan dan Konseling.</p>
+
+								{/* Tanda Tangan */}
+								<div className="flex justify-between items-end mt-8 px-4 text-[11pt]">
+									<div className="text-center min-w-[250px]">
+										<p>Mengetahui,</p>
+										<p className="mb-12">{data.jabatan}</p>
+										<p className="font-bold underline">{data.penandaTangan}</p>
+										<p>NIP. {data.nipPenandaTangan}</p>
+									</div>
+									<div className="text-center min-w-[250px]">
+										<p className="invisible">Mengetahui,</p>
+										<p className="mb-12">Pemimpin Kelompok / Guru BK,</p>
+										<p className="font-bold underline">{data.namaPetugas}</p>
+										<p>NIP. {data.nipPetugas || '-'}</p>
+									</div>
+								</div>
+
+								{/* HALAMAN 2: LAMPIRAN (Akan tercetak di halaman baru otomatis) */}
+								<div style={{ pageBreakBefore: 'always' }} className="pt-8">
+									<div className="text-center mb-6">
+										<h3 className="font-bold underline text-[12pt] uppercase">DAFTAR HADIR PESERTA</h3>
+										<h3 className="font-bold text-[12pt] uppercase">BIMBINGAN KELOMPOK</h3>
+									</div>
+									
+									<table className="w-full mb-6 text-sm">
+										<tbody>
+											<tr><td className="w-40 py-1">Hari / Tanggal</td><td>: {data.hariTanggalAcara}</td></tr>
+											<tr><td className="py-1">Waktu / Tempat</td><td>: {data.waktuAcara} / {data.tempatAcara}</td></tr>
+											<tr><td className="py-1">Topik Bahasan</td><td>: <strong>{data.topikBimbingan}</strong></td></tr>
+											<tr><td className="py-1">Pemimpin Kelompok</td><td>: {data.namaPetugas}</td></tr>
+										</tbody>
+									</table>
+
+									<table className="w-full border-collapse border border-black text-sm">
+										<thead>
+											<tr className="bg-gray-100">
+												<th className="border border-black p-2 w-10">No</th>
+												<th className="border border-black p-2">Nama Lengkap Siswa</th>
+												<th className="border border-black p-2 w-32">Kelas</th>
+												<th className="border border-black p-2 w-40">Tanda Tangan</th>
+											</tr>
+										</thead>
+										<tbody>
+											{(data.pesertaBimbingan || []).map((p, i) => (
+												<tr key={i}>
+													<td className="border border-black p-3 text-center">{i + 1}</td>
+													<td className="border border-black p-3">{p.nama}</td>
+													<td className="border border-black p-3 text-center">{p.kelas}</td>
+													<td className="border border-black p-3"></td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						)}
 
                         {data.type === 'SKBB' && (
                             <div>
