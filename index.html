@@ -104,6 +104,7 @@
         const RotateCcw = (props) => <IconBase {...props}><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></IconBase>;
         const ChevronLeft = (props) => <IconBase {...props}><polyline points="15 18 9 12 15 6"/></IconBase>;
         const ChevronRight = (props) => <IconBase {...props}><polyline points="9 18 15 12 9 6"/></IconBase>;
+		const ChevronDown = (props) => <IconBase {...props}><polyline points="6 9 12 15 18 9"/></IconBase>;
         const SidebarOpen = (props) => <IconBase {...props}><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></IconBase>;
         const Cloud = (props) => <IconBase {...props}><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></IconBase>;
         const MessageCircle = (props) => <IconBase {...props}><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></IconBase>;
@@ -119,6 +120,11 @@
         const ShieldCheck = (props) => <IconBase {...props}><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></IconBase>;
 		const Users = (props) => <IconBase {...props}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></IconBase>;
         const UserMinus = (props) => <IconBase {...props}><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="23" y1="11" x2="17" y2="11"></line></IconBase>;
+		const Info = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></IconBase>;
+		const AlertTriangle = (props) => <IconBase {...props}><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></IconBase>;
+		const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
+		const Calendar = (props) => <IconBase {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></IconBase>;
+		const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
 
         // --- LOADING OVERLAY ---
         function LoadingOverlay({ message }) {
@@ -186,13 +192,44 @@
                     {isLoading && <LoadingOverlay message="Tunggu Yah.." />}
                     <div className="absolute inset-0 bg-[url('https://source.unsplash.com/random/1920x1080/?school,book')] bg-cover opacity-20"></div>
                     <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10 animate-fade-in-up">
-                        <div className="text-center mb-8">
-                            <div className="w-16 h-16 bg-blue-600 rounded-xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3">
-                                <Lock className="text-white" size={32}/>
-                            </div>
-                            <h1 className="text-2xl font-bold text-slate-800">AKSARA-BK16</h1>
-                            <p className="text-slate-500 text-sm">Aplikasi Kelola Surat BK</p>
-                        </div>
+                        
+                        {/* Tombol Informasi di pojok kanan atas modal login */}
+                        <button type="button" onClick={() => {
+                            Swal.fire({
+                                title: 'Informasi Aplikasi',
+                                html: `
+                                    <div class="text-left text-sm space-y-3">
+                                        <p><strong>AKSARA-BK16</strong> dirancang khusus untuk mempermudah Guru Bimbingan dan Konseling dalam mengelola persuratan dan administrasi.</p>
+                                        <p class="font-bold border-b pb-1 mt-4">Cara Penggunaan:</p>
+                                        <ul class="list-decimal pl-5 space-y-1">
+                                            <li>Masukkan <strong>Username</strong> dan <strong>Password</strong>.</li>
+                                            <li>Pilih jenis layanan di menu sebelah kiri (Skorsing, Mediasi, Konferensi Kasus, dll).</li>
+                                            <li>Isi form yang disediakan. Nama siswa dapat dicari secara otomatis.</li>
+                                            <li>Klik <strong>Simpan</strong>, lalu gunakan tombol <strong>Cetak PDF</strong> untuk mencetak dokumen/berita acara.</li>
+                                            <li>Data yang disimpan akan otomatis tersinkronisasi.</li>
+                                        </ul>
+                                    </div>
+                                `,
+                                icon: 'info',
+                                confirmButtonText: 'Tutup',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }} className="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors" title="Informasi & Bantuan">
+                            <Info size={24} />
+                        </button>
+
+                        <div className="text-center mb-8">
+                            {/* Tempat Logo Gambar */}
+                            <div className="w-30 h-24 mx-auto mb-4">
+                                <img 
+                                    src="https://lh3.googleusercontent.com/u/0/d/1Wr_uC9C32tjzN19PZXLsk3tyBNrzO1wy" 
+                                    alt="Logo AKSARA" 
+                                    className="w-full h-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300" 
+                                />
+                            </div>
+                            <h1 className="text-2xl font-bold text-slate-800">AKSARA-BK16</h1>
+                            <p className="text-slate-500 text-sm">Aplikasi Kelola Surat Bimbingan dan Konseling</p>
+                        </div>
                         {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 text-center">{error}</div>}
                         <form onSubmit={handleLogin} className="space-y-4">
                             <div>
@@ -294,7 +331,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'SKBB', 'BERHENTI'];
+           const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU'];
             const [historyStudent, setHistoryStudent] = useState(null);
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
@@ -497,16 +534,35 @@
 					{ key: 'MEDIASI', label: 'Mediasi', icon: <Users/>, color: 'text-pink-600', bg: 'bg-pink-50', border: 'border-pink-200' },
 					{ key: 'ADVOKASI', label: 'Advokasi', icon: <MessageCircle/>, color: 'text-rose-600', bg: 'bg-rose-50', border: 'border-rose-200' },
 					{ key: 'BIMBINGAN_KELOMPOK', label: 'Bim. Kelompok', icon: <Users/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+					{ key: 'KONSELING_KELOMPOK', label: 'Kon. Kelompok', icon: <MessageCircle/>, color: 'text-violet-600', bg: 'bg-violet-50', border: 'border-violet-200' },
                     { key: 'ALIH_KASUS', label: 'Alih Kasus', icon: <Share/>, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
 					{ key: 'KONFERENSI_KASUS', label: 'Konf. Kasus', icon: <Users/>, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
                     { key: 'SKBB', label: 'Ket. Baik', icon: <ShieldCheck/>, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
 					{ key: 'BERHENTI', label: 'Berhenti/Keluar', icon: <UserMinus/>, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' },
+					{ key: 'BUKU_TAMU', label: 'Buku Tamu', icon: <BookOpen/>, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
                 ];
                 return types.map(t => ({
                     ...t,
                     count: letters.filter(l => l.type === t.key).length
                 }));
             };
+			
+			// --- LOGIKA SMART DASHBOARD ---
+            const getRedZoneStudents = () => {
+                const problemTypes = ['SKORSING', 'PERNYATAAN', 'KONTRAK', 'KONFERENSI_KASUS', 'MEDIASI'];
+                const counts = {};
+                letters.forEach(l => {
+                    if(problemTypes.includes(l.type) && l.namaSiswa) { counts[l.namaSiswa] = (counts[l.namaSiswa] || 0) + 1; }
+                });
+                return Object.entries(counts).map(([nama, count]) => ({ nama, count })).filter(item => item.count >= 2).sort((a,b) => b.count - a.count).slice(0, 5);
+            };
+
+            const getChartData = () => {
+                const stats = getDashboardStats().filter(s => s.count > 0).sort((a,b) => b.count - a.count).slice(0, 5);
+                const max = Math.max(...stats.map(s => s.count), 1);
+                return stats.map(s => ({ ...s, percentage: (s.count / max) * 100 }));
+            };
+            // ------------------------------
 
             if (!currentUser) {
                 return <LoginView onLogin={setCurrentUser} />;
@@ -550,71 +606,141 @@
                             {viewState === 'list' && (
                                 <div className="space-y-6 pb-10 max-w-7xl mx-auto">
                                     {activeTab === 'dashboard' && (
-                                        <div className="space-y-6">
-                                            {/* NEW DASHBOARD GRID */}
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                                <div className="col-span-2 md:col-span-4 bg-gradient-to-r from-slate-800 to-slate-700 text-white p-6 rounded-xl shadow-lg flex justify-between items-center">
-                                                    <div>
-                                                        <h2 className="text-2xl font-bold">{letters.length}</h2>
-                                                        <p className="text-slate-300">Total Surat Dikeluarkan</p>
+                                        <div className="space-y-8 mb-8 animate-fade-in-up">
+                                            {/* 1. HERO BANNER MODERN */}
+                                            <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-indigo-800 rounded-3xl p-6 md:p-8 shadow-xl shadow-blue-900/20 text-white flex flex-col md:flex-row justify-between items-center gap-6 relative overflow-hidden border border-blue-400/20">
+                                                {/* Efek Cahaya / Ornamen Latar */}
+                                                <div className="absolute -right-10 -top-10 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl pointer-events-none"></div>
+                                                <div className="absolute right-1/4 -bottom-10 w-32 h-32 bg-blue-300 opacity-20 rounded-full blur-2xl pointer-events-none"></div>
+                                                
+                                                <div className="relative z-10 w-full md:w-auto text-center md:text-left">
+                                                    <h2 className="text-2xl md:text-3xl font-extrabold mb-2 tracking-tight drop-shadow-sm">Selamat Datang, {currentUser.username}! 👋</h2>
+                                                    <p className="text-blue-100 mb-6 text-sm md:text-base max-w-xl font-medium leading-relaxed">Kelola administrasi dan rekam jejak Bimbingan & Konseling <strong className="text-white">{schoolData.namaSekolah}</strong> dengan lebih cepat, rapi, dan terpantau.</p>
+                                                    <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+                                                        <button onClick={() => {setSelectedLetter(null); setViewState('create');}} className="bg-white text-blue-700 hover:bg-blue-50 px-5 py-2.5 rounded-xl text-sm font-bold shadow-lg shadow-black/10 transition-all flex items-center gap-2 transform hover:-translate-y-0.5"><Plus size={18} strokeWidth={3}/> Buat Surat Baru</button>
+                                                        <button onClick={handleExportExcel} className="bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white px-5 py-2.5 rounded-xl text-sm font-semibold shadow-lg transition-all flex items-center gap-2"><Download size={18}/> Export Laporan</button>
                                                     </div>
-                                                    <div className="bg-white/10 p-3 rounded-lg"><BarChart2 size={32}/></div>
                                                 </div>
-                                                {getDashboardStats().map((stat) => (
-                                                    <div key={stat.key} className={`bg-white p-4 rounded-xl shadow-sm border ${stat.border} hover:shadow-md transition-all flex items-center justify-between`}>
-                                                        <div>
-                                                            <p className="text-xs text-gray-500 uppercase font-semibold">{stat.label}</p>
-                                                            <h3 className={`text-xl font-bold ${stat.color}`}>{stat.count}</h3>
-                                                        </div>
-                                                        <div className={`p-2 rounded-lg ${stat.bg} ${stat.color}`}>
-                                                            {React.cloneElement(stat.icon, { size: 20 })}
-                                                        </div>
-                                                    </div>
-                                                ))}
+                                                <div className="relative z-10 bg-white/10 backdrop-blur-md border border-white/20 p-6 rounded-2xl text-center min-w-[160px] shadow-inner transform hover:scale-105 transition-transform duration-300">
+                                                    <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Total Arsip</p>
+                                                    <h3 className="text-5xl font-black drop-shadow-md tracking-tighter">{letters.length}</h3>
+                                                    <p className="text-[10px] text-blue-200 mt-2 font-medium uppercase tracking-wide">Dokumen Tersimpan</p>
+                                                </div>
                                             </div>
-                                            
-                                            <div className="flex justify-end">
-                                                <button onClick={handleExportExcel} className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg shadow-sm flex items-center gap-2 text-sm font-medium transition-colors"><Download size={16}/> Download Laporan Excel</button>
+
+                                            {/* 2. STATISTIK KARTU INTERAKTIF */}
+                                            <div>
+                                                <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2"><LayoutDashboard size={22} className="text-blue-600"/> Ringkasan Layanan</h3>
+                                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-5">
+                                                    {getDashboardStats().map((stat) => (
+                                                        <div key={stat.key} onClick={() => {setActiveTab(stat.key); setViewState('list');}} className="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 hover:border-blue-300 hover:shadow-lg hover:shadow-blue-500/10 transition-all duration-300 group cursor-pointer relative overflow-hidden">
+                                                            <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-bl from-slate-50 to-transparent rounded-bl-full -z-0"></div>
+                                                            <div className="relative z-10">
+                                                                <div className="flex justify-between items-start mb-4">
+                                                                    <div className={`p-3 rounded-xl ${stat.bg} ${stat.color} group-hover:scale-110 transition-transform duration-300 shadow-sm border ${stat.border}`}>
+                                                                        {React.cloneElement(stat.icon, { size: 24, strokeWidth: 2.5 })}
+                                                                    </div>
+                                                                    <span className="text-3xl font-black text-slate-700 tracking-tight">{stat.count}</span>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-sm font-bold text-slate-700 group-hover:text-blue-700 transition-colors">{stat.label}</p>
+                                                                    <p className="text-[10px] text-slate-400 mt-1 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0 duration-300 font-semibold">Lihat arsip <ChevronRight size={12} strokeWidth={3}/></p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
                                             </div>
-                                        </div>
+                                      
+											{/* 3. NEW FEATURE: GRAFIK & EARLY WARNING SYSTEM */}
+											   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+												   {/* KIRI: GRAFIK DISTRIBUSI LAYANAN */}
+												   <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
+													   <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><BarChart2 className="text-blue-600"/> Grafik Layanan Terbanyak</h3>
+													   <div className="space-y-5 relative z-10">
+														   {getChartData().map((data, i) => (
+															   <div key={i} className="group">
+																   <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+																	   <span className="uppercase tracking-wider group-hover:text-blue-600 transition-colors">{data.label}</span>
+																	   <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px]">{data.count} Berkas</span>
+																   </div>
+																   <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+																	   {/* Progress Bar Pintar */}
+																	   <div className={`h-3 rounded-full bg-gradient-to-r from-blue-400 to-indigo-500 shadow-sm relative`} style={{ width: `${data.percentage}%`, transition: 'width 1.5s ease-in-out' }}>
+																		   <div className="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
+																	   </div>
+																   </div>
+															   </div>
+														   ))}
+														   {getChartData().length === 0 && <p className="text-sm text-slate-400 italic text-center py-4 border-2 border-dashed rounded-xl">Belum ada data grafik.</p>}
+													   </div>
+												   </div>
+
+												   {/* KANAN: EARLY WARNING SYSTEM (RED ZONE) */}
+												   <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
+													   <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -z-0"></div>
+													   <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 relative z-10"><AlertTriangle className="text-red-500 animate-bounce"/> Siswa Pantauan Khusus (Red Zone)</h3>
+													   <p className="text-xs text-slate-500 mb-6 relative z-10">Terdeteksi berulang kali menerima surat pelanggaran / masalah (&ge; 2 kali).</p>
+													   <div className="space-y-3 relative z-10">
+														   {getRedZoneStudents().map((student, i) => (
+															   <div key={i} onClick={() => {setHistoryStudent(student.nama); setViewState('history');}} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 hover:shadow-md transition-all cursor-pointer transform hover:-translate-y-0.5">
+																   <div className="flex items-center gap-3">
+																	   <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm shadow-sm">{i+1}</div>
+																	   <span className="font-bold text-slate-700 text-sm">{student.nama}</span>
+																   </div>
+																   <span className="bg-red-600 shadow-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">{student.count} Kasus <ChevronRight size={12}/></span>
+															   </div>
+														   ))}
+														   {getRedZoneStudents().length === 0 && (
+															   <div className="p-8 text-center border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50 text-emerald-600 flex flex-col items-center justify-center h-[200px]">
+																   <ShieldCheck size={40} className="mb-3 opacity-80"/>
+																   <p className="font-bold text-sm">Aman Terkendali</p>
+																   <p className="text-xs mt-1">Belum ada siswa yang masuk zona pantauan.</p>
+															   </div>
+														   )}
+													   </div>
+												   </div>
+												</div>
+											</div>	
                                     )}
 
-                                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 sticky top-0 z-10 py-2 backdrop-blur-sm">
-                                        <div className="relative w-full md:w-auto shadow-sm">
-                                            <Search className="absolute left-3 top-2.5 text-gray-400" size={20} />
-                                            <input type="text" placeholder="Cari siswa / nomor..." className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 w-full md:w-72" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                    {/* PANEL FILTER GLASSMORPHISM */}
+                                    <div className="bg-white/80 backdrop-blur-xl border border-slate-200/60 shadow-lg shadow-slate-200/40 rounded-2xl p-4 mb-6 sticky top-2 z-20 animate-fade-in-up">
+                                        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+                                            <div className="relative w-full md:w-80 group">
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <Search className="h-5 w-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                                                </div>
+                                                <input type="text" placeholder="Cari nama siswa atau nomor surat..." className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 focus:bg-white transition-all text-sm font-medium" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+                                            </div>
+                                            <div className="flex gap-2 w-full md:w-auto">
+                                                <button onClick={fetchData} className="bg-white border border-slate-200 hover:border-slate-300 hover:bg-slate-50 text-slate-600 p-2.5 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-all transform hover:-translate-y-0.5" title="Refresh Data"><RotateCcw size={18} /></button>
+                                                <button onClick={() => {setSelectedLetter(null); setViewState('create');}} className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 flex-1 md:flex-none font-bold text-sm"><Plus size={18} strokeWidth={3} /> Buat Surat Baru</button>
+                                            </div>
                                         </div>
-                                        <div className="flex gap-2 w-full md:w-auto">
-                                            <button onClick={fetchData} className="bg-white border border-gray-300 hover:bg-gray-50 text-gray-600 px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors"><RotateCcw size={20} /></button>
-                                            <button onClick={() => {setSelectedLetter(null); setViewState('create');}} className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center justify-center gap-2 shadow-sm transition-colors flex-1 md:flex-none font-medium"><Plus size={20} /> <span className="hidden sm:inline">Buat</span> Surat Baru</button>
-                                        </div>
-                                    </div>
-									{/* PANEL FILTER LANJUTAN */}
-                                    <div className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex flex-wrap gap-3 items-end mb-4 animate-fade-in-up">
-                                        <div className="flex-1 min-w-[140px]">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Jenis Surat</label>
-                                            <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none cursor-pointer">
-                                                {letterTypesList.map(t => <option key={t} value={t}>{t === 'Semua' ? 'Semua Jenis' : t.replace('_', ' ')}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="flex-1 min-w-[140px]">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Guru Pembuat</label>
-                                            <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full p-2 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none cursor-pointer">
-                                                {uniqueCreators.map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="flex-1 min-w-[130px]">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Dari Tanggal</label>
-                                            <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none" />
-                                        </div>
-                                        <div className="flex-1 min-w-[130px]">
-                                            <label className="block text-[10px] font-bold text-gray-500 uppercase mb-1">Sampai Tanggal</label>
-                                            <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="w-full p-1.5 text-sm border border-gray-300 rounded-md focus:ring-blue-500 outline-none" />
-                                        </div>
-                                        <div>
-                                            <button onClick={() => { setFilterType('Semua'); setFilterCreator('Semua'); setFilterStartDate(''); setFilterEndDate(''); setSearchTerm(''); }} className="p-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-md text-sm font-medium border border-gray-300 h-[38px] transition-colors" title="Reset Semua Filter">
-                                                Reset
-                                            </button>
+
+                                        <div className="flex flex-wrap gap-3 items-end border-t border-slate-100 pt-3">
+                                            <div className="flex items-center gap-2 mr-2 text-slate-400"><Filter size={16}/> <span className="text-xs font-bold uppercase tracking-wider">Filter:</span></div>
+                                            <div className="flex-1 min-w-[140px]">
+                                                <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-2 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:bg-white transition-colors">
+                                                    {letterTypesList.map(t => <option key={t} value={t}>{t === 'Semua' ? 'Semua Layanan / Surat' : t.replace('_', ' ')}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="flex-1 min-w-[130px]">
+                                                <select value={filterCreator} onChange={(e) => setFilterCreator(e.target.value)} className="w-full p-2 text-xs font-semibold text-slate-600 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer hover:bg-white transition-colors">
+                                                    {uniqueCreators.map(c => <option key={c} value={c}>{c === 'Semua' ? 'Semua Guru BK' : c}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 flex-[2] min-w-[200px]">
+                                                <input type="date" value={filterStartDate} onChange={(e) => setFilterStartDate(e.target.value)} className="flex-1 p-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" title="Dari Tanggal" />
+                                                <span className="text-slate-400 self-center">-</span>
+                                                <input type="date" value={filterEndDate} onChange={(e) => setFilterEndDate(e.target.value)} className="flex-1 p-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" title="Sampai Tanggal" />
+                                            </div>
+                                            <div>
+                                                <button onClick={() => { setFilterType('Semua'); setFilterCreator('Semua'); setFilterStartDate(''); setFilterEndDate(''); setSearchTerm(''); }} className="px-4 py-2 bg-slate-100 hover:bg-rose-100 hover:text-rose-600 text-slate-600 rounded-lg text-xs font-bold transition-colors shadow-sm" title="Reset Semua Filter">
+                                                    Reset
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -638,27 +764,33 @@
                                                 <tbody className="divide-y divide-gray-100">
                                                     {currentLetters.length > 0 ? (
                                                         currentLetters.map((letter) => (
-                                                            <tr key={letter.id} className="hover:bg-blue-50/50 transition-colors">
-                                                                <td className="p-4 align-top"><span className="px-2 py-1 rounded text-[10px] sm:text-xs font-bold whitespace-nowrap bg-slate-100 text-slate-700 border border-slate-200 block w-fit">{letter.type.replace('_', ' ')}</span></td>
+                                                            <tr key={letter.id} className="group hover:bg-blue-50/80 transition-all duration-300 border-b border-gray-50 last:border-0 even:bg-slate-50/50">
                                                                 <td className="p-4 align-top">
-                                                                    <div className="font-mono text-sm text-gray-800 font-medium">{letter.nomorSurat || '-'}</div>
-                                                                    <div className="text-xs text-gray-500 flex items-center gap-1 mt-1"><User size={10}/> {letter.createdBy || '-'}</div>
+                                                                    <span className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-extrabold whitespace-nowrap border block w-fit shadow-sm uppercase tracking-wide ${getBadgeStyle(letter.type)}`}>
+                                                                        {letter.type.replace('_', ' ')}
+                                                                    </span>
                                                                 </td>
                                                                 <td className="p-4 align-top">
-                                                                    <div className="font-medium text-sm text-gray-900">{letter.namaSiswa}</div>
-                                                                    <div className="text-gray-500 text-xs mt-0.5">{letter.kelas}</div>
+                                                                    <div className="font-mono text-sm text-slate-800 font-bold group-hover:text-blue-600 transition-colors">{letter.nomorSurat || '-'}</div>
+                                                                    <div className="text-xs text-slate-500 flex items-center gap-1 mt-1 font-medium"><User size={12}/> {letter.createdBy || '-'}</div>
                                                                 </td>
-                                                                <td className="p-4 align-top text-gray-600 text-sm whitespace-nowrap">{formatDate(letter.tanggal)}</td>
-                                                                <td className="p-4 align-top"><div className="flex justify-center gap-2">
-                                                                    <button onClick={() => {setSelectedLetter(letter); setViewState('detail');}} className="p-1.5 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors" title="Lihat"><Eye size={18} /></button>
-                                                                    <button onClick={() => {setSelectedLetter(letter); setViewState('edit');}} className="p-1.5 hover:bg-orange-100 text-orange-600 rounded-lg transition-colors" title="Edit"><Edit size={18} /></button>
-                                                                    <button onClick={() => handleSendWA(letter)} className="p-1.5 hover:bg-green-100 text-green-600 rounded-lg transition-colors" title="Kirim WA"><MessageCircle size={18} /></button>
-                                                                    <button onClick={() => {setHistoryStudent(letter.namaSiswa); setViewState('history');}} className="p-1.5 hover:bg-purple-100 text-purple-600 rounded-lg transition-colors" title="Track Record"><History size={18} /></button>
-                                                                    <button onClick={() => handleDelete(letter.id)} className="p-1.5 hover:bg-red-100 text-red-600 rounded-lg transition-colors" title="Hapus"><Trash2 size={18} /></button>
-                                                                </div></td>
+                                                                <td className="p-4 align-top">
+                                                                    <div className="font-bold text-sm text-slate-900 group-hover:translate-x-1 transition-transform">{letter.namaSiswa}</div>
+                                                                    <div className="text-slate-500 text-xs mt-0.5 font-medium">{letter.kelas}</div>
+                                                                </td>
+                                                                <td className="p-4 align-top text-slate-600 text-sm whitespace-nowrap font-medium flex items-center gap-1.5"><Calendar size={14} className="text-slate-400"/> {formatDate(letter.tanggal)}</td>
+                                                                <td className="p-4 align-top">
+                                                                    <div className="flex justify-center gap-1 md:gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                                                        <button onClick={() => {setSelectedLetter(letter); setViewState('detail');}} className="p-1.5 md:p-2 bg-blue-50 hover:bg-blue-600 hover:text-white text-blue-600 rounded-lg transition-all shadow-sm" title="Lihat PDF"><Eye size={16} /></button>
+                                                                        <button onClick={() => {setSelectedLetter(letter); setViewState('edit');}} className="p-1.5 md:p-2 bg-amber-50 hover:bg-amber-500 hover:text-white text-amber-600 rounded-lg transition-all shadow-sm" title="Edit"><Edit size={16} /></button>
+                                                                        <button onClick={() => handleSendWA(letter)} className="p-1.5 md:p-2 bg-emerald-50 hover:bg-emerald-500 hover:text-white text-emerald-600 rounded-lg transition-all shadow-sm" title="Kirim WA Ortu"><MessageCircle size={16} /></button>
+                                                                        <button onClick={() => {setHistoryStudent(letter.namaSiswa); setViewState('history');}} className="p-1.5 md:p-2 bg-purple-50 hover:bg-purple-600 hover:text-white text-purple-600 rounded-lg transition-all shadow-sm" title="Track Record / Riwayat"><History size={16} /></button>
+                                                                        <button onClick={() => handleDelete(letter.id)} className="p-1.5 md:p-2 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 rounded-lg transition-all shadow-sm" title="Hapus Permanen"><Trash2 size={16} /></button>
+                                                                    </div>
+                                                                </td>
                                                             </tr>
                                                         ))
-                                                    ) : (<tr><td colSpan="5" className="p-12 text-center text-gray-400">Tidak ada data ditemukan.<br/><span className="text-sm">Klik tombol refresh jika data tidak muncul.</span></td></tr>)}
+                                                    ) : (<tr><td colSpan="5" className="p-12 text-center text-gray-400"><div className="flex flex-col items-center justify-center gap-3"><Search size={40} className="text-slate-200"/><span>Tidak ada data surat/layanan yang ditemukan.</span><span className="text-xs">Ubah filter pencarian atau klik tombol Refresh.</span></div></td></tr>)}
                                                 </tbody>
                                             </table>
                                         </div>
@@ -672,31 +804,62 @@
                                 </div>
                             )}
                             
-                            {/* TRACK RECORD VIEW */}
+                            {/* TRACK RECORD VIEW - TIMELINE INTERAKTIF */}
                             {viewState === 'history' && (
-                                <div className="space-y-4 max-w-7xl mx-auto">
-                                     <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 flex justify-between items-center sticky top-0 z-10">
-                                        <h2 className="text-lg font-bold flex items-center gap-2"><History className="text-purple-600"/> Track Record: <span className="text-gray-800">{historyStudent}</span></h2>
-                                        <button onClick={() => {setHistoryStudent(null); setViewState('list');}} className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg text-sm font-medium transition-colors">Kembali</button>
-                                     </div>
-                                     <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left min-w-[600px]">
-                                                <thead className="bg-gray-50 text-gray-600 font-semibold border-b"><tr><th className="p-4">Jenis</th><th className="p-4">Nomor</th><th className="p-4">Tanggal</th><th className="p-4">Keterangan</th><th className="p-4">Pembuat</th></tr></thead>
-                                                <tbody className="divide-y divide-gray-100">
-                                                    {filteredLetters.map((letter) => (
-                                                        <tr key={letter.id} className="hover:bg-gray-50">
-                                                            <td className="p-4"><span className="px-2 py-1 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">{letter.type.replace('_', ' ')}</span></td>
-                                                            <td className="p-4 text-sm font-mono">{letter.nomorSurat}</td>
-                                                            <td className="p-4 text-sm">{formatDate(letter.tanggal)}</td>
-                                                            <td className="p-4 text-sm italic text-gray-500">{letter.alasan || letter.permasalahan || letter.perihal || letter.keperluan || letter.gambaranMasalah || '-'}</td>
-                                                            <td className="p-4 text-xs text-gray-500">{letter.createdBy || '-'}</td>
-                                                        </tr>
-                                                    ))}
-                                                </tbody>
-                                            </table>
+                                <div className="space-y-6 max-w-4xl mx-auto animate-fade-in-up pb-10">
+                                    <div className="bg-gradient-to-r from-purple-700 via-purple-600 to-indigo-700 p-6 md:p-8 rounded-3xl shadow-xl shadow-purple-900/20 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-white sticky top-2 z-20 overflow-hidden border border-purple-400/30">
+                                        {/* Ornamen Abstrak */}
+                                        <div className="absolute right-0 top-0 w-32 h-32 bg-white opacity-10 rounded-bl-full pointer-events-none"></div>
+                                        <div className="relative z-10">
+                                            <h2 className="text-sm font-bold text-purple-200 uppercase tracking-widest mb-1 flex items-center gap-2"><History size={16}/> Laporan Riwayat Layanan / Masalah</h2>
+                                            <p className="text-3xl font-black drop-shadow-md">{historyStudent}</p>
                                         </div>
-                                     </div>
+                                        <div className="relative z-10">
+                                            <button onClick={() => {setHistoryStudent(null); setViewState('list');}} className="px-5 py-2.5 bg-white/20 hover:bg-white/30 backdrop-blur-md rounded-xl text-sm font-bold transition-all shadow-lg flex items-center gap-2 border border-white/30 transform hover:-translate-y-0.5"><ArrowLeft size={18}/> Kembali ke Daftar</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-10">
+                                        <div className="relative border-l-4 border-slate-100 ml-4 md:ml-8 space-y-10 py-4">
+                                            {filteredLetters.length > 0 ? filteredLetters.map((letter, index) => (
+                                                <div key={letter.id} className="relative pl-6 md:pl-10 group">
+                                                    {/* Titik / Node Timeline */}
+                                                    <div className="absolute -left-[14px] top-1.5 w-6 h-6 rounded-full bg-slate-200 border-4 border-white shadow-sm group-hover:scale-125 group-hover:bg-purple-500 group-hover:border-purple-100 transition-all duration-300 z-10"></div>
+                                                    
+                                                    {/* Kartu Konten */}
+                                                    <div className="bg-white hover:bg-purple-50/50 p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group-hover:border-purple-200">
+                                                        <div className="flex flex-wrap justify-between items-start gap-3 mb-4">
+                                                            <span className={`px-3 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wide border shadow-sm ${getBadgeStyle(letter.type)}`}>
+                                                                {letter.type.replace('_', ' ')}
+                                                            </span>
+                                                            <div className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 shadow-inner">
+                                                                <Calendar size={14} className="text-slate-400"/> {formatDate(letter.tanggal)}
+                                                            </div>
+                                                        </div>
+                                                        <p className="font-mono text-[11px] text-slate-400 mb-3 bg-slate-50 inline-block px-2 py-1 rounded border border-slate-100">Ref: {letter.nomorSurat || '-'}</p>
+                                                        <div className="text-sm text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-line leading-relaxed font-medium">
+                                                            {/* Otomatis mengambil isi uraian dari berbagai jenis surat */}
+                                                            {letter.alasan || letter.permasalahan || letter.perihal || letter.keperluan || letter.gambaranMasalah || letter.fokusMasalah || letter.alasanBerhenti || letter.topikBimbingan || letter.latarBelakang || <span className="italic text-slate-400">Tidak ada deskripsi rinci untuk layanan ini.</span>}
+                                                        </div>
+                                                        <div className="mt-4 pt-4 border-t border-slate-100 text-[11px] text-slate-500 font-semibold flex items-center gap-1.5">
+                                                            <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600"><User size={10}/></div>
+                                                            Guru BK / Pembuat: <span className="text-purple-600">{letter.createdBy || '-'}</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )) : (
+                                                <div className="pl-10 pb-4">
+                                                    <div className="bg-slate-50 border border-slate-200 border-dashed rounded-2xl p-8 text-center text-slate-400 flex flex-col items-center gap-3">
+                                                        <ShieldCheck size={40} className="text-emerald-300"/>
+                                                        <div>
+                                                            <p className="font-bold text-slate-600">Catatan Bersih</p>
+                                                            <p className="text-xs mt-1">Belum ada riwayat layanan atau pelanggaran yang tercatat untuk siswa ini.</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                             
@@ -746,57 +909,114 @@
         }
 
         // --- COMPONENTS ---
-        function SidebarContent({ activeTab, setActiveTab, setViewState, currentUser, onLogout }) {
+        // 1. Komponen Baru: Group Menu (Buka-Tutup)
+        function SidebarGroup({ title, children, defaultOpen = false }) {
+            const [isOpen, setIsOpen] = useState(defaultOpen);
             return (
-                <div className="flex flex-col h-full">
-                    <div className="p-6 border-b border-slate-700 bg-slate-900"><div className="flex items-center gap-3"><Cloud className="text-blue-400" size={28} /><h1 className="text-xl font-bold whitespace-nowrap tracking-tight">AKSARA-BK16</h1></div><p className="text-xs text-slate-400 mt-2 whitespace-nowrap">"Administrasi BK"</p></div>
-                    <nav className="flex-1 p-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-                        <SidebarItem icon={<LayoutDashboard size={20}/>} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setViewState('list');}} />
-                        
-                        <div className="pt-6 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Surat Pelanggaran</div>
-                        <SidebarItem icon={<FileWarning size={20}/>} label="Surat Skorsing" active={activeTab === 'SKORSING'} onClick={() => {setActiveTab('SKORSING'); setViewState('list');}} />
-                        <SidebarItem icon={<FileSignature size={20}/>} label="Surat Pernyataan" active={activeTab === 'PERNYATAAN'} onClick={() => {setActiveTab('PERNYATAAN'); setViewState('list');}} />
-                        <SidebarItem icon={<FileCheck size={20}/>} label="Kontrak Perilaku" active={activeTab === 'KONTRAK'} onClick={() => {setActiveTab('KONTRAK'); setViewState('list');}} />
-                        
-                        <div className="pt-6 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Administrasi & Layanan</div>
-                        <SidebarItem icon={<Mail size={20}/>} label="Undangan Orang Tua" active={activeTab === 'UNDANGAN'} onClick={() => {setActiveTab('UNDANGAN'); setViewState('list');}} />
-                        <SidebarItem icon={<Briefcase size={20}/>} label="Surat Tugas Home Visit" active={activeTab === 'TUGAS_HOMEVISIT'} onClick={() => {setActiveTab('TUGAS_HOMEVISIT'); setViewState('list');}} />
-                        <SidebarItem icon={<ClipboardList size={20}/>} label="Laporan Home Visit" active={activeTab === 'LAPORAN_HOMEVISIT'} onClick={() => {setActiveTab('LAPORAN_HOMEVISIT'); setViewState('list');}} />
-                        <SidebarItem icon={<Share size={20}/>} label="Alih Tangan Kasus" active={activeTab === 'ALIH_KASUS'} onClick={() => {setActiveTab('ALIH_KASUS'); setViewState('list');}} />
-						<SidebarItem icon={<Users size={20}/>} label="Konferensi Kasus" active={activeTab === 'KONFERENSI_KASUS'} onClick={() => {setActiveTab('KONFERENSI_KASUS'); setViewState('list');}} />
-						<SidebarItem icon={<Users size={20}/>} label="Berita Acara Mediasi" active={activeTab === 'MEDIASI'} onClick={() => {setActiveTab('MEDIASI'); setViewState('list');}} />
-						<SidebarItem icon={<MessageCircle size={20}/>} label="Berita Acara Advokasi" active={activeTab === 'ADVOKASI'} onClick={() => {setActiveTab('ADVOKASI'); setViewState('list');}} />
-						<SidebarItem icon={<Users size={20}/>} label="Bimbingan Kelompok" active={activeTab === 'BIMBINGAN_KELOMPOK'} onClick={() => {setActiveTab('BIMBINGAN_KELOMPOK'); setViewState('list');}} />
-                        <SidebarItem icon={<ShieldCheck size={20}/>} label="Ket. Berkelakuan Baik" active={activeTab === 'SKBB'} onClick={() => {setActiveTab('SKBB'); setViewState('list');}} />
-						<SidebarItem icon={<UserMinus size={20}/>} label="Berhenti / Keluar" active={activeTab === 'BERHENTI'} onClick={() => {setActiveTab('BERHENTI'); setViewState('list');}} />
-
-                        <div className="pt-6 pb-2 px-3 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pengaturan</div>
-                        <SidebarItem icon={<Building2 size={20}/>} label="Identitas Sekolah" active={activeTab === 'SCHOOL_DATA'} onClick={() => {setActiveTab('SCHOOL_DATA'); setViewState('school_settings');}} />
-                    </nav>
-                    <div className="p-4 border-t border-slate-700 bg-slate-900">
-                        <button onClick={() => {
-                            Swal.fire({
-                                title: 'Keluar Aplikasi?',
-                                text: "Anda harus login kembali nanti.",
-                                icon: 'question',
-                                showCancelButton: true,
-                                confirmButtonColor: '#3085d6',
-                                cancelButtonColor: '#d33',
-                                confirmButtonText: 'Ya, Keluar',
-                                cancelButtonText: 'Batal'
-                            }).then((result) => {
-                                if (result.isConfirmed) onLogout();
-                            });
-                        }} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-400 hover:bg-slate-800 hover:text-red-300 transition-colors">
-                            <LogOut size={20}/> <span className="font-medium text-sm">Keluar</span>
-                        </button>
+                <div className="mb-1">
+                    <button onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between px-5 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors">
+                        <span>{title}</span>
+                        <span className={`transform transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}><ChevronDown size={14}/></span>
+                    </button>
+                    <div className={`space-y-1 overflow-hidden transition-all duration-300 ${isOpen ? 'max-h-[800px] opacity-100 mt-1' : 'max-h-0 opacity-0'}`}>
+                        {children}
                     </div>
                 </div>
             );
         }
 
+        // 2. Komponen Item Sidebar Diperbarui (Pill-Shape & Gradien)
         function SidebarItem({ icon, label, active, onClick }) {
-            return (<button onClick={onClick} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${active ? 'bg-blue-600 text-white shadow-lg shadow-blue-900/20' : 'text-slate-400 hover:bg-slate-800 hover:text-white'}`}><span className="shrink-0">{icon}</span><span className="font-medium text-sm whitespace-nowrap">{label}</span></button>);
+            return (
+                <button onClick={onClick} className={`w-full flex items-center gap-3 px-3 py-2.5 mx-2 rounded-xl transition-all duration-200 ${active ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-900/20 font-semibold' : 'text-slate-400 hover:bg-slate-800/60 hover:text-white'}`} style={{ width: 'calc(100% - 16px)' }}>
+                    <span className={`shrink-0 ${active ? 'text-white' : 'text-slate-400'}`}>{icon}</span>
+                    <span className="font-medium text-sm whitespace-nowrap">{label}</span>
+                </button>
+            );
+        }
+
+        // 3. Konten Sidebar Utama Diperbarui
+        function SidebarContent({ activeTab, setActiveTab, setViewState, currentUser, onLogout }) {
+            return (
+                <div className="flex flex-col h-full bg-[#0f172a]"> {/* Warna latar sedikit lebih gelap dan elegan */}
+                    {/* Header Logo Area */}
+                    <div className="p-5 border-b border-slate-800 flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/30 shrink-0">
+                            <Cloud className="text-white" size={20} />
+                        </div>
+                        <div className="overflow-hidden">
+                            <h1 className="text-lg font-bold whitespace-nowrap tracking-tight text-white leading-none">AKSARA-BK16</h1>
+                            <p className="text-[10px] text-blue-400 mt-1.5 whitespace-nowrap font-medium tracking-wide">ADMINISTRASI BK PRO</p>
+                        </div>
+                    </div>
+                    
+                    {/* Menu Navigation dengan Akordeon */}
+                    <nav className="flex-1 py-4 overflow-y-auto custom-scrollbar flex flex-col gap-1">
+                        <SidebarItem icon={<LayoutDashboard size={18}/>} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setViewState('list');}} />
+                        
+                        <div className="my-2 border-t border-slate-800 mx-4"></div>
+
+                        {/* Group Pelanggaran otomatis terbuka jika salah satu menunya sedang aktif */}
+                        <SidebarGroup title="Surat Pelanggaran" defaultOpen={['SKORSING', 'PERNYATAAN', 'KONTRAK'].includes(activeTab)}>
+                            <SidebarItem icon={<FileWarning size={18}/>} label="Surat Skorsing" active={activeTab === 'SKORSING'} onClick={() => {setActiveTab('SKORSING'); setViewState('list');}} />
+                            <SidebarItem icon={<FileSignature size={18}/>} label="Surat Pernyataan" active={activeTab === 'PERNYATAAN'} onClick={() => {setActiveTab('PERNYATAAN'); setViewState('list');}} />
+                            <SidebarItem icon={<FileCheck size={18}/>} label="Kontrak Perilaku" active={activeTab === 'KONTRAK'} onClick={() => {setActiveTab('KONTRAK'); setViewState('list');}} />
+                        </SidebarGroup>
+                        
+                        <SidebarGroup title="Administrasi & Layanan" defaultOpen={['UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'KONFERENSI_KASUS', 'MEDIASI', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI'].includes(activeTab) || activeTab === 'dashboard'}>
+                            <SidebarItem icon={<Mail size={18}/>} label="Undangan Orang Tua" active={activeTab === 'UNDANGAN'} onClick={() => {setActiveTab('UNDANGAN'); setViewState('list');}} />
+                            <SidebarItem icon={<Briefcase size={18}/>} label="Surat Tugas Home Visit" active={activeTab === 'TUGAS_HOMEVISIT'} onClick={() => {setActiveTab('TUGAS_HOMEVISIT'); setViewState('list');}} />
+                            <SidebarItem icon={<ClipboardList size={18}/>} label="Laporan Home Visit" active={activeTab === 'LAPORAN_HOMEVISIT'} onClick={() => {setActiveTab('LAPORAN_HOMEVISIT'); setViewState('list');}} />
+                            <SidebarItem icon={<Share size={18}/>} label="Alih Tangan Kasus" active={activeTab === 'ALIH_KASUS'} onClick={() => {setActiveTab('ALIH_KASUS'); setViewState('list');}} />
+                            <SidebarItem icon={<Users size={18}/>} label="Konferensi Kasus" active={activeTab === 'KONFERENSI_KASUS'} onClick={() => {setActiveTab('KONFERENSI_KASUS'); setViewState('list');}} />
+                            <SidebarItem icon={<Users size={18}/>} label="Berita Acara Mediasi" active={activeTab === 'MEDIASI'} onClick={() => {setActiveTab('MEDIASI'); setViewState('list');}} />
+                            <SidebarItem icon={<MessageCircle size={18}/>} label="Berita Acara Advokasi" active={activeTab === 'ADVOKASI'} onClick={() => {setActiveTab('ADVOKASI'); setViewState('list');}} />
+                            <SidebarItem icon={<Users size={18}/>} label="Bimbingan Kelompok" active={activeTab === 'BIMBINGAN_KELOMPOK'} onClick={() => {setActiveTab('BIMBINGAN_KELOMPOK'); setViewState('list');}} />
+                            <SidebarItem icon={<MessageCircle size={18}/>} label="Konseling Kelompok" active={activeTab === 'KONSELING_KELOMPOK'} onClick={() => {setActiveTab('KONSELING_KELOMPOK'); setViewState('list');}} />
+							<SidebarItem icon={<BookOpen size={18}/>} label="Buku Tamu Harian BK" active={activeTab === 'BUKU_TAMU'} onClick={() => {setActiveTab('BUKU_TAMU'); setViewState('list');}} />
+                            <SidebarItem icon={<ShieldCheck size={18}/>} label="Ket. Berkelakuan Baik" active={activeTab === 'SKBB'} onClick={() => {setActiveTab('SKBB'); setViewState('list');}} />
+                            <SidebarItem icon={<UserMinus size={18}/>} label="Berhenti / Keluar" active={activeTab === 'BERHENTI'} onClick={() => {setActiveTab('BERHENTI'); setViewState('list');}} />
+                        </SidebarGroup>
+
+                        <div className="my-2 border-t border-slate-800 mx-4"></div>
+
+                        <SidebarGroup title="Pengaturan" defaultOpen={activeTab === 'SCHOOL_DATA'}>
+                            <SidebarItem icon={<Building2 size={18}/>} label="Identitas Sekolah" active={activeTab === 'SCHOOL_DATA'} onClick={() => {setActiveTab('SCHOOL_DATA'); setViewState('school_settings');}} />
+                        </SidebarGroup>
+                    </nav>
+
+                    {/* User Card & Logout Bottom Area */}
+                    <div className="p-3 bg-slate-800/60 m-3 rounded-2xl border border-slate-700 backdrop-blur-md">
+                        <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3 overflow-hidden">
+                                <div className="w-9 h-9 rounded-full bg-slate-700 text-white flex items-center justify-center font-bold text-sm shrink-0 border border-slate-600 shadow-inner">
+                                    {currentUser?.username?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="text-sm font-semibold text-white truncate leading-tight">{currentUser?.username || 'User'}</p>
+                                    <p className="text-[10px] text-emerald-400 truncate mt-0.5">● Konselor Aktif</p>
+                                </div>
+                            </div>
+                            <button onClick={() => {
+                                Swal.fire({
+                                    title: 'Keluar Aplikasi?',
+                                    text: "Sesi anda akan diakhiri.",
+                                    icon: 'question',
+                                    showCancelButton: true,
+                                    confirmButtonColor: '#3085d6',
+                                    cancelButtonColor: '#d33',
+                                    confirmButtonText: 'Ya, Keluar',
+                                    cancelButtonText: 'Batal'
+                                }).then((result) => {
+                                    if (result.isConfirmed) onLogout();
+                                });
+                            }} className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-xl transition-all" title="Keluar">
+                                <LogOut size={18}/>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            );
         }
 
         // SETTINGS (UPDATED WITH USER MANAGEMENT)
@@ -929,6 +1149,7 @@
 				hasilKonferensi: '', tempatAcara: 'Ruang BK', pesertaKonferensi: [{ nama: '', unsur: 'Wali Kelas' }],
 				pihakTerkait: '', statusPihakTerkait: '', latarBelakang: '', tujuanAdvokasi: '', hasilAdvokasi: '',
 				topikBimbingan: '', tujuanBimbingan: '', uraianKegiatan: '', hasilBimbingan: '', pesertaBimbingan: [{ nama: '', kelas: '' }],
+				teknikKonseling: '', fokusMasalah: '', dinamikaKonseling: '', evaluasiKonseling: '', tindakLanjutKonseling: '', klienKonseling: [{ nama: '', kelas: '' }],
                 // Shared fields
                 penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah', 
                 createdBy: currentUser.username 
@@ -938,6 +1159,7 @@
             const [showStudentSuggestions, setShowStudentSuggestions] = useState(false);
 			const [showStudentSuggestions2, setShowStudentSuggestions2] = useState(false); // For Student 2
 			const [activePesertaIndex, setActivePesertaIndex] = useState(null);
+			const [activeKlienIndex, setActiveKlienIndex] = useState(null);
             const [filteredStudents, setFilteredStudents] = useState([]);
 
             const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -1050,6 +1272,28 @@
                 setFormData(prev => ({ ...prev, pesertaBimbingan: newPeserta }));
                 setActivePesertaIndex(null); // Tutup dropdown
             };
+			
+			const handleAddKlien = () => setFormData(prev => ({ ...prev, klienKonseling: [...(prev.klienKonseling || []), { nama: '', kelas: '' }] }));
+            const handleRemoveKlien = (index) => setFormData(prev => ({ ...prev, klienKonseling: prev.klienKonseling.filter((_, i) => i !== index) }));
+            const handleChangeKlien = (index, value) => {
+                const newKlien = [...(formData.klienKonseling || [])];
+                newKlien[index].nama = value;
+                setFormData(prev => ({ ...prev, klienKonseling: newKlien }));
+                if (value.length > 2) {
+                    const filtered = students.filter(s => s['Nama Lengkap'].toLowerCase().includes(value.toLowerCase()));
+                    setFilteredStudents(filtered);
+                    setActiveKlienIndex(index);
+                } else {
+                    setActiveKlienIndex(null);
+                }
+            };
+            const handleSelectKlien = (student, index) => {
+                const newKlien = [...(formData.klienKonseling || [])];
+                newKlien[index].nama = student['Nama Lengkap'];
+                newKlien[index].kelas = student['Kelas'];
+                setFormData(prev => ({ ...prev, klienKonseling: newKlien }));
+                setActiveKlienIndex(null);
+            };
 
             return (
                 <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden mb-20 flex flex-col max-h-[90vh]">
@@ -1070,33 +1314,56 @@
                     <div className="overflow-y-auto p-4 md:p-6 flex-1 custom-scrollbar">
                         <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="block text-sm font-medium text-gray-700">Jenis Surat</label>
-                                    <select name="type" value={formData.type} onChange={(e) => setFormData({...defaults, type: e.target.value})} disabled={!!initialData} className="w-full p-2 border border-gray-300 rounded-md font-semibold text-blue-900 bg-blue-50">
-                                        <optgroup label="Pelanggaran">
-                                            <option value="SKORSING">Surat Skorsing</option>
-                                            <option value="PERNYATAAN">Surat Pernyataan Orangtua</option>
-                                            <option value="KONTRAK">Kontrak Perilaku Siswa</option>
-											<option value="MEDIASI">Berita Acara Mediasi (2 Pihak)</option>
-                                        </optgroup>
-                                        <optgroup label="Administrasi & Layanan">
-                                            <option value="UNDANGAN">Surat Undangan Orangtua</option>
-                                            <option value="TUGAS_HOMEVISIT">Surat Tugas Home Visit</option>
-                                            <option value="LAPORAN_HOMEVISIT">Laporan Hasil Home Visit</option>
-                                            <option value="ALIH_KASUS">Alih Tangan Kasus (Referral)</option>
-											<option value="KONFERENSI_KASUS">Berita Acara Konferensi Kasus</option>
-											<option value="ADVOKASI">Berita Acara Advokasi</option>
-											<option value="BIMBINGAN_KELOMPOK">Berita Acara Bimbingan Kelompok</option>
-                                            <option value="SKBB">Ket. Berkelakuan Baik</option>
-											<option value="BERHENTI">Surat Berhenti / Keluar</option>
-                                        </optgroup>
-                                    </select>
+                                <div className="space-y-1">
+                                    <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Pilih Jenis Surat / Layanan</label>
+                                    <div className="relative group">
+                                        {/* Ikon Kiri */}
+                                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <ClipboardList className={`h-5 w-5 transition-colors ${!!initialData ? 'text-gray-400' : 'text-blue-500 group-hover:text-blue-600'}`} />
+                                        </div>
+                                        
+                                        {/* Select Dropdown Modifikasi */}
+                                        <select 
+                                            name="type" 
+                                            value={formData.type} 
+                                            onChange={(e) => setFormData({...defaults, type: e.target.value})} 
+                                            disabled={!!initialData} 
+                                            className={`w-full pl-10 pr-10 py-3 border appearance-none outline-none transition-all duration-300 shadow-sm rounded-xl ${!!initialData ? 'bg-gray-100 border-gray-200 text-gray-500 cursor-not-allowed' : 'bg-white border-blue-200 text-slate-800 hover:border-blue-400 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 font-bold text-sm cursor-pointer'}`}
+                                        >
+                                            <optgroup label="Pelanggaran">
+                                                <option value="SKORSING">Surat Skorsing</option>
+                                                <option value="PERNYATAAN">Surat Pernyataan Orangtua</option>
+                                                <option value="KONTRAK">Kontrak Perilaku Siswa</option>
+                                                <option value="MEDIASI">Berita Acara Mediasi (2 Pihak)</option>
+                                            </optgroup>
+                                            <optgroup label="Administrasi & Layanan">
+                                                <option value="UNDANGAN">Surat Undangan Orangtua</option>
+                                                <option value="TUGAS_HOMEVISIT">Surat Tugas Home Visit</option>
+                                                <option value="LAPORAN_HOMEVISIT">Laporan Hasil Home Visit</option>
+                                                <option value="ALIH_KASUS">Alih Tangan Kasus (Referral)</option>
+                                                <option value="KONFERENSI_KASUS">Berita Acara Konferensi Kasus</option>
+                                                <option value="ADVOKASI">Berita Acara Advokasi</option>
+                                                <option value="BIMBINGAN_KELOMPOK">Berita Acara Bimbingan Kelompok</option>
+                                                <option value="KONSELING_KELOMPOK">Berita Acara Konseling Kelompok</option>
+												<option value="BUKU_TAMU">Catatan Buku Tamu Harian BK</option>
+                                                <option value="SKBB">Ket. Berkelakuan Baik</option>
+                                                <option value="BERHENTI">Surat Berhenti / Keluar</option>
+                                            </optgroup>
+                                        </select>
+                                        
+                                        {/* Ikon Panah Kanan */}
+                                        <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                                            <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${!!initialData ? 'text-gray-400' : 'text-blue-500 group-hover:translate-y-0.5'}`} />
+                                        </div>
+                                    </div>
+                                    {/* Peringatan kecil saat mode edit */}
+                                    {!!initialData && <p className="text-[10px] text-orange-500 italic mt-1 pl-1">*Jenis surat dikunci saat mode edit data.</p>}
                                 </div>
                                 <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tanggal Surat</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tempat Penetapan</label><input type="text" name="tempat" value={formData.tempat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div></div>
                             </div>
                             
                             {/* IDENTITAS SISWA - OTOMATIS SEMBUNYI JIKA BIMBINGAN KELOMPOK */}
-							{formData.type !== 'BIMBINGAN_KELOMPOK' && (
+							{formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && (
 								<div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
 									<h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1365,6 +1632,60 @@
 								</div>
 							)}
 							
+							{formData.type === 'KONSELING_KELOMPOK' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Tempat Konseling</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ruang Konseling Kelompok" required /></div>
+									</div>
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Waktu Pelaksanaan</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 - Selesai" required /></div>
+									</div>
+									
+									<div><label className="block text-sm font-medium text-gray-700">Pendekatan / Teknik Konseling (Opsional)</label><input type="text" name="teknikKonseling" value={formData.teknikKonseling} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Realita / CBT / Client-Centered" /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Fokus Masalah</label><textarea name="fokusMasalah" value={formData.fokusMasalah} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Masalah utama siapa yang disepakati untuk dibahas..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Dinamika / Jalannya Konseling</label><textarea name="dinamikaKonseling" value={formData.dinamikaKonseling} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Bagaimana respon anggota, apakah terbuka, menangis, dll..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Hasil & Evaluasi Laiseg</label><textarea name="evaluasiKonseling" value={formData.evaluasiKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perasaan klien setelah sesi, insight yang didapat..." required></textarea></div>
+									<div><label className="block text-sm font-medium text-gray-700">Rencana Tindak Lanjut</label><textarea name="tindakLanjutKonseling" value={formData.tindakLanjutKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perlu sesi ke-2 atau konseling individu?" required></textarea></div>
+
+									<div className="bg-violet-50 p-4 rounded-md border border-violet-100">
+										<div className="flex justify-between items-center mb-3">
+											<h4 className="font-semibold text-xs text-violet-800 uppercase">Daftar Klien (Anggota Kelompok)</h4>
+											<button type="button" onClick={handleAddKlien} className="text-xs bg-violet-600 text-white px-2 py-1 rounded hover:bg-violet-700">+ Tambah Klien</button>
+										</div>
+										{(formData.klienKonseling || []).map((p, index) => (
+											<div key={index} className="flex gap-2 mb-2 items-end">
+												<div className="flex-1 relative">
+													<label className="block text-[10px] text-gray-600">Nama Lengkap Klien</label>
+													<input type="text" value={p.nama} onChange={(e) => handleChangeKlien(index, e.target.value)} className="w-full p-1.5 text-sm border rounded focus:ring-2 focus:ring-violet-200 outline-none" placeholder="Cari nama siswa..." required autoComplete="off"/>
+													{activeKlienIndex === index && (
+														<div className="autocomplete-items shadow-xl border border-gray-200">
+															{filteredStudents.map((s, idx) => (
+																<div key={idx} onClick={() => handleSelectKlien(s, index)}>
+																	<strong>{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+																</div>
+															))}
+															{filteredStudents.length === 0 && <div className="p-2 text-gray-400 italic text-xs">Klien tidak ditemukan</div>}
+														</div>
+													)}
+												</div>
+												<div className="w-1/3"><label className="block text-[10px] text-gray-600">Kelas</label><input type="text" value={p.kelas} onChange={(e) => { const newKlien = [...(formData.klienKonseling || [])]; newKlien[index].kelas = e.target.value; setFormData(prev => ({...prev, klienKonseling: newKlien}))}} className="w-full p-1.5 text-sm border rounded" placeholder="Kelas..." required/></div>
+												<button type="button" onClick={() => handleRemoveKlien(index)} className="bg-red-100 text-red-600 p-1.5 rounded hover:bg-red-200 mb-[1px]"><Trash2 size={16}/></button>
+											</div>
+										))}
+									</div>
+
+									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Konselor (Guru BK)</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Konselor</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+										</div>
+									</div>
+								</div>
+							)}
+							
 							{formData.type === 'BIMBINGAN_KELOMPOK' && (
 								<div className="space-y-4 border-t pt-4">
 									<div className="grid grid-cols-2 gap-4">
@@ -1459,6 +1780,21 @@
                                             <div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipSaksi" value={formData.nipSaksi} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
                                         </div>
                                     </div>
+                                </div>
+                            )}
+							
+							{/* FORM KHUSUS BUKU TAMU HARIAN */}
+                            {formData.type === 'BUKU_TAMU' && (
+                                <div className="space-y-4 border-t pt-4 animate-fade-in-up">
+                                    <div className="bg-sky-50 p-4 rounded-xl border border-sky-200 mb-4">
+                                        <h3 className="font-bold text-sky-800 text-sm flex items-center gap-2 mb-1"><BookOpen size={16}/> Formulir Buku Tamu Ruang BK</h3>
+                                        <p className="text-xs text-sky-600">Gunakan form ini untuk mencatat siswa yang datang ke ruang BK untuk keperluan harian (curhat ringan, istirahat sakit, minta saran) tanpa perlu membuat Berita Acara formal.</p>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Waktu Kunjungan (Jam)</label><input type="time" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Tanggal Kunjungan</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                    </div>
+                                    <div><label className="block text-sm font-medium text-gray-700">Keperluan Singkat / Keterangan</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-200" placeholder="Contoh: Siswa curhat mengenai masalah tugas kelompok dan meminta saran cara berkomunikasi dengan temannya..." required></textarea></div>
                                 </div>
                             )}
 
@@ -1862,6 +2198,98 @@
 							</div>
 						)}
 						
+						{data.type === 'KONSELING_KELOMPOK' && (
+							<div>
+								{/* HALAMAN 1: BERITA ACARA INTI */}
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA KONSELING KELOMPOK</h3>
+									<p>Nomor: {data.nomorSurat}</p>
+								</div>
+								<p className="mb-4 text-justify">Pada hari ini telah dilaksanakan layanan Konseling Kelompok (KKP) dengan rincian pelaksanaan sebagai berikut:</p>
+								
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-48 py-1 align-top">Hari / Tanggal</td><td className="align-top">: <strong>{data.hariTanggalAcara}</strong></td></tr>
+										<tr><td className="py-1 align-top">Waktu</td><td className="align-top">: {data.waktuAcara}</td></tr>
+										<tr><td className="py-1 align-top">Tempat</td><td className="align-top">: {data.tempatAcara}</td></tr>
+										{data.teknikKonseling && <tr><td className="py-1 align-top">Pendekatan / Teknik</td><td className="align-top">: {data.teknikKonseling}</td></tr>}
+										<tr><td className="py-1 align-top">Jumlah Klien</td><td className="align-top">: {(data.klienKonseling || []).length} Orang Siswa</td></tr>
+									</tbody>
+								</table>
+								
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">A. Fokus Masalah</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.fokusMasalah}</div>
+								</div>
+								
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">B. Dinamika Konseling</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.dinamikaKonseling}</div>
+								</div>
+
+								<div className="mb-2">
+									<h4 className="font-bold text-sm mb-0.5">C. Hasil & Evaluasi (Laiseg)</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.evaluasiKonseling}</div>
+								</div>
+								
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-0.5">D. Rencana Tindak Lanjut</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.tindakLanjutKonseling}</div>
+								</div>
+								
+								<p className="mb-6 text-sm text-justify">Demikian berita acara ini dibuat sebagai bukti fisik penanganan dan pemberian layanan Konseling Kelompok.</p>
+
+								{/* Tanda Tangan Khusus Konseling (Hanya Guru BK) */}
+                                <div className="flex justify-end items-end mt-12 px-4 text-[11pt]">
+                                    <div className="text-center min-w-[250px]">
+                                        <p className="mb-16">Konselor / Guru BK,</p>
+                                        <p className="font-bold underline">{data.namaPetugas}</p>
+                                        <p>NIP. {data.nipPetugas || '-'}</p>
+                                    </div>
+                                </div>
+
+								{/* HALAMAN 2: LAMPIRAN (Akan tercetak di halaman baru otomatis) */}
+								<div style={{ pageBreakBefore: 'always' }} className="pt-8">
+									<div className="text-center mb-6">
+										<h3 className="font-bold underline text-[12pt] uppercase">DAFTAR HADIR & IKRAR KERAHASIAAN KLIEN</h3>
+										<h3 className="font-bold text-[12pt] uppercase">KONSELING KELOMPOK</h3>
+									</div>
+									
+									<div className="border-2 border-black p-3 mb-4 bg-gray-50 text-justify italic font-semibold">
+										"Dengan menandatangani daftar hadir ini, kami selaku anggota kelompok berjanji dan bersedia untuk menjaga kerahasiaan atas seluruh identitas, percakapan, dan permasalahan yang dibahas di dalam sesi konseling ini dari pihak luar mana pun."
+									</div>
+
+									<table className="w-full mb-4 text-sm">
+										<tbody>
+											<tr><td className="w-40 py-1">Hari / Tanggal</td><td>: {data.hariTanggalAcara}</td></tr>
+											<tr><td className="py-1">Konselor</td><td>: {data.namaPetugas}</td></tr>
+										</tbody>
+									</table>
+
+									<table className="w-full border-collapse border border-black text-sm">
+										<thead>
+											<tr className="bg-gray-100">
+												<th className="border border-black p-2 w-10">No</th>
+												<th className="border border-black p-2">Nama Lengkap Klien</th>
+												<th className="border border-black p-2 w-32">Kelas</th>
+												<th className="border border-black p-2 w-40">Tanda Tangan</th>
+											</tr>
+										</thead>
+										<tbody>
+											{(data.klienKonseling || []).map((p, i) => (
+												<tr key={i}>
+													<td className="border border-black p-3 text-center">{i + 1}</td>
+													<td className="border border-black p-3">{p.nama}</td>
+													<td className="border border-black p-3 text-center">{p.kelas}</td>
+													<td className="border border-black p-3"></td>
+												</tr>
+											))}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						)}
+						
 						{data.type === 'BIMBINGAN_KELOMPOK' && (
 							<div>
 								{/* HALAMAN 1: BERITA ACARA INTI */}
@@ -2059,6 +2487,45 @@
                                 </div>
                             </div>
                         )}
+						
+						{/* CETAK BUKU TAMU */}
+                        {data.type === 'BUKU_TAMU' && (
+                            <div>
+                                <div className="text-center mb-8">
+                                    <h3 className="font-bold underline text-[12pt] uppercase tracking-wider">BUKTI KUNJUNGAN RUANG BK</h3>
+                                </div>
+                                <p className="mb-6 text-justify">Telah berkunjung ke ruang Bimbingan dan Konseling {schoolData.namaSekolah}, siswa dengan identitas sebagai berikut:</p>
+                                
+                                <div className="border border-black p-6 mb-6 bg-gray-50/50">
+                                    <table className="w-full text-sm">
+                                        <tbody>
+                                            <tr><td className="w-40 py-2 border-b border-gray-200">Nama Lengkap</td><td className="border-b border-gray-200">: <strong>{data.namaSiswa}</strong></td></tr>
+                                            <tr><td className="py-2 border-b border-gray-200">Kelas / NISN</td><td className="border-b border-gray-200">: {data.kelas} / {data.nisn || '-'}</td></tr>
+                                            <tr><td className="py-2 border-b border-gray-200">Waktu Kunjungan</td><td className="border-b border-gray-200">: {formatDate(data.tanggal)} | Pukul {data.waktuAcara}</td></tr>
+                                            <tr><td className="py-2 align-top pt-3">Tujuan / Keperluan</td><td className="align-top pt-3 text-justify">: {data.keperluan}</td></tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <p className="mb-10 text-justify text-sm">Kunjungan ini telah dicatat secara resmi ke dalam pangkalan data <strong>Buku Tamu Harian Bimbingan dan Konseling</strong> sebagai bukti partisipasi aktif siswa.</p>
+
+                                {/* Tanda Tangan Seimbang & Sejajar (Dengan Tanggal) */}
+                                <div className="flex justify-between items-start mt-12 px-4 text-[11pt]">
+                                    <div className="text-center w-[250px]">
+                                        {/* Teks tembus pandang penyeimbang tinggi baris */}
+                                        <p className="mb-1 invisible">Tempat, Tanggal</p>
+                                        <p className="mb-20">Siswa yang berkunjung,</p>
+                                        <p className="font-bold underline">{data.namaSiswa}</p>
+                                    </div>
+                                    <div className="text-center w-[250px]">
+                                        <p className="mb-1">{data.tempat || 'Makassar'}, {formatDate(data.tanggal)}</p>
+                                        <p className="mb-20">{data.jabatan || 'Guru BK / Konselor Piket'},</p>
+                                        <p className="font-bold underline">{data.penandaTangan}</p>
+                                        <p>NIP. {data.nipPenandaTangan || '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
 
                         {data.type === 'BERHENTI' && (
                             <div>
@@ -2112,6 +2579,28 @@
             if (!dateString) return '';
             return new Date(dateString).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' });
         }
+		
+		// Fungsi untuk memberikan warna otomatis pada label jenis surat
+        function getBadgeStyle(type) {
+            const styles = {
+                'SKORSING': 'bg-red-100 text-red-700 border-red-200',
+                'PERNYATAAN': 'bg-orange-100 text-orange-700 border-orange-200',
+                'KONTRAK': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'UNDANGAN': 'bg-blue-100 text-blue-700 border-blue-200',
+                'TUGAS_HOMEVISIT': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                'LAPORAN_HOMEVISIT': 'bg-cyan-100 text-cyan-700 border-cyan-200',
+                'ALIH_KASUS': 'bg-fuchsia-100 text-fuchsia-700 border-fuchsia-200',
+                'KONFERENSI_KASUS': 'bg-indigo-100 text-indigo-700 border-indigo-200',
+                'MEDIASI': 'bg-pink-100 text-pink-700 border-pink-200',
+                'ADVOKASI': 'bg-rose-100 text-rose-700 border-rose-200',
+                'BIMBINGAN_KELOMPOK': 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                'KONSELING_KELOMPOK': 'bg-violet-100 text-violet-700 border-violet-200',
+                'SKBB': 'bg-teal-100 text-teal-700 border-teal-200',
+                'BERHENTI': 'bg-gray-200 text-gray-700 border-gray-300',
+				'BUKU_TAMU': 'bg-sky-100 text-sky-700 border-sky-200',
+            };
+            return styles[type] || 'bg-slate-100 text-slate-700 border-slate-200';
+        }
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
@@ -2119,4 +2608,3 @@
 </body>
 
 </html>
-
