@@ -125,6 +125,7 @@
 		const BookOpen = (props) => <IconBase {...props}><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></IconBase>;
 		const Calendar = (props) => <IconBase {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></IconBase>;
 		const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
+		const PieChart = (props) => <IconBase {...props}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></IconBase>;
 
         // --- LOADING OVERLAY ---
         function LoadingOverlay({ message }) {
@@ -558,11 +559,21 @@
             };
 
             const getChartData = () => {
-                const stats = getDashboardStats().filter(s => s.count > 0).sort((a,b) => b.count - a.count).slice(0, 5);
+                const stats = getDashboardStats().filter(s => s.count > 0).sort((a,b) => b.count - a.count);
+                const max = Math.max(...stats.map(s => s.count), 1);
+                return stats.map(s => ({ ...s, percentage: (s.count / max) * 100 }));
+            };
+
+            const getClassChartData = () => {
+                const counts = {};
+                letters.forEach(l => {
+                    if(l.kelas) { counts[l.kelas] = (counts[l.kelas] || 0) + 1; }
+                });
+                // Sortir diubah menjadi berdasarkan Abjad/Angka kelas (A-Z)
+                const stats = Object.entries(counts).map(([label, count]) => ({ label, count })).sort((a, b) => a.label.localeCompare(b.label, 'id', { numeric: true }));
                 const max = Math.max(...stats.map(s => s.count), 1);
                 return stats.map(s => ({ ...s, percentage: (s.count / max) * 100 }));
             };
-            // ------------------------------
 
             if (!currentUser) {
                 return <LoginView onLogin={setCurrentUser} />;
@@ -653,12 +664,12 @@
                                             </div>
                                       
 											{/* 3. NEW FEATURE: GRAFIK & EARLY WARNING SYSTEM */}
-											   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
+											  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mt-8">
 												   {/* KIRI: GRAFIK DISTRIBUSI LAYANAN */}
 												   <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
 													   <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><BarChart2 className="text-blue-600"/> Grafik Layanan Terbanyak</h3>
-													   <div className="space-y-5 relative z-10">
-														   {getChartData().map((data, i) => (
+													   <div className="space-y-5 relative z-10 max-h-[260px] overflow-y-auto custom-scrollbar pr-3">
+															{getChartData().map((data, i) => (
 															   <div key={i} className="group">
 																   <div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
 																	   <span className="uppercase tracking-wider group-hover:text-blue-600 transition-colors">{data.label}</span>
@@ -675,6 +686,28 @@
 														   {getChartData().length === 0 && <p className="text-sm text-slate-400 italic text-center py-4 border-2 border-dashed rounded-xl">Belum ada data grafik.</p>}
 													   </div>
 												   </div>
+												   
+												   {/* TENGAH: GRAFIK TOP KELAS */}
+													<div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
+														<h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2"><PieChart className="text-emerald-600"/> Top Kelas Teraktif</h3>
+														<div className="space-y-5 relative z-10 max-h-[260px] overflow-y-auto custom-scrollbar pr-3">
+															{getClassChartData().map((data, i) => (
+																<div key={i} className="group">
+																	<div className="flex justify-between text-xs font-bold text-slate-600 mb-1.5">
+																		<span className="uppercase tracking-wider group-hover:text-emerald-600 transition-colors">Kelas {data.label}</span>
+																		<span className="bg-slate-100 px-2 py-0.5 rounded text-[10px]">{data.count} Kasus/Layanan</span>
+																	</div>
+																	<div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden shadow-inner">
+																		{/* Progress Bar Pintar - Warna Hijau */}
+																		<div className={`h-3 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 shadow-sm relative`} style={{ width: `${data.percentage}%`, transition: 'width 1.5s ease-in-out' }}>
+																			<div className="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
+																		</div>
+																	</div>
+																</div>
+															))}
+															{getClassChartData().length === 0 && <p className="text-sm text-slate-400 italic text-center py-4 border-2 border-dashed rounded-xl">Belum ada data kelas.</p>}
+														</div>
+													</div>
 
 												   {/* KANAN: EARLY WARNING SYSTEM (RED ZONE) */}
 												   <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
