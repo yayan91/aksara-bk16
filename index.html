@@ -77,7 +77,7 @@
         // ==========================================
         // CONFIGURATION
         // ==========================================
-        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzMEVvwH8q8spX3ECAZwgIh27eQskHtpKavLMZHMSo0RM9sq_BuExIdSStQptkXl7cgXQ/exec"; 
+        const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx1QKFeaD1uyRRkg4qhfBOuRfxT-D7Im6E8SVdCEpQeixpGWIKl9Ehzj0fp0EKApIekdQ/exec"; 
         // ==========================================
 
         const { useState, useEffect, useRef } = React;
@@ -126,6 +126,7 @@
 		const Calendar = (props) => <IconBase {...props}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></IconBase>;
 		const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
 		const PieChart = (props) => <IconBase {...props}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></IconBase>;
+		const Sparkles = (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
 
         // --- LOADING OVERLAY ---
         function LoadingOverlay({ message }) {
@@ -428,16 +429,61 @@
                 }
             };
 
+            /// --- FUNGSI BARU: DYNAMIC WA TEMPLATES (LENGKAP & TANPA EMOJI) ---
             const handleSendWA = (letter) => {
                 if (!letter.noHpOrangTua) {
-				Swal.fire('Oops!', 'Nomor HP Orang Tua belum diisi pada surat ini.', 'warning');
-				return;
-			}
+                    Swal.fire('Oops!', 'Nomor HP Orang Tua belum diisi pada surat ini.', 'warning');
+                    return;
+                }
+                
+                // Format nomor HP (ubah awalan 0 jadi 62)
                 let phone = letter.noHpOrangTua.replace(/\D/g, '');
                 if (phone.startsWith('0')) phone = '62' + phone.slice(1);
-                const message = `Yth. Bapak/Ibu Wali dari ${letter.namaSiswa}.%0A%0ABerikut kami sampaikan informasi persuratan sekolah (${letter.type}) dengan nomor ${letter.nomorSurat}.%0AMohon kehadirannya/perhatiannya.%0A%0ATerima kasih.%0A- Tim BK ${schoolData.namaSekolah}`;
-                window.open(`https://wa.me/${phone}?text=${message}`, '_blank');
+                
+                // Siapkan template dasar (Header & Footer)
+                let textMsg = "";
+                const salam = `Yth. Bapak/Ibu Wali dari ananda *${letter.namaSiswa}* (Kelas ${letter.kelas}).\n\n`;
+                const penutup = `\n\nTerima kasih atas perhatian dan kerjasamanya.\nSalam,\n*Tim BK ${schoolData.namaSekolah}*`;
+
+                // Logika pencabangan pesan berdasarkan jenis layanan
+                switch (letter.type) {
+                    case 'SKORSING':
+                        textMsg = salam + `Kami sampaikan bahwa ananda diberikan sanksi pembinaan berupa *SKORSING* selama ${letter.lamaSkorsing} (dari tanggal ${formatDate(letter.tanggalMulai)} s.d. ${formatDate(letter.tanggalSelesai)}).\n\n*Alasan:* ${letter.alasan}\n\nSelama masa skorsing, mohon Bapak/Ibu dapat mengawasi dan membimbing ananda di rumah.` + penutup;
+                        break;
+                    case 'UNDANGAN':
+                        textMsg = salam + `Kami mengundang Bapak/Ibu untuk hadir ke sekolah pada:\n\n1. Hari/Tgl : *${letter.hariTanggalAcara}*\n2. Waktu    : *${letter.waktuAcara}*\n3. Tempat   : *${letter.tempatAcara}*\n4. Keperluan: *${letter.keperluan}*\n\nMengingat pentingnya agenda ini, kami sangat mengharapkan kehadiran Bapak/Ibu tepat waktu.` + penutup;
+                        break;
+                    case 'TUGAS_HOMEVISIT':
+                    case 'LAPORAN_HOMEVISIT':
+                        textMsg = salam + `Kami dari Tim BK bermaksud melakukan Kunjungan Rumah (Home Visit) pada:\n\n1. Hari/Tgl : *${letter.hariTanggalAcara || '-'}*\n2. Waktu    : *${letter.waktuAcara || '-'}*\n3. Tujuan   : *${letter.keperluan || 'Silaturahmi dan koordinasi perkembangan siswa'}*\n\nMohon kesediaan Bapak/Ibu untuk menerima kunjungan kami.` + penutup;
+                        break;
+                    case 'PERNYATAAN':
+                    case 'KONTRAK':
+                        textMsg = salam + `Kami informasikan bahwa ananda telah membuat *${letter.type === 'PERNYATAAN' ? 'Surat Pernyataan' : 'Kontrak Perilaku'}* di sekolah terkait kedisiplinan.\n\nMohon Bapak/Ibu dapat memantau perkembangan dan perubahan perilaku ananda di rumah.` + penutup;
+                        break;
+                    case 'MEDIASI':
+                    case 'KONFERENSI_KASUS':
+                        textMsg = salam + `Sehubungan dengan dinamika perkembangan ananda di sekolah, kami mengundang Bapak/Ibu untuk hadir dalam agenda *${letter.type.replace('_', ' ')}* pada:\n\n1. Hari/Tgl : *${letter.hariTanggalAcara || formatDate(letter.tanggal)}*\n2. Waktu    : *${letter.waktuAcara || 'Menyesuaikan'}*\n3. Tempat   : *${letter.tempatAcara || 'Ruang BK'}*\n\nKehadiran dan dukungan Bapak/Ibu sangat berarti bagi penyelesaian masalah ananda.` + penutup;
+                        break;
+                    case 'ALIH_KASUS':
+                        textMsg = salam + `Sehubungan dengan proses pembinaan ananda, kami informasikan bahwa sekolah melakukan *Alih Tangan Kasus (Referral)* kepada pihak yang lebih berwenang, yaitu: *${letter.pihakTujuan}*.\n\nHal ini kami lakukan untuk memastikan ananda mendapatkan pendampingan yang maksimal.` + penutup;
+                        break;
+                    case 'ADVOKASI':
+                        textMsg = salam + `Kami informasikan bahwa Tim BK telah melakukan upaya *Advokasi* (pendampingan hak siswa) terkait permasalahan ananda bersama *${letter.pihakTerkait}*.\n\n1. Tujuan : *${letter.tujuanAdvokasi}*\n2. Hasil  : *${letter.hasilAdvokasi}*\n\nSemoga langkah ini dapat membantu kelancaran pendidikan ananda.` + penutup;
+                        break;
+                    case 'BERHENTI':
+                        textMsg = salam + `Kami mengonfirmasi bahwa proses administrasi *Pengunduran Diri / Berhenti* ananda dari sekolah telah kami terima dan catat pada tanggal *${formatDate(letter.tanggal)}*.\n\nTerima kasih atas kepercayaan Bapak/Ibu selama ini.` + penutup;
+                        break;
+                    default:
+                        textMsg = salam + `Berikut kami sampaikan informasi persuratan sekolah terkait layanan *${letter.type.replace('_', ' ')}* dengan nomor registrasi: ${letter.nomorSurat || '-'}.\n\nMohon untuk diperhatikan.` + penutup;
+                        break;
+                }
+
+                // encodeURIComponent memastikan format teks terbaca aman di link WA
+                const encodedMessage = encodeURIComponent(textMsg);
+                window.open(`https://wa.me/${phone}?text=${encodedMessage}`, '_blank');
             };
+            // -----------------------------------------------------------------
 
             const handleExportExcel = () => {
                 // 1. Fungsi kecil pelindung (escape) agar tanda kutip (") atau koma (,) di inputan guru tidak merusak kolom Excel
@@ -574,6 +620,188 @@
                 const max = Math.max(...stats.map(s => s.count), 1);
                 return stats.map(s => ({ ...s, percentage: (s.count / max) * 100 }));
             };
+			
+			// --- FUNGSI BARU: SMART SCANNER TREN MASALAH (VERSI PRO) ---
+            const getProblemTrends = () => {
+                const counts = {};
+                letters.forEach(l => {
+                    // Gabungkan semua field teks yang mungkin berisi deskripsi masalah (ditambah gambaranMasalah untuk home visit)
+                    let text = (l.alasan || l.permasalahan || l.fokusMasalah || l.gambaranMasalah || '').toLowerCase();
+                    if (!text) return; // Lewati jika kosong
+                    
+                    let category = 'Lain-lain';
+                    
+                    // ==========================================
+                    // DATABASE KATA KUNCI (KEYWORD SCANNER)
+                    // ==========================================
+                    // 1. Kehadiran & Keterlambatan
+                    if (text.includes('terlambat') || text.includes('telat') || text.includes('kesiangan')) category = 'Sering Terlambat';
+                    else if (text.includes('alpa') || text.includes('bolos') || text.includes('tidak masuk') || text.includes('ponteng') || text.includes('cabut')) category = 'Bolos / Alpa / Kabur';
+                    else if (text.includes('pagar') || text.includes('lompat')) category = 'Melompat Pagar';
+                    
+                    // 2. Fisik & Atribut
+                    else if (text.includes('atribut') || text.includes('seragam') || text.includes('sepatu') || text.includes('rambut') || text.includes('kuku') || text.includes('topi') || text.includes('dasi') || text.includes('tato') || text.includes('tindik') || text.includes('make up') || text.includes('lipstik') || text.includes('celana ketat')) category = 'Pelanggaran Atribut & Kerapian';
+                    
+                    // 3. Kekerasan & Bullying
+                    else if (text.includes('bully') || text.includes('perundungan') || text.includes('ejek') || text.includes('palak') || text.includes('ancam') || text.includes('memeras') || text.includes('olok')) category = 'Bullying / Pemalakan / Ancaman';
+                    else if (text.includes('kelahi') || text.includes('pukul') || text.includes('ribut') || text.includes('tawuran') || text.includes('bertengkar')) category = 'Berkelahi / Tawuran';
+                    else if (text.includes('sajam') || text.includes('senjata') || text.includes('badik') || text.includes('busur')) category = 'Membawa Senjata Tajam';
+                    
+                    // 4. Zat Adiktif
+                    else if (text.includes('rokok') || text.includes('merokok') || text.includes('vape') || text.includes('pod')) category = 'Merokok / Vape';
+                    else if (text.includes('miras') || text.includes('alkohol') || text.includes('minum') || text.includes('obat') || text.includes('narkoba')) category = 'Miras / Narkoba / Zat Terlarang';
+                    
+                    // 5. Etika, Sikap & Susila
+                    else if (text.includes('melawan') || text.includes('membantah') || text.includes('kasar') || text.includes('kotor') || text.includes('sopan')) category = 'Sikap Kurang Sopan / Melawan Guru';
+                    else if (text.includes('pacaran') || text.includes('asusila') || text.includes('mesum') || text.includes('porno') || text.includes('pelecehan') || text.includes('video')) category = 'Pelanggaran Susila / Asmara / Pornografi';
+                    
+                    // 6. Akademik & Barang Bawaan
+                    else if (text.includes('hp') || text.includes('handphone') || text.includes('ponsel') || text.includes('game') || text.includes('gawai') || text.includes('mabar')) category = 'Penyalahgunaan HP / Bermain Game';
+                    else if (text.includes('tugas') || text.includes('pr ') || text.includes('contek') || text.includes('ujian') || text.includes('malas') || text.includes('tugas tidak')) category = 'Masalah Akademik / Abaikan Tugas';
+                    
+                    // 7. Lingkungan
+                    else if (text.includes('rusak') || text.includes('coret') || text.includes('vandalisme') || text.includes('sampah') || text.includes('fasilitas')) category = 'Merusak Fasilitas / Kebersihan';
+                    
+                    // 8. Fallback (Jika teksnya diketik sangat singkat/spesifik)
+                    else if (text.length < 35) category = l.alasan || l.permasalahan || l.fokusMasalah || l.gambaranMasalah;
+
+                    counts[category] = (counts[category] || 0) + 1;
+                });
+                
+                // Urutkan dari yang paling banyak terjadi, AMBIL 9 TERATAS agar layar lebih penuh
+                const stats = Object.entries(counts).map(([label, count]) => ({ label, count })).sort((a,b) => b.count - a.count).slice(0, 9);
+                const max = Math.max(...stats.map(s => s.count), 1);
+                return stats.map(s => ({ ...s, percentage: (s.count / max) * 100 }));
+            };
+            // -----------------------------------------------------------
+			
+			// --- FUNGSI BARU: RENDER ISI HISTORY BIKIN WOW ---
+            const renderHistoryContent = (letter) => {
+                switch (letter.type) {
+                    case 'SKORSING':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-red-500 uppercase tracking-widest">Pelanggaran</span> {letter.alasan}</p>
+                                <p><span className="block text-[10px] font-extrabold text-red-500 uppercase tracking-widest">Masa Skorsing</span> {letter.lamaSkorsing} ({formatDate(letter.tanggalMulai)} - {formatDate(letter.tanggalSelesai)})</p>
+                            </div>
+                        );
+                    case 'PERNYATAAN':
+                        return (
+                            <div className="space-y-2">
+                                {letter.permasalahan && <p><span className="block text-[10px] font-extrabold text-orange-500 uppercase tracking-widest">Duduk Perkara</span> {letter.permasalahan}</p>}
+                                <p><span className="block text-[10px] font-extrabold text-orange-500 uppercase tracking-widest">Isi Pernyataan</span> <span className="italic">"{letter.isiPernyataan}"</span></p>
+                            </div>
+                        );
+                    case 'KONTRAK':
+                        return (
+                            <div className="space-y-2">
+                                <div className="grid grid-cols-2 gap-2">
+                                    <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Target Perubahan</span> {letter.tujuanPerubahan}</p>
+                                    <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Status Kontrak</span> <span className="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded shadow-sm text-xs">{letter.statusKontrak}</span></p>
+                                </div>
+                                <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Konsekuensi</span> {letter.konsekuensi}</p>
+                            </div>
+                        );
+                    case 'UNDANGAN':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-blue-500 uppercase tracking-widest">Perihal & Keperluan</span> {letter.perihal} - {letter.keperluan}</p>
+                                <p><span className="block text-[10px] font-extrabold text-blue-500 uppercase tracking-widest">Jadwal Kehadiran</span> {letter.hariTanggalAcara} | Pukul {letter.waktuAcara} di {letter.tempatAcara}</p>
+                            </div>
+                        );
+                    case 'TUGAS_HOMEVISIT':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Ditugaskan Kepada</span> {letter.namaPetugas}</p>
+                                <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Tujuan / Keperluan Kunjungan</span> {letter.keperluan}</p>
+                            </div>
+                        );
+                    case 'LAPORAN_HOMEVISIT':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-cyan-500 uppercase tracking-widest">Pihak Yang Ditemui</span> {letter.pihakDitemui} ({letter.statusPihakDitemui})</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                                    <p><span className="block text-[10px] font-extrabold text-cyan-500 uppercase tracking-widest">Hasil Pembicaraan</span> {letter.hasilPembicaraan}</p>
+                                    <p><span className="block text-[10px] font-extrabold text-cyan-500 uppercase tracking-widest">Tindak Lanjut</span> {letter.tindakLanjut}</p>
+                                </div>
+                            </div>
+                        );
+                    case 'ALIH_KASUS':
+                        return (
+                            <div className="space-y-2 border-l-2 border-fuchsia-300 pl-3">
+                                <p><span className="block text-[10px] font-extrabold text-fuchsia-500 uppercase tracking-widest">Pihak Tujuan (Referral)</span> {letter.pihakTujuan}</p>
+                                <p><span className="block text-[10px] font-extrabold text-fuchsia-500 uppercase tracking-widest">Rincian Masalah</span> {letter.rincianMasalah}</p>
+                            </div>
+                        );
+                    case 'MEDIASI':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-pink-500 uppercase tracking-widest">Pihak Ke-2 (Lawan Mediasi)</span> Siswa a.n. {letter.namaSiswa2} ({letter.kelas2})</p>
+                                <p><span className="block text-[10px] font-extrabold text-pink-500 uppercase tracking-widest">Permasalahan</span> {letter.permasalahan}</p>
+                                <p><span className="block text-[10px] font-extrabold text-pink-600 uppercase tracking-widest">Hasil Kesepakatan Damai</span> {letter.hasilMediasi}</p>
+                            </div>
+                        );
+                    case 'KONFERENSI_KASUS':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Topik / Permasalahan Bahasan</span> {letter.permasalahan}</p>
+                                <p><span className="block text-[10px] font-extrabold text-indigo-600 uppercase tracking-widest">Keputusan Bersama</span> {letter.hasilKonferensi}</p>
+                            </div>
+                        );
+                    case 'ADVOKASI':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-rose-500 uppercase tracking-widest">Advokasi Bersama</span> {letter.pihakTerkait} ({letter.statusPihakTerkait})</p>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-1">
+                                    <p><span className="block text-[10px] font-extrabold text-rose-500 uppercase tracking-widest">Tujuan</span> {letter.tujuanAdvokasi}</p>
+                                    <p><span className="block text-[10px] font-extrabold text-rose-600 uppercase tracking-widest">Hasil</span> {letter.hasilAdvokasi}</p>
+                                </div>
+                            </div>
+                        );
+                    case 'BIMBINGAN_KELOMPOK':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Topik Materi Bahasan</span> {letter.topikBimbingan}</p>
+                                <div className="grid grid-cols-2 gap-3 mt-1">
+                                    <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Jumlah Anggota</span> {(letter.pesertaBimbingan || []).length} Siswa</p>
+                                    <p><span className="block text-[10px] font-extrabold text-emerald-500 uppercase tracking-widest">Hasil/Tujuan</span> {letter.hasilBimbingan || letter.tujuanBimbingan}</p>
+                                </div>
+                            </div>
+                        );
+                    case 'KONSELING_KELOMPOK':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-violet-500 uppercase tracking-widest">Fokus Masalah Kelompok</span> {letter.fokusMasalah}</p>
+                                <p><span className="block text-[10px] font-extrabold text-violet-500 uppercase tracking-widest">Dinamika & Evaluasi</span> {letter.evaluasiKonseling}</p>
+                            </div>
+                        );
+                    case 'SKBB':
+                        return (
+                            <div className="space-y-2">
+                                <p><span className="block text-[10px] font-extrabold text-teal-500 uppercase tracking-widest">Keperluan Pembuatan Surat</span> {letter.keperluan}</p>
+                            </div>
+                        );
+                    case 'BERHENTI':
+                        return (
+                            <div className="space-y-2 border-l-2 border-gray-400 pl-3 bg-gray-100 p-2 rounded">
+                                <p><span className="block text-[10px] font-extrabold text-gray-600 uppercase tracking-widest">Alasan Keluar / Pindah</span> {letter.alasanBerhenti}</p>
+                            </div>
+                        );
+                    case 'BUKU_TAMU':
+                        return (
+                            <div className="space-y-2 border-l-4 border-sky-400 pl-3">
+                                <p><span className="block text-[10px] font-extrabold text-sky-600 uppercase tracking-widest">Keperluan Layanan / Curhat</span> {letter.keperluan}</p>
+                            </div>
+                        );
+                    default:
+                        return (
+                            <p className="italic text-slate-500 text-sm">
+                                {letter.alasan || letter.permasalahan || letter.perihal || letter.keperluan || letter.gambaranMasalah || letter.fokusMasalah || letter.alasanBerhenti || letter.topikBimbingan || letter.latarBelakang || "Tidak ada deskripsi rinci untuk layanan ini."}
+                            </p>
+                        );
+                }
+            };
+            // ----------------------------------------------------
 
             if (!currentUser) {
                 return <LoginView onLogin={setCurrentUser} />;
@@ -710,31 +938,64 @@
 													</div>
 
 												   {/* KANAN: EARLY WARNING SYSTEM (RED ZONE) */}
-												   <div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
-													   <div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -z-0"></div>
-													   <h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 relative z-10"><AlertTriangle className="text-red-500 animate-bounce"/> Siswa Pantauan Khusus (Red Zone)</h3>
-													   <p className="text-xs text-slate-500 mb-6 relative z-10">Terdeteksi berulang kali menerima surat pelanggaran / masalah (&ge; 2 kali).</p>
-													   <div className="space-y-3 relative z-10">
-														   {getRedZoneStudents().map((student, i) => (
-															   <div key={i} onClick={() => {setHistoryStudent(student.nama); setViewState('history');}} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 hover:shadow-md transition-all cursor-pointer transform hover:-translate-y-0.5">
-																   <div className="flex items-center gap-3">
-																	   <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm shadow-sm">{i+1}</div>
-																	   <span className="font-bold text-slate-700 text-sm">{student.nama}</span>
-																   </div>
-																   <span className="bg-red-600 shadow-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">{student.count} Kasus <ChevronRight size={12}/></span>
-															   </div>
-														   ))}
-														   {getRedZoneStudents().length === 0 && (
-															   <div className="p-8 text-center border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50 text-emerald-600 flex flex-col items-center justify-center h-[200px]">
-																   <ShieldCheck size={40} className="mb-3 opacity-80"/>
-																   <p className="font-bold text-sm">Aman Terkendali</p>
-																   <p className="text-xs mt-1">Belum ada siswa yang masuk zona pantauan.</p>
-															   </div>
-														   )}
-													   </div>
-												   </div>
+													<div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
+														<div className="absolute top-0 right-0 w-32 h-32 bg-red-50 rounded-bl-full -z-0"></div>
+														<h3 className="text-lg font-bold text-slate-800 mb-1 flex items-center gap-2 relative z-10"><AlertTriangle className="text-red-500 animate-bounce"/> Siswa Pantauan Khusus (Red Zone)</h3>
+														<p className="text-xs text-slate-500 mb-6 relative z-10">Terdeteksi berulang kali menerima surat pelanggaran / masalah (≥ 2 kali).</p>
+														<div className="space-y-3 relative z-10">
+															{getRedZoneStudents().map((student, i) => (
+																<div key={i} onClick={() => {setHistoryStudent(student.nama); setViewState('history');}} className="flex items-center justify-between p-3 bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:bg-red-50 hover:shadow-md transition-all cursor-pointer transform hover:-translate-y-0.5">
+																	<div className="flex items-center gap-3">
+																		<div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center font-bold text-sm shadow-sm">{i+1}</div>
+																		<span className="font-bold text-slate-700 text-sm">{student.nama}</span>
+																	</div>
+																	<span className="bg-red-600 shadow-md text-white text-[10px] font-bold px-3 py-1.5 rounded-full flex items-center gap-1">{student.count} Kasus <ChevronRight size={12}/></span>
+																</div>
+															))}
+															{getRedZoneStudents().length === 0 && (
+																<div className="p-8 text-center border-2 border-dashed border-emerald-200 rounded-2xl bg-emerald-50 text-emerald-600 flex flex-col items-center justify-center h-[200px]">
+																	<ShieldCheck size={40} className="mb-3 opacity-80"/>
+																	<p className="font-bold text-sm">Aman Terkendali</p>
+																	<p className="text-xs mt-1">Belum ada siswa yang masuk zona pantauan.</p>
+																</div>
+															)}
+														</div>
+													</div>
 												</div>
-											</div>	
+
+												{/* 4. NEW FEATURE: TREN TOPIK MASALAH (FULL WIDTH DI BAWAH 3 KOLOM) */}
+												<div className="mt-6 mb-8 animate-fade-in-up w-full">
+													<div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
+														<div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-bl-full -z-0 opacity-60 pointer-events-none"></div>
+														<h3 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2 relative z-10"><FileWarning className="text-amber-500"/> Tren Topik Masalah & Pelanggaran Terbanyak</h3>
+														
+														{/* Di dalam ini kita buat grid 3 kolom yang membentang luas */}
+														<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-6 relative z-10">
+															{getProblemTrends().map((data, i) => (
+																<div key={i} className="group flex items-center gap-4 hover:bg-amber-50/60 p-3 rounded-xl border border-transparent hover:border-amber-100 transition-all duration-300">
+																	<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 flex items-center justify-center font-black text-lg shadow-sm border border-amber-200 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
+																		{i+1}
+																	</div>
+																	<div className="flex-1">
+																		<div className="flex justify-between items-end mb-2">
+																			<span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-amber-600 transition-colors line-clamp-1" title={data.label}>{data.label}</span>
+																			<span className="bg-amber-500 text-white px-2.5 py-0.5 rounded-md text-[10px] font-bold shadow-sm">{data.count} Kasus</span>
+																		</div>
+																		<div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner border border-slate-200/60">
+																			<div className={`h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500`} style={{ width: `${data.percentage}%`, transition: 'width 1.5s ease-in-out' }}></div>
+																		</div>
+																	</div>
+																</div>
+															))}
+															{getProblemTrends().length === 0 && (
+																<div className="col-span-1 md:col-span-2 lg:col-span-3">
+																	<p className="text-sm text-slate-400 italic py-8 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">Belum ada data permasalahan / pelanggaran yang tercatat.</p>
+																</div>
+															)}
+														</div>
+													</div>
+												</div>
+											</div>
                                     )}
 
                                     {/* PANEL FILTER GLASSMORPHISM */}
@@ -872,7 +1133,7 @@
                                                         <p className="font-mono text-[11px] text-slate-400 mb-3 bg-slate-50 inline-block px-2 py-1 rounded border border-slate-100">Ref: {letter.nomorSurat || '-'}</p>
                                                         <div className="text-sm text-slate-700 bg-slate-50/50 p-4 rounded-xl border border-slate-100 whitespace-pre-line leading-relaxed font-medium">
                                                             {/* Otomatis mengambil isi uraian dari berbagai jenis surat */}
-                                                            {letter.alasan || letter.permasalahan || letter.perihal || letter.keperluan || letter.gambaranMasalah || letter.fokusMasalah || letter.alasanBerhenti || letter.topikBimbingan || letter.latarBelakang || <span className="italic text-slate-400">Tidak ada deskripsi rinci untuk layanan ini.</span>}
+                                                            {renderHistoryContent(letter)}
                                                         </div>
                                                         <div className="mt-4 pt-4 border-t border-slate-100 text-[11px] text-slate-500 font-semibold flex items-center gap-1.5">
                                                             <div className="w-5 h-5 rounded-full bg-slate-200 flex items-center justify-center text-slate-600"><User size={10}/></div>
@@ -1194,6 +1455,58 @@
 			const [activePesertaIndex, setActivePesertaIndex] = useState(null);
 			const [activeKlienIndex, setActiveKlienIndex] = useState(null);
             const [filteredStudents, setFilteredStudents] = useState([]);
+			const [isAILoading, setIsAILoading] = useState(false);
+
+            // --- LOGIKA AI SULAP KATA ---
+            const handleAskAI = async (stateKey, fieldLabel) => {
+                const currentText = formData[stateKey];
+                if (!currentText || currentText.trim().length < 3) {
+                    Swal.fire('Ketik Dulu!', 'Ketik minimal 1-2 kata kunci (contoh: "rokok wc" atau "bolos pagar") baru klik tombol sulap AI.', 'info');
+                    return;
+                }
+
+                setIsAILoading(true);
+                Swal.fire({
+                    title: '🪄 AI Sedang Merangkai Kata...',
+                    html: 'Mohon tunggu sebentar...',
+                    allowOutsideClick: false,
+                    showConfirmButton: false,
+                    didOpen: () => { Swal.showLoading(); }
+                });
+
+                try {
+                    const response = await fetch(APPS_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            action: 'generateAIText',
+                            payload: { keyword: currentText, letterType: formData.type, fieldName: fieldLabel }
+                        })
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'success') {
+                        // Memasukkan hasil AI langsung ke textarea (jadi tetap bisa diedit guru!)
+                        setFormData(prev => ({ ...prev, [stateKey]: result.result }));
+                        Swal.fire({ icon: 'success', title: 'Sulap Berhasil!', text: 'Silakan edit/rapikan lagi jika ada yang kurang pas.', timer: 2500, showConfirmButton: false });
+                    } else {
+                        Swal.fire('Gagal', result.message, 'error');
+                    }
+                } catch (err) {
+                    Swal.fire('Error', 'Gagal terhubung ke AI. Pastikan internet jalan.', 'error');
+                } finally {
+                    setIsAILoading(false);
+                }
+            };
+
+            // --- KOMPONEN TOMBOL SULAP (Biar gampang dipasang di atas kolom) ---
+            const AILabel = ({ label, stateKey }) => (
+                <div className="flex justify-between items-end mb-1">
+                    <label className="block text-sm font-medium text-gray-700">{label}</label>
+                    <button type="button" onClick={() => handleAskAI(stateKey, label)} disabled={isAILoading} className="flex items-center gap-1 text-[10px] bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-2 py-1 rounded shadow-md transition-all transform hover:-translate-y-0.5 disabled:opacity-50" title="Ubah kata kunci jadi kalimat baku">
+                        <Sparkles size={12}/> AI Sulap
+                    </button>
+                </div>
+            );
 
             const handleChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
 
@@ -1350,12 +1663,9 @@
                                 <div className="space-y-1">
                                     <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">Pilih Jenis Surat / Layanan</label>
                                     <div className="relative group">
-                                        {/* Ikon Kiri */}
                                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                             <ClipboardList className={`h-5 w-5 transition-colors ${!!initialData ? 'text-gray-400' : 'text-blue-500 group-hover:text-blue-600'}`} />
                                         </div>
-                                        
-                                        {/* Select Dropdown Modifikasi */}
                                         <select 
                                             name="type" 
                                             value={formData.type} 
@@ -1378,41 +1688,28 @@
                                                 <option value="ADVOKASI">Berita Acara Advokasi</option>
                                                 <option value="BIMBINGAN_KELOMPOK">Berita Acara Bimbingan Kelompok</option>
                                                 <option value="KONSELING_KELOMPOK">Berita Acara Konseling Kelompok</option>
-												<option value="BUKU_TAMU">Catatan Buku Tamu Harian BK</option>
+                                                <option value="BUKU_TAMU">Catatan Buku Tamu Harian BK</option>
                                                 <option value="SKBB">Ket. Berkelakuan Baik</option>
                                                 <option value="BERHENTI">Surat Berhenti / Keluar</option>
                                             </optgroup>
                                         </select>
-                                        
-                                        {/* Ikon Panah Kanan */}
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                             <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${!!initialData ? 'text-gray-400' : 'text-blue-500 group-hover:translate-y-0.5'}`} />
                                         </div>
                                     </div>
-                                    {/* Peringatan kecil saat mode edit */}
                                     {!!initialData && <p className="text-[10px] text-orange-500 italic mt-1 pl-1">*Jenis surat dikunci saat mode edit data.</p>}
                                 </div>
                                 <div className="grid grid-cols-2 gap-4"><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tanggal Surat</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div><div className="space-y-2"><label className="block text-sm font-medium text-gray-700">Tempat Penetapan</label><input type="text" name="tempat" value={formData.tempat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div></div>
                             </div>
                             
-                            {/* IDENTITAS SISWA - OTOMATIS SEMBUNYI JIKA BIMBINGAN KELOMPOK */}
+                            {/* IDENTITAS SISWA */}
 							{formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && (
 								<div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
 									<h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div className="relative">
 											<label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa (Cari disini...)</label>
-											<input 
-												type="text" 
-												name="namaSiswa" 
-												value={formData.namaSiswa} 
-												onChange={handleSearchStudent} 
-												autoComplete="off"
-												className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold" 
-												required 
-												placeholder="Ketik nama siswa..."
-											/>
-											{/* Suggestions Dropdown */}
+											<input type="text" name="namaSiswa" value={formData.namaSiswa} onChange={handleSearchStudent} autoComplete="off" className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold" required placeholder="Ketik nama siswa..." />
 											{showStudentSuggestions && (
 												<div className="autocomplete-items">
 													{filteredStudents.map((s, idx) => (
@@ -1441,16 +1738,7 @@
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="relative">
                                             <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa Pihak 2</label>
-                                            <input 
-                                                type="text" 
-                                                name="namaSiswa2" 
-                                                value={formData.namaSiswa2} 
-                                                onChange={handleSearchStudent2} 
-                                                autoComplete="off"
-                                                className="w-full p-2 border border-pink-200 rounded-md focus:ring-2 focus:ring-pink-200 focus:outline-none font-semibold" 
-                                                required 
-                                            />
-                                            {/* Suggestions Dropdown 2 */}
+                                            <input type="text" name="namaSiswa2" value={formData.namaSiswa2} onChange={handleSearchStudent2} autoComplete="off" className="w-full p-2 border border-pink-200 rounded-md focus:ring-2 focus:ring-pink-200 focus:outline-none font-semibold" required />
                                             {showStudentSuggestions2 && (
                                                 <div className="autocomplete-items">
                                                     {filteredStudents.map((s, idx) => (
@@ -1468,9 +1756,8 @@
                                     </div>
                                 </div>
                             )}
-							
 
-                            {/* IDENTITAS ORANG TUA - CONDITIONAL */}
+                            {/* IDENTITAS ORANG TUA */}
                             {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI') && (
                                 <div className="bg-green-50 p-4 rounded-lg space-y-4 border border-green-100">
                                     <h3 className="font-semibold text-green-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Orang Tua / Wali {formData.type === 'MEDIASI' ? '(Pihak 1 & 2)' : ''}</h3>
@@ -1489,13 +1776,13 @@
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS SKORSING */}
+                            {/* SKORSING */}
                             {formData.type === 'SKORSING' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Pelanggaran</label><textarea name="alasan" value={formData.alasan} onChange={handleChange} rows="3" list="violationList" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+                                    <div><AILabel label="Pelanggaran" stateKey="alasan" /><textarea name="alasan" value={formData.alasan} onChange={handleChange} rows="3" list="violationList" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
                                     <div className="grid grid-cols-3 gap-4">
                                         <div><label className="block text-sm font-medium text-gray-700">Lama</label><input type="text" name="lamaSkorsing" value={formData.lamaSkorsing} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                         <div><label className="block text-sm font-medium text-gray-700">Mulai</label><input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
@@ -1504,15 +1791,15 @@
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS PERNYATAAN */}
+                            {/* PERNYATAAN */}
                             {formData.type === 'PERNYATAAN' && (
                                 <div>
-                                    <div className="mb-4"><label className="block text-sm font-medium text-gray-700">Permasalahan / Duduk Perkara</label><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="2" list="violationList" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Sehubungan dengan pelanggaran tata tertib sekolah..." /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Isi Pernyataan</label><textarea name="isiPernyataan" value={formData.isiPernyataan} onChange={handleChange} rows="4" className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                    <div className="mb-4"><AILabel label="Permasalahan / Duduk Perkara" stateKey="permasalahan" /><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="2" list="violationList" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Sehubungan dengan pelanggaran tata tertib sekolah..." /></div>
+                                    <div><AILabel label="Isi Pernyataan" stateKey="isiPernyataan" /><textarea name="isiPernyataan" value={formData.isiPernyataan} onChange={handleChange} rows="4" className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS UNDANGAN */}
+                            {/* UNDANGAN */}
                             {formData.type === 'UNDANGAN' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div className="grid grid-cols-2 gap-4">
@@ -1523,12 +1810,12 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Waktu Acara</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
                                         <div className="col-span-2"><label className="block text-sm font-medium text-gray-700">Tempat Acara</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ruang Guru" required /></div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Keperluan</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+                                    <div><AILabel label="Keperluan" stateKey="keperluan" /><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
                                     <div className="bg-gray-100 p-4 rounded-md"><h4 className="font-semibold text-xs uppercase mb-2">Data Wali Kelas (Otomatis jika data kelas tersedia)</h4><div className="grid grid-cols-2 gap-4"><div><label className="block text-xs font-medium text-gray-600">Nama Wali Kelas</label><input type="text" name="namaWaliKelas" value={formData.namaWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div><div><label className="block text-xs font-medium text-gray-600">NIP Wali Kelas</label><input type="text" name="nipWaliKelas" value={formData.nipWaliKelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div></div></div>
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS KONTRAK */}
+                            {/* KONTRAK */}
                             {formData.type === 'KONTRAK' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div className="grid grid-cols-2 gap-4">
@@ -1536,14 +1823,14 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Tanggal Tinjauan</label><input type="date" name="tanggalTinjauan" value={formData.tanggalTinjauan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
                                         <div><label className="block text-sm font-medium text-gray-700">Status Kontrak</label><select name="statusKontrak" value={formData.statusKontrak} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md"><option value="Aktif">Aktif</option><option value="Selesai">Selesai</option><option value="Dibatalkan">Dibatalkan</option></select></div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Deskripsi Perilaku</label><textarea name="deskripsiPerilaku" value={formData.deskripsiPerilaku} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perilaku yang ingin diubah..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Tujuan Perubahan</label><textarea name="tujuanPerubahan" value={formData.tujuanPerubahan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Target perilaku baru..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Rencana Tindakan Siswa</label><textarea name="rencanaTindakan" value={formData.rencanaTindakan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang akan dilakukan siswa..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Konsekuensi (Positif/Negatif)</label><textarea name="konsekuensi" value={formData.konsekuensi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Hadiah jika berhasil / Sanksi jika gagal..."></textarea></div>
+                                    <div><AILabel label="Deskripsi Perilaku" stateKey="deskripsiPerilaku" /><textarea name="deskripsiPerilaku" value={formData.deskripsiPerilaku} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perilaku yang ingin diubah..."></textarea></div>
+                                    <div><AILabel label="Tujuan Perubahan" stateKey="tujuanPerubahan" /><textarea name="tujuanPerubahan" value={formData.tujuanPerubahan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Target perilaku baru..."></textarea></div>
+                                    <div><AILabel label="Rencana Tindakan Siswa" stateKey="rencanaTindakan" /><textarea name="rencanaTindakan" value={formData.rencanaTindakan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang akan dilakukan siswa..."></textarea></div>
+                                    <div><AILabel label="Konsekuensi (Positif/Negatif)" stateKey="konsekuensi" /><textarea name="konsekuensi" value={formData.konsekuensi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Hadiah jika berhasil / Sanksi jika gagal..."></textarea></div>
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS TUGAS HOME VISIT */}
+                            {/* TUGAS HOMEVISIT */}
                             {formData.type === 'TUGAS_HOMEVISIT' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat Tugas</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
@@ -1558,11 +1845,11 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal Kunjungan</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2024" required /></div>
                                         <div><label className="block text-sm font-medium text-gray-700">Waktu (Jam)</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 - 11.00 WITA" required /></div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Tujuan/Keperluan</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Melakukan kunjungan rumah untuk..." required></textarea></div>
+                                    <div><AILabel label="Tujuan/Keperluan" stateKey="keperluan" /><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Melakukan kunjungan rumah untuk..." required></textarea></div>
                                 </div>
                             )}
 
-                            {/* FORM KHUSUS LAPORAN HOME VISIT */}
+                            {/* LAPORAN HOME VISIT */}
                             {formData.type === 'LAPORAN_HOMEVISIT' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div className="grid grid-cols-2 gap-4">
@@ -1576,9 +1863,9 @@
                                             <div><label className="block text-xs font-medium text-gray-600">Status Hubungan</label><select name="statusPihakDitemui" value={formData.statusPihakDitemui} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md"><option value="Orang Tua">Orang Tua (Ayah/Ibu)</option><option value="Wali">Wali</option><option value="Paman/Bibi">Paman/Bibi</option><option value="Kakek/Nenek">Kakek/Nenek</option></select></div>
                                         </div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Gambaran Masalah</label><textarea name="gambaranMasalah" value={formData.gambaranMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsi kondisi siswa/rumah..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Hasil Pembicaraan</label><textarea name="hasilPembicaraan" value={formData.hasilPembicaraan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Tanggapan orang tua..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Rencana Tindak Lanjut (Kesepakatan)</label><textarea name="tindakLanjut" value={formData.tindakLanjut} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang akan dilakukan selanjutnya..."></textarea></div>
+                                    <div><AILabel label="Gambaran Masalah" stateKey="gambaranMasalah" /><textarea name="gambaranMasalah" value={formData.gambaranMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsi kondisi siswa/rumah..."></textarea></div>
+                                    <div><AILabel label="Hasil Pembicaraan" stateKey="hasilPembicaraan" /><textarea name="hasilPembicaraan" value={formData.hasilPembicaraan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Tanggapan orang tua..."></textarea></div>
+                                    <div><AILabel label="Rencana Tindak Lanjut (Kesepakatan)" stateKey="tindakLanjut" /><textarea name="tindakLanjut" value={formData.tindakLanjut} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang akan dilakukan selanjutnya..."></textarea></div>
                                     <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
                                         <h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Pelapor (Guru BK)</h4>
                                         <div className="grid grid-cols-2 gap-4">
@@ -1588,7 +1875,8 @@
                                     </div>
                                 </div>
                             )}
-							
+                            
+                            {/* KONFERENSI KASUS */}
 							{formData.type === 'KONFERENSI_KASUS' && (
 								<div className="space-y-4 border-t pt-4">
 									<div className="grid grid-cols-2 gap-4">
@@ -1599,8 +1887,8 @@
 										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal Konferensi</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2026" required /></div>
 										<div><label className="block text-sm font-medium text-gray-700">Waktu</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
 									</div>
-									<div><label className="block text-sm font-medium text-gray-700">Gambaran Masalah / Topik Bahasan</label><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Hasil Konferensi / Kesepakatan</label><textarea name="hasilKonferensi" value={formData.hasilKonferensi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+									<div><AILabel label="Gambaran Masalah / Topik Bahasan" stateKey="permasalahan" /><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
+									<div><AILabel label="Hasil Konferensi / Kesepakatan" stateKey="hasilKonferensi" /><textarea name="hasilKonferensi" value={formData.hasilKonferensi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
 
 									<div className="bg-indigo-50 p-4 rounded-md border border-indigo-100">
 										<div className="flex justify-between items-center mb-3">
@@ -1627,13 +1915,13 @@
 								</div>
 							)}
 
-                            {/* FORM KHUSUS ALIH TANGAN KASUS */}
+                            {/* ALIH TANGAN KASUS */}
                             {formData.type === 'ALIH_KASUS' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                     <div><label className="block text-sm font-medium text-gray-700">Pihak Tujuan (Yth...)</label><input type="text" name="pihakTujuan" value={formData.pihakTujuan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kepala Puskesmas / Psikolog / Kapolsek..." required /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Rincian Masalah / Gejala</label><textarea name="rincianMasalah" value={formData.rincianMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Gejala yang tampak pada siswa..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Riwayat Penanganan Sebelumnya</label><textarea name="riwayatPenanganan" value={formData.riwayatPenanganan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Layanan BK yang sudah diberikan..."></textarea></div>
+                                    <div><AILabel label="Rincian Masalah / Gejala" stateKey="rincianMasalah" /><textarea name="rincianMasalah" value={formData.rincianMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Gejala yang tampak pada siswa..."></textarea></div>
+                                    <div><AILabel label="Riwayat Penanganan Sebelumnya" stateKey="riwayatPenanganan" /><textarea name="riwayatPenanganan" value={formData.riwayatPenanganan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Layanan BK yang sudah diberikan..."></textarea></div>
                                     <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
                                         <h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Konselor / Guru BK</h4>
                                         <div className="grid grid-cols-2 gap-4">
@@ -1644,6 +1932,7 @@
                                 </div>
                             )}
 							
+                            {/* ADVOKASI */}
 							{formData.type === 'ADVOKASI' && (
 								<div className="space-y-4 border-t pt-4">
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1651,9 +1940,9 @@
 										<div><label className="block text-sm font-medium text-gray-700">Nama Pihak Terkait</label><input type="text" name="pihakTerkait" value={formData.pihakTerkait} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Budi Santoso" required /></div>
 										<div><label className="block text-sm font-medium text-gray-700">Sebagai (Jabatan)</label><input type="text" name="statusPihakTerkait" value={formData.statusPihakTerkait} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Guru Matematika" required /></div>
 									</div>
-									<div><label className="block text-sm font-medium text-gray-700">Latar Belakang Masalah</label><textarea name="latarBelakang" value={formData.latarBelakang} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Jelaskan masalah atau hak siswa yang terancam..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Tujuan Advokasi</label><textarea name="tujuanAdvokasi" value={formData.tujuanAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang ingin dicapai (misal: keringanan SPP, izin ujian)..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Hasil / Keputusan</label><textarea name="hasilAdvokasi" value={formData.hasilAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Hasil kesepakatan setelah negosiasi..." required></textarea></div>
+									<div><AILabel label="Latar Belakang Masalah" stateKey="latarBelakang" /><textarea name="latarBelakang" value={formData.latarBelakang} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Jelaskan masalah atau hak siswa yang terancam..." required></textarea></div>
+									<div><AILabel label="Tujuan Advokasi" stateKey="tujuanAdvokasi" /><textarea name="tujuanAdvokasi" value={formData.tujuanAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang ingin dicapai (misal: keringanan SPP, izin ujian)..." required></textarea></div>
+									<div><AILabel label="Hasil / Keputusan" stateKey="hasilAdvokasi" /><textarea name="hasilAdvokasi" value={formData.hasilAdvokasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Hasil kesepakatan setelah negosiasi..." required></textarea></div>
 									
 									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
 										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Pelaksana Advokasi (Guru BK)</h4>
@@ -1665,6 +1954,7 @@
 								</div>
 							)}
 							
+                            {/* KONSELING KELOMPOK */}
 							{formData.type === 'KONSELING_KELOMPOK' && (
 								<div className="space-y-4 border-t pt-4">
 									<div className="grid grid-cols-2 gap-4">
@@ -1677,10 +1967,10 @@
 									</div>
 									
 									<div><label className="block text-sm font-medium text-gray-700">Pendekatan / Teknik Konseling (Opsional)</label><input type="text" name="teknikKonseling" value={formData.teknikKonseling} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Realita / CBT / Client-Centered" /></div>
-									<div><label className="block text-sm font-medium text-gray-700">Fokus Masalah</label><textarea name="fokusMasalah" value={formData.fokusMasalah} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Masalah utama siapa yang disepakati untuk dibahas..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Dinamika / Jalannya Konseling</label><textarea name="dinamikaKonseling" value={formData.dinamikaKonseling} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Bagaimana respon anggota, apakah terbuka, menangis, dll..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Hasil & Evaluasi Laiseg</label><textarea name="evaluasiKonseling" value={formData.evaluasiKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perasaan klien setelah sesi, insight yang didapat..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Rencana Tindak Lanjut</label><textarea name="tindakLanjutKonseling" value={formData.tindakLanjutKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perlu sesi ke-2 atau konseling individu?" required></textarea></div>
+									<div><AILabel label="Fokus Masalah" stateKey="fokusMasalah" /><textarea name="fokusMasalah" value={formData.fokusMasalah} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Masalah utama siapa yang disepakati untuk dibahas..." required></textarea></div>
+									<div><AILabel label="Dinamika / Jalannya Konseling" stateKey="dinamikaKonseling" /><textarea name="dinamikaKonseling" value={formData.dinamikaKonseling} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Bagaimana respon anggota, apakah terbuka, menangis, dll..." required></textarea></div>
+									<div><AILabel label="Hasil & Evaluasi Laiseg" stateKey="evaluasiKonseling" /><textarea name="evaluasiKonseling" value={formData.evaluasiKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perasaan klien setelah sesi, insight yang didapat..." required></textarea></div>
+									<div><AILabel label="Rencana Tindak Lanjut" stateKey="tindakLanjutKonseling" /><textarea name="tindakLanjutKonseling" value={formData.tindakLanjutKonseling} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Perlu sesi ke-2 atau konseling individu?" required></textarea></div>
 
 									<div className="bg-violet-50 p-4 rounded-md border border-violet-100">
 										<div className="flex justify-between items-center mb-3">
@@ -1719,6 +2009,7 @@
 								</div>
 							)}
 							
+                            {/* BIMBINGAN KELOMPOK */}
 							{formData.type === 'BIMBINGAN_KELOMPOK' && (
 								<div className="space-y-4 border-t pt-4">
 									<div className="grid grid-cols-2 gap-4">
@@ -1731,9 +2022,9 @@
 									</div>
 									
 									<div><label className="block text-sm font-medium text-gray-700">Topik / Materi Bahasan</label><input type="text" name="topikBimbingan" value={formData.topikBimbingan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Bahaya Bullying di Sekolah" required /></div>
-									<div><label className="block text-sm font-medium text-gray-700">Tujuan Bimbingan</label><textarea name="tujuanBimbingan" value={formData.tujuanBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Target dari materi yang disampaikan..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Uraian Kegiatan</label><textarea name="uraianKegiatan" value={formData.uraianKegiatan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsikan dinamika kelompok dan proses berjalannya kegiatan..." required></textarea></div>
-									<div><label className="block text-sm font-medium text-gray-700">Hasil Bimbingan</label><textarea name="hasilBimbingan" value={formData.hasilBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kesimpulan yang didapat oleh para siswa..." required></textarea></div>
+									<div><AILabel label="Tujuan Bimbingan" stateKey="tujuanBimbingan" /><textarea name="tujuanBimbingan" value={formData.tujuanBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Target dari materi yang disampaikan..." required></textarea></div>
+									<div><AILabel label="Uraian Kegiatan" stateKey="uraianKegiatan" /><textarea name="uraianKegiatan" value={formData.uraianKegiatan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsikan dinamika kelompok dan proses berjalannya kegiatan..." required></textarea></div>
+									<div><AILabel label="Hasil Bimbingan" stateKey="hasilBimbingan" /><textarea name="hasilBimbingan" value={formData.hasilBimbingan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kesimpulan yang didapat oleh para siswa..." required></textarea></div>
 
 									<div className="bg-blue-50 p-4 rounded-md border border-blue-100">
 										<div className="flex justify-between items-center mb-3">
@@ -1744,16 +2035,7 @@
 											<div key={index} className="flex gap-2 mb-2 items-end">
 												<div className="flex-1 relative">
 													<label className="block text-[10px] text-gray-600">Nama Lengkap Siswa</label>
-													<input 
-														type="text" 
-														value={p.nama} 
-														onChange={(e) => handleChangePesertaBimbingan(index, e.target.value)} 
-														className="w-full p-1.5 text-sm border rounded focus:ring-2 focus:ring-blue-200 outline-none" 
-														placeholder="Cari nama siswa..." 
-														required
-														autoComplete="off"
-													/>
-													{/* Dropdown Saran Nama Khusus Baris Ini */}
+													<input type="text" value={p.nama} onChange={(e) => handleChangePesertaBimbingan(index, e.target.value)} className="w-full p-1.5 text-sm border rounded focus:ring-2 focus:ring-blue-200 outline-none" placeholder="Cari nama siswa..." required autoComplete="off" />
 													{activePesertaIndex === index && (
 														<div className="autocomplete-items shadow-xl border border-gray-200">
 															{filteredStudents.map((s, idx) => (
@@ -1781,20 +2063,20 @@
 								</div>
 							)}
 
-                            {/* FORM KHUSUS SKBB */}
+                            {/* SKBB */}
                             {formData.type === 'SKBB' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Keperluan Surat</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Persyaratan pendaftaran masuk SMA..." required></textarea></div>
+                                    <div><AILabel label="Keperluan Surat" stateKey="keperluan" /><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Persyaratan pendaftaran masuk SMA..." required></textarea></div>
                                 </div>
                             )}
-							
-							{/* FORM KHUSUS MEDIASI */}
+                            
+                            {/* MEDIASI */}
                              {formData.type === 'MEDIASI' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Permasalahan</label><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kronologi masalah antar kedua pihak..."></textarea></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Hasil Mediasi / Kesepakatan</label><textarea name="hasilMediasi" value={formData.hasilMediasi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Poin-poin kesepakatan damai..." required></textarea></div>
+                                    <div><AILabel label="Permasalahan" stateKey="permasalahan" /><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kronologi masalah antar kedua pihak..."></textarea></div>
+                                    <div><AILabel label="Hasil Mediasi / Kesepakatan" stateKey="hasilMediasi" /><textarea name="hasilMediasi" value={formData.hasilMediasi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Poin-poin kesepakatan damai..." required></textarea></div>
                                     
                                     <div className="bg-purple-50 p-4 rounded-md border border-purple-100">
                                         <h4 className="font-semibold text-xs text-purple-800 uppercase mb-2">Data Saksi - Wali Kelas (Otomatis)</h4>
@@ -1815,8 +2097,8 @@
                                     </div>
                                 </div>
                             )}
-							
-							{/* FORM KHUSUS BUKU TAMU HARIAN */}
+                            
+                            {/* BUKU TAMU HARIAN */}
                             {formData.type === 'BUKU_TAMU' && (
                                 <div className="space-y-4 border-t pt-4 animate-fade-in-up">
                                     <div className="bg-sky-50 p-4 rounded-xl border border-sky-200 mb-4">
@@ -1827,15 +2109,15 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Waktu Kunjungan (Jam)</label><input type="time" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                         <div><label className="block text-sm font-medium text-gray-700">Tanggal Kunjungan</label><input type="date" name="tanggal" value={formData.tanggal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                     </div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Keperluan Singkat / Keterangan</label><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-200" placeholder="Contoh: Siswa curhat mengenai masalah tugas kelompok dan meminta saran cara berkomunikasi dengan temannya..." required></textarea></div>
+                                    <div><AILabel label="Keperluan Singkat / Keterangan" stateKey="keperluan" /><textarea name="keperluan" value={formData.keperluan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-sky-200" placeholder="Contoh: Siswa curhat mengenai masalah tugas kelompok dan meminta saran cara berkomunikasi dengan temannya..." required></textarea></div>
                                 </div>
                             )}
 
-                             {/* FORM KHUSUS BERHENTI */}
+                             {/* BERHENTI */}
                              {formData.type === 'BERHENTI' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Alasan Berhenti / Keluar</label><textarea name="alasanBerhenti" value={formData.alasanBerhenti} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Pindah sekolah ke... / Mengundurkan diri karena..." required></textarea></div>
+                                    <div><AILabel label="Alasan Berhenti / Keluar" stateKey="alasanBerhenti" /><textarea name="alasanBerhenti" value={formData.alasanBerhenti} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Pindah sekolah ke... / Mengundurkan diri karena..." required></textarea></div>
                                     
                                     <div className="bg-gray-100 p-4 rounded-md">
                                         <h4 className="font-semibold text-xs text-gray-600 uppercase mb-2">Saksi (Wali Kelas / Keluarga)</h4>
