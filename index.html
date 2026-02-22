@@ -127,6 +127,7 @@
 		const Filter = (props) => <IconBase {...props}><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></IconBase>;
 		const PieChart = (props) => <IconBase {...props}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></IconBase>;
 		const Sparkles = (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
+		const Monitor = (props) => <IconBase {...props}><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></IconBase>;
 
         // --- LOADING OVERLAY ---
         function LoadingOverlay({ message }) {
@@ -260,6 +261,261 @@
                 </div>
             )
         }
+		
+		// --- KIOSK MODE VIP (RESEPSIONIS DIGITAL PREMIUM) ---
+        function KioskMode({ students, schoolData, onExit, letters, setLetters, currentUser }) {
+            const [view, setView] = useState('welcome');
+            const [tapCount, setTapCount] = useState(0);
+            const [formData, setFormData] = useState({ name: '', studentName: '', studentClass: '', instansi: '' });
+            const [searchQuery, setSearchQuery] = useState('');
+            const [filteredStudents, setFilteredStudents] = useState([]);
+            const [customPurpose, setCustomPurpose] = useState('');
+
+            // Fitur Sandi Rahasia Keluar (Menggunakan Pop-Up SweetAlert Premium)
+            const handleSecretTap = () => {
+                if (tapCount >= 4) {
+                    setTapCount(0);
+                    Swal.fire({
+                        title: '🔒 Mode Administrator',
+                        text: 'Masukkan PIN Rahasia Guru BK',
+                        input: 'password',
+                        inputPlaceholder: 'Ketik PIN...',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3b82f6',
+                        cancelButtonColor: '#ef4444',
+                        confirmButtonText: 'Buka Sistem',
+                        cancelButtonText: 'Batal'
+                    }).then((result) => {
+                        if (result.value === "552211") { // Ganti 1234 dengan PIN yang sahabat inginkan
+                            onExit();
+                        } else if (result.value) {
+                            Swal.fire({ icon: 'error', title: 'Akses Ditolak!', text: 'PIN yang Anda masukkan salah.', showConfirmButton: false, timer: 2000 });
+                        }
+                    });
+                } else {
+                    setTapCount(prev => prev + 1);
+                    setTimeout(() => setTapCount(0), 2000);
+                }
+            };
+
+            const handleSearch = (e) => {
+                const val = e.target.value;
+                setSearchQuery(val);
+                if (val.length > 2) {
+                    setFilteredStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(val.toLowerCase())));
+                } else {
+                    setFilteredStudents([]);
+                }
+            };
+
+            const handleSelectStudent = (s) => {
+                setFormData({ ...formData, studentName: s['Nama Lengkap'], studentClass: s['Kelas'] });
+                setSearchQuery(s['Nama Lengkap']);
+                setFilteredStudents([]);
+            };
+
+            const handleSubmit = (purpose) => {
+                let pName = '', pClass = '';
+                if (view === 'form_siswa') {
+                    pName = formData.studentName; pClass = formData.studentClass;
+                } else if (view === 'form_ortu') {
+                    pName = `Ortu: ${formData.name}`; pClass = `Wali dr ${formData.studentName} (${formData.studentClass})`;
+                } else {
+                    pName = `Tamu: ${formData.name}`; pClass = formData.instansi;
+                }
+
+                // Kirim Gaib ke Spreadsheet dengan Tanda Tangan Guru Piket
+                const payload = {
+                    id: Date.now(), type: 'BUKU_TAMU',
+                    tanggal: new Date().toISOString().split('T')[0],
+                    waktuAcara: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
+                    namaSiswa: pName, kelas: pClass, keperluan: purpose, createdBy: 'Resepsionis Kiosk',
+                    penandaTangan: currentUser.username, 
+                    jabatan: 'Guru BK / Konselor Piket',
+                    nipPenandaTangan: '-'
+                };
+
+                fetch(APPS_SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'saveLetter', payload }) });
+                if (setLetters && letters) { setLetters([payload, ...letters]); }
+
+                setView('success');
+                setTimeout(() => { setView('welcome'); setFormData({ name: '', studentName: '', studentClass: '', instansi: '' }); setSearchQuery(''); setCustomPurpose(''); }, 3000);
+            };
+
+            return (
+                <div className="fixed inset-0 z-[100] bg-[#020817] flex flex-col items-center justify-center p-4 md:p-8 text-white no-print select-none overflow-hidden font-sans">
+                    {/* EFEK CAHAYA AMBIENT (GLOWING ORBS) */}
+                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+                        <div className="absolute top-[-15%] left-[-10%] w-[50%] h-[50%] bg-blue-600/20 rounded-full blur-[120px] animate-[pulse_8s_ease-in-out_infinite]"></div>
+                        <div className="absolute bottom-[-10%] right-[-5%] w-[40%] h-[40%] bg-purple-600/20 rounded-full blur-[100px] animate-[pulse_10s_ease-in-out_infinite_reverse]"></div>
+                    </div>
+                    
+                    {/* BACKGROUND TEXTURE */}
+                    <div className="absolute inset-0 bg-[url('https://source.unsplash.com/random/1920x1080/?modern,architecture,interior')] bg-cover opacity-5 mix-blend-overlay pointer-events-none"></div>
+                    
+                    {/* HEADER KIOSK */}
+                    <div className="absolute top-8 left-0 right-0 flex justify-center z-20">
+                        <div onClick={handleSecretTap} className="cursor-pointer flex items-center gap-4 bg-white/5 backdrop-blur-xl px-8 py-3 rounded-full border border-white/10 shadow-[0_8px_30px_rgb(0,0,0,0.12)] hover:bg-white/10 transition-all duration-300 group">
+                            {/* Logo Sekolah Pintar */}
+                            <div className="w-12 h-12 rounded-full flex items-center justify-center overflow-hidden bg-white/20 group-hover:scale-110 transition-transform shadow-lg shadow-blue-500/30 border border-white/20">
+                                {schoolData?.logoKanan ? (
+                                    <img src={schoolData.logoKanan} alt="Logo" className="w-full h-full object-contain p-1 drop-shadow-md" />
+                                ) : (
+                                    <Building2 size={24} className="text-white" />
+                                )}
+                            </div>
+                            <div className="text-left">
+                                <h1 className="text-sm md:text-lg font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400 uppercase">{schoolData.namaSekolah}</h1>
+                                <p className="text-[10px] md:text-xs text-blue-400 font-semibold tracking-[0.2em] uppercase">Buku Tamu Digital Ruang BK</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* MAIN CONTAINER KACA MEWAH */}
+                    <div className="w-full max-w-4xl bg-slate-900/60 backdrop-blur-2xl border border-slate-700/50 p-8 md:p-14 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] relative z-10 animate-fade-in-up">
+                        
+                        {/* VIEW 1: WELCOME */}
+                        {view === 'welcome' && (
+                            <div className="py-12 text-center">
+                                <h2 className="text-5xl md:text-6xl font-black mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-slate-200 to-slate-500 drop-shadow-sm">Selamat Datang 👋</h2>
+                                <p className="text-xl md:text-2xl text-slate-400 mb-14 font-medium max-w-2xl mx-auto leading-relaxed">Pusat Layanan Terpadu Bimbingan dan Konseling. Silakan isi daftar hadir mandiri Anda.</p>
+                                <button onClick={() => setView('role')} className="bg-white text-slate-900 hover:bg-blue-50 text-xl md:text-2xl font-black py-5 px-16 rounded-full shadow-[0_0_40px_rgba(255,255,255,0.2)] transform hover:scale-105 hover:-translate-y-1 transition-all duration-300 w-full md:w-auto flex items-center justify-center gap-3 mx-auto">
+                                    <span className="animate-bounce">👆</span> SENTUH UNTUK MULAI
+                                </button>
+                            </div>
+                        )}
+
+                        {/* VIEW 2: PILIH PERAN */}
+                        {view === 'role' && (
+                            <div className="animate-fade-in-up text-center">
+                                <h2 className="text-3xl font-bold mb-10 text-white tracking-wide">Pilih Identitas Anda</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <button onClick={() => setView('form_siswa')} className="group relative bg-slate-800/50 hover:bg-blue-600/20 border border-slate-700 hover:border-blue-500/50 p-8 rounded-3xl cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col items-center gap-5">
+                                        <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-600 group-hover:bg-blue-500 group-hover:border-blue-400 flex items-center justify-center transition-colors shadow-inner"><User size={40} className="text-blue-400 group-hover:text-white transition-colors"/></div>
+                                        <span className="font-bold text-xl text-slate-300 group-hover:text-white transition-colors tracking-wide">SAYA SISWA</span>
+                                    </button>
+                                    
+                                    <button onClick={() => setView('form_ortu')} className="group relative bg-slate-800/50 hover:bg-emerald-600/20 border border-slate-700 hover:border-emerald-500/50 p-8 rounded-3xl cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col items-center gap-5">
+                                        <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-600 group-hover:bg-emerald-500 group-hover:border-emerald-400 flex items-center justify-center transition-colors shadow-inner"><Users size={40} className="text-emerald-400 group-hover:text-white transition-colors"/></div>
+                                        <span className="font-bold text-xl text-slate-300 group-hover:text-white transition-colors tracking-wide">ORANG TUA / WALI</span>
+                                    </button>
+                                    
+                                    <button onClick={() => setView('form_tamu')} className="group relative bg-slate-800/50 hover:bg-amber-600/20 border border-slate-700 hover:border-amber-500/50 p-8 rounded-3xl cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)] overflow-hidden flex flex-col items-center gap-5">
+                                        <div className="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-600 group-hover:bg-amber-500 group-hover:border-amber-400 flex items-center justify-center transition-colors shadow-inner"><Briefcase size={40} className="text-amber-400 group-hover:text-white transition-colors"/></div>
+                                        <span className="font-bold text-xl text-slate-300 group-hover:text-white transition-colors tracking-wide">TAMU / INSTANSI</span>
+                                    </button>
+                                </div>
+                                <button onClick={() => setView('welcome')} className="mt-12 text-slate-500 font-bold hover:text-white text-lg transition-colors flex items-center justify-center gap-2 mx-auto"><ArrowLeft size={20}/> Kembali</button>
+                            </div>
+                        )}
+
+                        {/* VIEW 3: FORM SISWA */}
+                        {view === 'form_siswa' && (
+                            <div className="animate-fade-in-up">
+                                <h2 className="text-3xl font-bold mb-8 text-center text-blue-100">Halo Siswa! Siapa namamu?</h2>
+                                <div className="mb-8 relative max-w-2xl mx-auto">
+                                    <Search className="absolute left-6 top-5 text-slate-400" size={28}/>
+                                    <input type="text" value={searchQuery} onChange={handleSearch} placeholder="Ketik nama kamu di sini..." className="w-full pl-20 pr-6 py-5 text-xl bg-slate-950/50 border border-slate-600 text-white placeholder-slate-500 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all font-semibold shadow-inner" autoFocus />
+                                    {filteredStudents.length > 0 && (
+                                        <div className="absolute left-0 right-0 mt-3 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto z-50 custom-scrollbar">
+                                            {filteredStudents.map((s, i) => (
+                                                <div key={i} onClick={() => handleSelectStudent(s)} className="p-5 hover:bg-blue-600 cursor-pointer border-b border-slate-700 text-white font-bold text-lg transition-colors">{s['Nama Lengkap']} <span className="text-slate-400 font-normal">({s['Kelas']})</span></div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                                {formData.studentName && (
+                                    <div className="animate-fade-in-up mt-10">
+                                        <p className="text-center text-blue-300 mb-6 font-bold text-lg tracking-wide uppercase">Pilih Keperluan Kehadiranmu:</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {['Curhat / Konseling', 'Minta Tanda Tangan', 'Istirahat Sakit (UKS)', 'Izin Pulang / Keluar', 'Konsultasi Karir'].map(p => (
+                                                <button key={p} onClick={() => handleSubmit(p)} className="bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 py-5 px-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1">{p}</button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-4 flex gap-3">
+                                            <input type="text" value={customPurpose} onChange={(e) => setCustomPurpose(e.target.value)} placeholder="Atau ketik keperluan lainnya..." className="flex-1 bg-slate-950/50 border border-slate-600 p-4 rounded-2xl outline-none text-white focus:ring-2 ring-blue-500 font-semibold text-lg" />
+                                            <button onClick={() => { if(customPurpose.trim()) handleSubmit(customPurpose); }} className="bg-blue-600 hover:bg-blue-500 text-white px-8 rounded-2xl font-black text-lg shadow-lg shadow-blue-600/30 transition-all hover:scale-105">KIRIM</button>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="text-center mt-10"><button onClick={() => {setView('role'); setSearchQuery(''); setFormData({});}} className="text-slate-500 font-bold hover:text-white text-lg flex items-center justify-center gap-2 mx-auto"><ArrowLeft size={20}/> Batal</button></div>
+                            </div>
+                        )}
+
+                        {/* VIEW 4: FORM ORTU */}
+                        {view === 'form_ortu' && (
+                            <div className="animate-fade-in-up">
+                                <h2 className="text-3xl font-bold mb-8 text-center text-emerald-100">Buku Tamu Orang Tua / Wali</h2>
+                                <div className="space-y-5 mb-8 max-w-2xl mx-auto">
+                                    <input type="text" placeholder="Nama Lengkap Bapak/Ibu" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full py-5 px-6 text-xl bg-slate-950/50 border border-slate-600 text-white placeholder-slate-500 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold" />
+                                    <div className="relative">
+                                        <Search className="absolute left-6 top-5 text-slate-400" size={28}/>
+                                        <input type="text" value={searchQuery} onChange={handleSearch} placeholder="Cari Nama Siswa (Anak Bapak/Ibu)..." className="w-full pl-20 pr-6 py-5 text-xl bg-slate-950/50 border border-slate-600 text-white placeholder-slate-500 rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all font-semibold" />
+                                        {filteredStudents.length > 0 && (
+                                            <div className="absolute z-50 left-0 right-0 mt-3 bg-slate-800 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden max-h-60 overflow-y-auto custom-scrollbar">
+                                                {filteredStudents.map((s, i) => (
+                                                    <div key={i} onClick={() => handleSelectStudent(s)} className="p-5 hover:bg-emerald-600 cursor-pointer border-b border-slate-700 text-white font-bold text-lg transition-colors">{s['Nama Lengkap']} <span className="text-slate-400 font-normal">({s['Kelas']})</span></div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                                {formData.name && formData.studentName && (
+                                    <div className="animate-fade-in-up mt-10 max-w-3xl mx-auto">
+                                        <p className="text-center text-emerald-300 mb-6 font-bold text-lg tracking-wide uppercase">Tujuan Kunjungan:</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {['Memenuhi Undangan', 'Konsultasi Mandiri', 'Menjemput Anak Sakit'].map(p => (
+                                                <button key={p} onClick={() => handleSubmit(p)} className="bg-slate-800 hover:bg-emerald-600 border border-slate-700 hover:border-emerald-400 py-5 px-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1">{p}</button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-4 flex gap-3">
+                                            <input type="text" value={customPurpose} onChange={(e) => setCustomPurpose(e.target.value)} placeholder="Atau ketik keperluan lainnya..." className="flex-1 bg-slate-950/50 border border-slate-600 p-4 rounded-2xl outline-none text-white focus:ring-2 ring-emerald-500 font-semibold text-lg" />
+                                            <button onClick={() => { if(customPurpose.trim()) handleSubmit(customPurpose); }} className="bg-emerald-600 hover:bg-emerald-500 text-white px-8 rounded-2xl font-black text-lg shadow-lg shadow-emerald-600/30 transition-all hover:scale-105">KIRIM</button>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="text-center mt-10"><button onClick={() => {setView('role'); setSearchQuery(''); setFormData({});}} className="text-slate-500 font-bold hover:text-white text-lg flex items-center justify-center gap-2 mx-auto"><ArrowLeft size={20}/> Batal</button></div>
+                            </div>
+                        )}
+
+                        {/* VIEW 5: FORM TAMU */}
+                        {view === 'form_tamu' && (
+                            <div className="animate-fade-in-up">
+                                <h2 className="text-3xl font-bold mb-8 text-center text-amber-100">Buku Tamu Umum / Instansi</h2>
+                                <div className="space-y-5 mb-8 max-w-2xl mx-auto">
+                                    <input type="text" placeholder="Nama Lengkap" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full py-5 px-6 text-xl bg-slate-950/50 border border-slate-600 text-white placeholder-slate-500 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all font-semibold" />
+                                    <input type="text" placeholder="Asal Instansi / Jabatan (Cth: Polsek / Guru IPA)" value={formData.instansi} onChange={e => setFormData({...formData, instansi: e.target.value})} className="w-full py-5 px-6 text-xl bg-slate-950/50 border border-slate-600 text-white placeholder-slate-500 rounded-2xl outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all font-semibold" />
+                                </div>
+                                {formData.name && formData.instansi && (
+                                    <div className="animate-fade-in-up mt-10 max-w-3xl mx-auto">
+                                        <p className="text-center text-amber-300 mb-6 font-bold text-lg tracking-wide uppercase">Tujuan Kunjungan:</p>
+                                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                            {['Koordinasi / Rapat', 'Kunjungan Dinas', 'Konsultasi Teman Sejawat'].map(p => (
+                                                <button key={p} onClick={() => handleSubmit(p)} className="bg-slate-800 hover:bg-amber-600 border border-slate-700 hover:border-amber-400 py-5 px-4 rounded-2xl font-bold text-white shadow-lg transition-all duration-300 hover:-translate-y-1">{p}</button>
+                                            ))}
+                                        </div>
+                                        <div className="mt-4 flex gap-3">
+                                            <input type="text" value={customPurpose} onChange={(e) => setCustomPurpose(e.target.value)} placeholder="Atau ketik keperluan lainnya..." className="flex-1 bg-slate-950/50 border border-slate-600 p-4 rounded-2xl outline-none text-white focus:ring-2 ring-amber-500 font-semibold text-lg" />
+                                            <button onClick={() => { if(customPurpose.trim()) handleSubmit(customPurpose); }} className="bg-amber-600 hover:bg-amber-500 text-white px-8 rounded-2xl font-black text-lg shadow-lg shadow-amber-600/30 transition-all hover:scale-105">KIRIM</button>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="text-center mt-10"><button onClick={() => {setView('role'); setSearchQuery(''); setFormData({});}} className="text-slate-500 font-bold hover:text-white text-lg flex items-center justify-center gap-2 mx-auto"><ArrowLeft size={20}/> Batal</button></div>
+                            </div>
+                        )}
+
+                        {/* VIEW 6: SUCCESS */}
+                        {view === 'success' && (
+                            <div className="py-20 animate-fade-in-up text-center">
+                                <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-[0_0_50px_rgba(34,197,94,0.6)] animate-bounce"><ShieldCheck size={64} className="text-white"/></div>
+                                <h2 className="text-5xl font-black mb-4 text-white">Berhasil!</h2>
+                                <p className="text-xl text-green-200 font-medium">Data kunjungan Anda telah tersimpan aman di sistem.<br/>Silakan masuk atau menunggu giliran.</p>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
 
         // --- APP LOGIC ---
         function App() {
@@ -333,7 +589,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-           const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI'];
             const [historyStudent, setHistoryStudent] = useState(null);
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
@@ -586,6 +842,7 @@
 					{ key: 'KONFERENSI_KASUS', label: 'Konf. Kasus', icon: <Users/>, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
                     { key: 'SKBB', label: 'Ket. Baik', icon: <ShieldCheck/>, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
 					{ key: 'BERHENTI', label: 'Berhenti/Keluar', icon: <UserMinus/>, color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200' },
+					{ key: 'REKOMENDASI_STUDI', label: 'Rekomendasi', icon: <FileCheck/>, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
 					{ key: 'BUKU_TAMU', label: 'Buku Tamu', icon: <BookOpen/>, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200' },
                 ];
                 return types.map(t => ({
@@ -793,6 +1050,14 @@
                                 <p><span className="block text-[10px] font-extrabold text-sky-600 uppercase tracking-widest">Keperluan Layanan / Curhat</span> {letter.keperluan}</p>
                             </div>
                         );
+						
+					case 'REKOMENDASI_STUDI':
+                        return (
+                            <div className="space-y-2 border-l-4 border-blue-500 pl-3">
+                                <p><span className="block text-[10px] font-extrabold text-blue-600 uppercase tracking-widest">Target Lanjutan Studi</span> {letter.targetStudi}</p>
+                                <p><span className="block text-[10px] font-extrabold text-blue-600 uppercase tracking-widest">Kesimpulan Rekomendasi</span> "{letter.uraianRekomendasi}"</p>
+                            </div>
+                        );
                     default:
                         return (
                             <p className="italic text-slate-500 text-sm">
@@ -806,6 +1071,11 @@
             if (!currentUser) {
                 return <LoginView onLogin={setCurrentUser} />;
             }
+			
+			// Memicu Mode Kiosk Layar Penuh
+			if (viewState === 'kiosk') {
+				return <KioskMode students={students} schoolData={schoolData} onExit={() => setViewState('list')} letters={letters} setLetters={setLetters} currentUser={currentUser} />;
+			}
 
             return (
                 <div className="min-h-screen bg-gray-50 flex font-sans text-gray-800">
@@ -1257,7 +1527,7 @@
                             <SidebarItem icon={<FileCheck size={18}/>} label="Kontrak Perilaku" active={activeTab === 'KONTRAK'} onClick={() => {setActiveTab('KONTRAK'); setViewState('list');}} />
                         </SidebarGroup>
                         
-                        <SidebarGroup title="Administrasi & Layanan" defaultOpen={['UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'KONFERENSI_KASUS', 'MEDIASI', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI'].includes(activeTab) || activeTab === 'dashboard'}>
+                        <SidebarGroup title="Administrasi & Layanan" defaultOpen={['UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'KONFERENSI_KASUS', 'MEDIASI', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI'].includes(activeTab)}>
                             <SidebarItem icon={<Mail size={18}/>} label="Undangan Orang Tua" active={activeTab === 'UNDANGAN'} onClick={() => {setActiveTab('UNDANGAN'); setViewState('list');}} />
                             <SidebarItem icon={<Briefcase size={18}/>} label="Surat Tugas Home Visit" active={activeTab === 'TUGAS_HOMEVISIT'} onClick={() => {setActiveTab('TUGAS_HOMEVISIT'); setViewState('list');}} />
                             <SidebarItem icon={<ClipboardList size={18}/>} label="Laporan Home Visit" active={activeTab === 'LAPORAN_HOMEVISIT'} onClick={() => {setActiveTab('LAPORAN_HOMEVISIT'); setViewState('list');}} />
@@ -1269,6 +1539,7 @@
                             <SidebarItem icon={<MessageCircle size={18}/>} label="Konseling Kelompok" active={activeTab === 'KONSELING_KELOMPOK'} onClick={() => {setActiveTab('KONSELING_KELOMPOK'); setViewState('list');}} />
 							<SidebarItem icon={<BookOpen size={18}/>} label="Buku Tamu Harian BK" active={activeTab === 'BUKU_TAMU'} onClick={() => {setActiveTab('BUKU_TAMU'); setViewState('list');}} />
                             <SidebarItem icon={<ShieldCheck size={18}/>} label="Ket. Berkelakuan Baik" active={activeTab === 'SKBB'} onClick={() => {setActiveTab('SKBB'); setViewState('list');}} />
+							<SidebarItem icon={<FileCheck size={18}/>} label="Rekomendasi Studi" active={activeTab === 'REKOMENDASI_STUDI'} onClick={() => {setActiveTab('REKOMENDASI_STUDI'); setViewState('list');}} />
                             <SidebarItem icon={<UserMinus size={18}/>} label="Berhenti / Keluar" active={activeTab === 'BERHENTI'} onClick={() => {setActiveTab('BERHENTI'); setViewState('list');}} />
                         </SidebarGroup>
 
@@ -1276,6 +1547,7 @@
 
                         <SidebarGroup title="Pengaturan" defaultOpen={activeTab === 'SCHOOL_DATA'}>
                             <SidebarItem icon={<Building2 size={18}/>} label="Identitas Sekolah" active={activeTab === 'SCHOOL_DATA'} onClick={() => {setActiveTab('SCHOOL_DATA'); setViewState('school_settings');}} />
+							<SidebarItem icon={<Monitor size={18}/>} label="Resepsionis Digital (Kiosk)" active={false} onClick={() => setViewState('kiosk')} />
                         </SidebarGroup>
                     </nav>
 
@@ -1593,6 +1865,24 @@
 				setFormData(prev => ({ ...prev, pesertaKonferensi: newPeserta }));
 			};
 			
+			// --- LOGIKA DINAMIS NILAI MAPEL (SURAT REKOMENDASI) ---
+			const handleAddMapel = () => {
+				setFormData(prev => ({
+					...prev,
+					nilaiMapel: [...(prev.nilaiMapel || []), { mapel: '', nilai: '' }]
+				}));
+			};
+			const handleRemoveMapel = (index) => {
+				const newList = [...(formData.nilaiMapel || [])];
+				newList.splice(index, 1);
+				setFormData(prev => ({ ...prev, nilaiMapel: newList }));
+			};
+			const handleChangeMapel = (index, field, value) => {
+				const newList = [...(formData.nilaiMapel || [])];
+				newList[index][field] = value;
+				setFormData(prev => ({ ...prev, nilaiMapel: newList }));
+			};
+			
 			const handleAddPesertaBimbingan = () => setFormData(prev => ({ ...prev, pesertaBimbingan: [...(prev.pesertaBimbingan || []), { nama: '', kelas: '' }] }));
             const handleRemovePesertaBimbingan = (index) => setFormData(prev => ({ ...prev, pesertaBimbingan: prev.pesertaBimbingan.filter((_, i) => i !== index) }));
             const handleChangePesertaBimbingan = (index, value) => {
@@ -1690,6 +1980,7 @@
                                                 <option value="KONSELING_KELOMPOK">Berita Acara Konseling Kelompok</option>
                                                 <option value="BUKU_TAMU">Catatan Buku Tamu Harian BK</option>
                                                 <option value="SKBB">Ket. Berkelakuan Baik</option>
+												<option value="REKOMENDASI_STUDI">Surat Rekomendasi Peminatan / Studi</option>
                                                 <option value="BERHENTI">Surat Berhenti / Keluar</option>
                                             </optgroup>
                                         </select>
@@ -2093,6 +2384,62 @@
                                         <div className="grid grid-cols-2 gap-4">
                                             <div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaSaksi" value={formData.namaSaksi} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
                                             <div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipSaksi" value={formData.nipSaksi} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+							
+							{/* REKOMENDASI STUDI (UNIVERSAL) */}
+                            {formData.type === 'REKOMENDASI_STUDI' && (
+                                <div className="space-y-4 border-t pt-4 animate-fade-in-up">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Tujuan Keterangan</label><input type="text" name="tujuanSurat" value={formData.tujuanSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Panitia PPDB / Seleksi Mahasiswa" required /></div>
+                                    </div>
+
+                                    {/* Blok Nilai Dinamis */}
+                                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h4 className="font-bold text-xs text-emerald-800 uppercase flex items-center gap-1">📊 Capaian Akademik (Mapel Menonjol)</h4>
+                                            <button type="button" onClick={handleAddMapel} className="text-[10px] font-bold bg-emerald-600 text-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-emerald-700 transition-all">+ Tambah Mapel</button>
+                                        </div>
+                                        <p className="text-[10px] text-emerald-600 mb-3 italic">*Masukkan 3 atau lebih mata pelajaran yang nilainya paling mendukung untuk jurusan yang akan dituju siswa.</p>
+                                        
+                                        {(formData.nilaiMapel || []).map((m, index) => (
+                                            <div key={index} className="flex gap-2 mb-2 items-end">
+                                                <div className="flex-1"><label className="block text-[10px] font-medium text-gray-600 mb-1">Nama Mata Pelajaran</label><input type="text" value={m.mapel} onChange={(e) => handleChangeMapel(index, 'mapel', e.target.value)} className="w-full p-2 text-sm border border-emerald-200 rounded-md focus:ring-2 focus:ring-emerald-200 outline-none" placeholder="Contoh: Matematika" required /></div>
+                                                <div className="w-1/3"><label className="block text-[10px] font-medium text-gray-600 mb-1">Nilai Rata-rata</label><input type="number" value={m.nilai} onChange={(e) => handleChangeMapel(index, 'nilai', e.target.value)} className="w-full p-2 text-sm border border-emerald-200 rounded-md focus:ring-2 focus:ring-emerald-200 outline-none" placeholder="Contoh: 88" required /></div>
+                                                <button type="button" onClick={() => handleRemoveMapel(index)} className="bg-red-50 text-red-500 p-2 border border-red-100 rounded-md hover:bg-red-100 hover:text-red-700 mb-[1px] transition-colors"><Trash2 size={18}/></button>
+                                            </div>
+                                        ))}
+                                        {(!formData.nilaiMapel || formData.nilaiMapel.length === 0) && <div className="text-center p-3 border-2 border-dashed border-emerald-200 rounded-lg text-xs text-emerald-600 font-medium">Belum ada nilai yang diinput. Klik tombol hijau di atas.</div>}
+                                    </div>
+
+                                    {/* Blok Non-Akademik */}
+                                    <div><AILabel label="Prestasi / Keaktifan Organisasi (Non-Akademik)" stateKey="prestasi" /><textarea name="prestasi" value={formData.prestasi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Aktif di ekskul Pramuka, Juara 2 Lomba Futsal..."></textarea></div>
+                                    
+                                    <div><AILabel label="Hasil Asesmen / Tes Psikologi (Opsional)" stateKey="hasilAsesmen" /><textarea name="hasilAsesmen" value={formData.hasilAsesmen} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Memiliki kecerdasan logik-matematik tinggi..."></textarea></div>
+
+                                    {/* Blok Kesimpulan AI */}
+                                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 space-y-4">
+                                        <h4 className="font-bold text-xs text-blue-800 uppercase">🎯 Kesimpulan & Rekomendasi Arah Studi</h4>
+                                        <div><label className="block text-xs font-medium text-gray-700 mb-1">Direkomendasikan Melanjutkan Ke (Target Utama)</label><input type="text" name="targetStudi" value={formData.targetStudi} onChange={handleChange} className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 outline-none font-bold" placeholder="Contoh: SMK Jurusan Teknik Otomotif / Univ. Hasanuddin" required /></div>
+                                        
+                                        <div><AILabel label="Uraian Rekomendasi" stateKey="uraianRekomendasi" /><textarea name="uraianRekomendasi" value={formData.uraianRekomendasi} onChange={handleChange} rows="3" className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 outline-none" placeholder="Ketik santai lalu panggil AI: 'nilai ipa bagus, anak jago bongkar mesin, cocok smk teknik'" required></textarea></div>
+                                    </div>
+									
+									{/* Blok Guru BK / Konselor */}
+                                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 space-y-4">
+                                        <h4 className="font-bold text-xs text-orange-800 uppercase">👤 Guru Bimbingan dan Konseling</h4>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">Nama Guru BK</label>
+                                                <input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md focus:ring-2 focus:ring-orange-200 outline-none" required placeholder="Nama Lengkap & Gelar" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-xs font-medium text-gray-700 mb-1">NIP (Jika Ada)</label>
+                                                <input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md focus:ring-2 focus:ring-orange-200 outline-none" placeholder="NIP / -" />
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -2803,40 +3150,141 @@
                             </div>
                         )}
 						
-						{/* CETAK BUKU TAMU */}
-                        {data.type === 'BUKU_TAMU' && (
-                            <div>
-                                <div className="text-center mb-8">
-                                    <h3 className="font-bold underline text-[12pt] uppercase tracking-wider">BUKTI KUNJUNGAN RUANG BK</h3>
+						{/* CETAK BUKU TAMU PINTAR (DETEKSI OTOMATIS) */}
+                        {data.type === 'BUKU_TAMU' && (() => {
+                            // Mesin pendeteksi peran tamu
+                            const isOrtu = data.namaSiswa && data.namaSiswa.startsWith('Ortu:');
+                            const isTamu = data.namaSiswa && data.namaSiswa.startsWith('Tamu:');
+                            const isSiswa = !isOrtu && !isTamu;
+                            
+                            // Membersihkan tulisan "Ortu:" / "Tamu:" agar namanya rapi saat dicetak
+                            const cleanName = data.namaSiswa ? data.namaSiswa.replace('Ortu: ', '').replace('Tamu: ', '') : '-';
+
+                            return (
+                                <div>
+                                    <div className="text-center mb-8">
+                                        <h3 className="font-bold underline text-[12pt] uppercase tracking-wider">BUKTI KUNJUNGAN RUANG BK</h3>
+                                    </div>
+                                    <p className="mb-6 text-justify">Telah berkunjung ke ruang Bimbingan dan Konseling {schoolData.namaSekolah}, <strong>{isOrtu ? 'orang tua / wali siswa' : (isTamu ? 'tamu umum / instansi' : 'siswa')}</strong> dengan identitas sebagai berikut:</p>
+                                    
+                                    <div className="border border-black p-6 mb-6 bg-gray-50/50">
+                                        <table className="w-full text-sm">
+                                            <tbody>
+                                                <tr><td className="w-40 py-2 border-b border-gray-200">Nama Lengkap</td><td className="border-b border-gray-200">: <strong>{cleanName}</strong></td></tr>
+                                                <tr><td className="py-2 border-b border-gray-200">{isOrtu ? 'Siswa yang Diwakili' : (isTamu ? 'Instansi / Jabatan' : 'Kelas / NISN')}</td><td className="border-b border-gray-200">: {isSiswa ? `${data.kelas} / ${data.nisn || '-'}` : data.kelas}</td></tr>
+                                                <tr><td className="py-2 border-b border-gray-200">Waktu Kunjungan</td><td className="border-b border-gray-200">: {formatDate(data.tanggal)} | Pukul {data.waktuAcara}</td></tr>
+                                                <tr><td className="py-2 align-top pt-3">Tujuan / Keperluan</td><td className="align-top pt-3 text-justify">: {data.keperluan}</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <p className="mb-10 text-justify text-sm">Kunjungan ini telah dicatat secara resmi ke dalam pangkalan data <strong>Buku Tamu Harian Bimbingan dan Konseling</strong> sebagai {isOrtu ? 'bukti koordinasi dan kunjungan orang tua/wali' : (isTamu ? 'bukti kunjungan kedinasan/tamu' : 'bukti partisipasi aktif siswa')}.</p>
+
+                                    <div className="flex justify-between items-start mt-12 px-4 text-[11pt]">
+                                        <div className="text-center w-[250px]">
+                                            <p className="mb-1 invisible">Tempat, Tanggal</p>
+                                            <p className="mb-20">{isOrtu ? 'Orang Tua / Wali,' : (isTamu ? 'Tamu / Instansi,' : 'Siswa yang berkunjung,')}</p>
+                                            <p className="font-bold underline">{cleanName}</p>
+                                        </div>
+                                        <div className="text-center w-[250px]">
+                                            <p className="mb-1">{data.tempat || 'Makassar'}, {formatDate(data.tanggal)}</p>
+                                            <p className="mb-20">{data.jabatan || 'Guru BK / Konselor Piket'},</p>
+                                            <p className="font-bold underline">{data.penandaTangan}</p>
+                                            {data.nipPenandaTangan && data.nipPenandaTangan !== '-' && (
+                                                <p>NIP. {data.nipPenandaTangan}</p>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="mb-6 text-justify">Telah berkunjung ke ruang Bimbingan dan Konseling {schoolData.namaSekolah}, siswa dengan identitas sebagai berikut:</p>
-                                
-                                <div className="border border-black p-6 mb-6 bg-gray-50/50">
-                                    <table className="w-full text-sm">
+                            );
+                        })()}
+						
+						{data.type === 'REKOMENDASI_STUDI' && (
+                            <div className="text-[11pt]">
+                                <div className="text-center mb-6">
+                                    <h3 className="font-bold underline text-[12pt] uppercase tracking-wide">SURAT KETERANGAN REKOMENDASI PEMINATAN / STUDI</h3>
+                                    <p>Nomor: {data.nomorSurat}</p>
+                                </div>
+
+                                <p className="mb-3 text-justify">
+                                    Yang bertanda tangan di bawah ini, Kepala {schoolData.namaSekolah} dan Guru Bimbingan dan Konseling, menerangkan dengan sesungguhnya bahwa:
+                                </p>
+
+                                <table className="w-full mb-4 pl-4">
+                                    <tbody>
+                                        <tr><td className="w-40 py-0.5">Nama Lengkap</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+                                        <tr><td className="py-0.5">NISN</td><td>: {data.nisn || '-'}</td></tr>
+                                        <tr><td className="py-0.5">Kelas</td><td>: {data.kelas}</td></tr>
+                                        <tr><td className="py-0.5">Jenis Kelamin</td><td>: {data.jenisKelamin || '-'}</td></tr>
+                                    </tbody>
+                                </table>
+
+                                <p className="mb-2 text-justify">
+                                    Berdasarkan hasil evaluasi, pengamatan perilaku, serta capaian akademik dan non-akademik selama menempuh pendidikan, siswa tersebut memiliki rekam jejak sebagai berikut:
+                                </p>
+
+                                <div className="mb-3">
+                                    <p className="font-bold mb-1">A. Capaian Akademik (Mata Pelajaran Dominan)</p>
+                                    <table className="w-full border-collapse border border-black mb-1 text-[10pt]">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="border border-black px-2 py-1 w-12 text-center">No</th>
+                                                <th className="border border-black px-2 py-1 text-left">Mata Pelajaran</th>
+                                                <th className="border border-black px-2 py-1 w-32 text-center">Nilai Rata-rata</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
-                                            <tr><td className="w-40 py-2 border-b border-gray-200">Nama Lengkap</td><td className="border-b border-gray-200">: <strong>{data.namaSiswa}</strong></td></tr>
-                                            <tr><td className="py-2 border-b border-gray-200">Kelas / NISN</td><td className="border-b border-gray-200">: {data.kelas} / {data.nisn || '-'}</td></tr>
-                                            <tr><td className="py-2 border-b border-gray-200">Waktu Kunjungan</td><td className="border-b border-gray-200">: {formatDate(data.tanggal)} | Pukul {data.waktuAcara}</td></tr>
-                                            <tr><td className="py-2 align-top pt-3">Tujuan / Keperluan</td><td className="align-top pt-3 text-justify">: {data.keperluan}</td></tr>
+                                            {data.nilaiMapel && data.nilaiMapel.length > 0 ? (
+                                                data.nilaiMapel.map((m, i) => (
+                                                    <tr key={i}>
+                                                        <td className="border border-black px-2 py-1 text-center">{i + 1}</td>
+                                                        <td className="border border-black px-2 py-1">{m.mapel}</td>
+                                                        <td className="border border-black px-2 py-1 text-center font-bold">{m.nilai}</td>
+                                                    </tr>
+                                                ))
+                                            ) : (
+                                                <tr><td colSpan="3" className="border border-black px-2 py-1 text-center italic">Tidak ada data nilai yang dilampirkan</td></tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
 
-                                <p className="mb-10 text-justify text-sm">Kunjungan ini telah dicatat secara resmi ke dalam pangkalan data <strong>Buku Tamu Harian Bimbingan dan Konseling</strong> sebagai bukti partisipasi aktif siswa.</p>
+                                <div className="mb-4">
+                                    <p className="font-bold mb-1">B. Capaian Non-Akademik & Asesmen Psikologis</p>
+                                    <ul className="list-disc pl-6 text-justify">
+                                        <li className="mb-1"><strong>Prestasi / Keaktifan:</strong> {data.prestasi || 'Tidak ada catatan khusus.'}</li>
+                                        <li><strong>Hasil Asesmen/Minat:</strong> {data.hasilAsesmen || 'Tidak ada catatan khusus.'}</li>
+                                    </ul>
+                                </div>
 
-                                {/* Tanda Tangan Seimbang & Sejajar (Dengan Tanggal) */}
-                                <div className="flex justify-between items-start mt-12 px-4 text-[11pt]">
-                                    <div className="text-center w-[250px]">
-                                        {/* Teks tembus pandang penyeimbang tinggi baris */}
-                                        <p className="mb-1 invisible">Tempat, Tanggal</p>
-                                        <p className="mb-20">Siswa yang berkunjung,</p>
-                                        <p className="font-bold underline">{data.namaSiswa}</p>
+                                <div className="mb-4">
+                                    <p className="font-bold mb-1">C. Kesimpulan & Rekomendasi</p>
+                                    <p className="text-justify mb-2">Memperhatikan potensi dan capaian di atas, maka siswa tersebut <strong>sangat direkomendasikan</strong> untuk melanjutkan pendidikan ke:</p>
+                                    <div className="p-3 border-2 border-black text-center mb-3 bg-gray-50">
+                                        <p className="font-bold text-[12pt] uppercase tracking-wider">{data.targetStudi}</p>
                                     </div>
-                                    <div className="text-center w-[250px]">
-                                        <p className="mb-1">{data.tempat || 'Makassar'}, {formatDate(data.tanggal)}</p>
-                                        <p className="mb-20">{data.jabatan || 'Guru BK / Konselor Piket'},</p>
+                                    <p className="text-justify italic">"{data.uraianRekomendasi}"</p>
+                                </div>
+
+                                <p className="text-justify mb-8">
+                                    Demikian surat keterangan rekomendasi ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagai bahan pertimbangan oleh <strong>{data.tujuanSurat}</strong>.
+                                </p>
+
+                                <div className="flex justify-between items-end mt-4 px-2">
+                                    <div className="text-center min-w-[200px]">
+                                        <p className="mb-1">Mengetahui,</p>
+                                        <p className="mb-16">{data.jabatan}</p>
                                         <p className="font-bold underline">{data.penandaTangan}</p>
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
+                                    </div>
+                                    <div className="flex flex-col items-center justify-end h-full pb-2">
+                                        <img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" />
+                                    </div>
+                                    <div className="text-center min-w-[200px]">
+                                        <p className="mb-1">{data.tempat || 'Makassar'}, {formatDate(data.tanggal)}</p>
+                                        <p className="mb-16">Guru Bimbingan dan Konseling</p>
+                                        <p className="font-bold underline">{data.namaPetugas}</p>
+                                        <p>NIP. {data.nipPetugas || '-'}</p>
                                     </div>
                                 </div>
                             </div>
@@ -2913,6 +3361,7 @@
                 'SKBB': 'bg-teal-100 text-teal-700 border-teal-200',
                 'BERHENTI': 'bg-gray-200 text-gray-700 border-gray-300',
 				'BUKU_TAMU': 'bg-sky-100 text-sky-700 border-sky-200',
+				'REKOMENDASI_STUDI': 'bg-blue-100 text-blue-800 border-blue-300',
             };
             return styles[type] || 'bg-slate-100 text-slate-700 border-slate-200';
         }
