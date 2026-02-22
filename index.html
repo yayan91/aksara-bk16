@@ -860,6 +860,54 @@
                 });
                 return Object.entries(counts).map(([nama, count]) => ({ nama, count })).filter(item => item.count >= 2).sort((a,b) => b.count - a.count).slice(0, 5);
             };
+			
+			// --- AI PREDICTIVE ANALYTICS (MESIN PERAMAL) ---
+            const getAIPredictions = () => {
+                const problemTypes = ['SKORSING', 'PERNYATAAN', 'KONTRAK', 'MEDIASI', 'KONFERENSI_KASUS'];
+                const studentStats = {};
+                const now = new Date();
+
+                // Membaca pola dari database
+                letters.forEach(l => {
+                    if (problemTypes.includes(l.type) && l.namaSiswa) {
+                        if (!studentStats[l.namaSiswa]) {
+                            studentStats[l.namaSiswa] = { counts: 0, lastDate: new Date(l.tanggal), types: [], kelas: l.kelas };
+                        }
+                        studentStats[l.namaSiswa].counts += 1;
+                        studentStats[l.namaSiswa].types.push(l.type);
+                        const lDate = new Date(l.tanggal);
+                        if (lDate > studentStats[l.namaSiswa].lastDate) {
+                            studentStats[l.namaSiswa].lastDate = lDate;
+                        }
+                    }
+                });
+
+                const predictions = [];
+                Object.keys(studentStats).forEach(nama => {
+                    const stat = studentStats[nama];
+                    const daysSinceLast = Math.floor((now - stat.lastDate) / (1000 * 60 * 60 * 24));
+                    
+                    // Algoritma Penilaian Risiko Dasar (Mulai dari 30%)
+                    let score = 30 + (stat.counts * 15); 
+                    if (daysSinceLast < 14) score += 20; // Jeda waktu sempit = Bahaya naik
+                    if (stat.types.includes('SKORSING')) score += 15; // Punya riwayat berat = Bahaya naik
+                    if (score > 98) score = 98; // Maksimal 98%
+
+                    // Hanya tampilkan jika skor di atas 60%
+                    if (score >= 60) {
+                        let insight = "";
+                        if (daysSinceLast < 7) insight = `Jeda pelanggaran sangat pendek (${daysSinceLast} hari lalu). Rawan terjadi eskalasi minggu ini.`;
+                        else if (stat.counts >= 3) insight = `Pola historis berulang terdeteksi (${stat.counts} kasus). Diperlukan intervensi & pendekatan preventif segera.`;
+                        else if (stat.types.includes('SKORSING')) insight = `Riwayat sanksi berat sebelumnya. Probabilitas mengulangi pelanggaran cukup tinggi.`;
+                        else insight = `Terdapat indikasi penurunan kedisiplinan beruntun. Jadwalkan pemanggilan konseling.`;
+
+                        predictions.push({ nama, kelas: stat.kelas, score, insight, daysSinceLast });
+                    }
+                });
+
+                // Urutkan dari yang paling berbahaya, ambil 4 teratas agar pas 1 baris
+                return predictions.sort((a, b) => b.score - a.score);
+            };
 
             const getChartData = () => {
                 const stats = getDashboardStats().filter(s => s.count > 0).sort((a,b) => b.count - a.count);
@@ -1134,6 +1182,63 @@
                                                     <p className="text-blue-100 text-xs font-bold uppercase tracking-widest mb-1">Total Arsip</p>
                                                     <h3 className="text-5xl font-black drop-shadow-md tracking-tighter">{letters.length}</h3>
                                                     <p className="text-[10px] text-blue-200 mt-2 font-medium uppercase tracking-wide">Dokumen Tersimpan</p>
+                                                </div>
+                                            </div>
+											
+											{/* FITUR ALIEN: AI EARLY WARNING SYSTEM (FULL WIDTH) */}
+                                            <div className="mb-8 animate-fade-in-up w-full">
+                                                <div className="bg-[#0f172a] p-6 md:p-8 rounded-3xl shadow-2xl border border-rose-500/20 relative overflow-hidden">
+                                                    {/* Efek Cahaya Merah Ambient */}
+                                                    <div className="absolute top-0 right-0 w-64 h-64 bg-rose-600/10 rounded-full blur-[80px] pointer-events-none animate-pulse"></div>
+                                                    <div className="absolute bottom-0 left-0 w-40 h-40 bg-orange-600/10 rounded-full blur-[60px] pointer-events-none"></div>
+                                                    
+                                                    {/* Header Radar */}
+                                                    <div className="flex items-center gap-4 mb-6 relative z-10">
+                                                        <div className="p-3 bg-rose-500/20 rounded-xl shadow-[0_0_15px_rgba(244,63,94,0.3)] animate-[pulse_2s_ease-in-out_infinite]">
+                                                            <AlertTriangle className="text-rose-400" size={26} strokeWidth={2.5}/>
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="text-lg md:text-xl font-black text-white tracking-wide uppercase drop-shadow-md">Radar Prediksi Risiko (AI-Scanner)</h3>
+                                                            <p className="text-[11px] md:text-xs text-slate-400 font-medium mt-1">Memindai anomali dan probabilitas pelanggaran siswa dalam 14-30 hari ke depan berdasarkan pola database.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Daftar Hasil Prediksi (Grid 4 Kolom) */}
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10 max-h-[320px] overflow-y-auto custom-scrollbar pr-2 pb-2">
+                                                        {getAIPredictions().map((pred, i) => (
+                                                            <div key={i} className="bg-slate-800/80 backdrop-blur-sm border border-slate-700/80 hover:border-rose-500/50 p-5 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-lg hover:shadow-rose-900/20 flex flex-col justify-between">
+                                                                <div>
+                                                                    <div className="flex justify-between items-start mb-3">
+                                                                        <div>
+                                                                            <h4 className="font-bold text-slate-200 text-sm truncate w-[130px]" title={pred.nama}>{pred.nama}</h4>
+                                                                            <span className="text-[10px] text-slate-500 font-medium bg-slate-900 px-2 py-0.5 rounded">{pred.kelas}</span>
+                                                                        </div>
+                                                                        <span className="bg-rose-500/20 text-rose-400 text-[11px] font-black px-2 py-1 rounded shadow-sm border border-rose-500/30">{pred.score}%</span>
+                                                                    </div>
+                                                                    
+                                                                    <div className="w-full bg-slate-900 rounded-full h-1.5 mb-4 overflow-hidden border border-slate-700">
+                                                                        <div className="bg-gradient-to-r from-orange-500 to-rose-500 h-full rounded-full relative" style={{ width: `${pred.score}%` }}>
+                                                                            <div className="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_1s_ease-in-out_infinite]"></div>
+                                                                        </div>
+                                                                    </div>
+                                                                    
+                                                                    <p className="text-[11px] text-slate-400 italic leading-relaxed mb-4">"{pred.insight}"</p>
+                                                                </div>
+                                                                
+                                                                <button onClick={() => {setHistoryStudent(pred.nama); setViewState('history');}} className="w-full bg-slate-700/50 hover:bg-rose-600 text-slate-300 hover:text-white text-xs font-bold py-2.5 rounded-xl transition-colors flex items-center justify-center gap-2 border border-slate-600 hover:border-rose-500">
+                                                                    <Search size={14} strokeWidth={2.5}/> Investigasi Siswa
+                                                                </button>
+                                                            </div>
+                                                        ))}
+                                                        
+                                                        {getAIPredictions().length === 0 && (
+                                                            <div className="col-span-full py-10 text-center border-2 border-dashed border-slate-700/50 rounded-2xl bg-slate-800/30">
+                                                                <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-3"><ShieldCheck size={32} className="text-emerald-400 opacity-80"/></div>
+                                                                <p className="text-emerald-400 font-bold text-sm tracking-wide uppercase">Zona Hijau / Aman Terkendali</p>
+                                                                <p className="text-xs text-slate-500 mt-1 max-w-md mx-auto">Sistem AI tidak mendeteksi adanya anomali atau risiko pelanggaran tinggi pada siswa berdasarkan histori data saat ini.</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             </div>
 
