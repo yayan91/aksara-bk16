@@ -1547,33 +1547,73 @@
 													</div>
 												</div>
 
-												{/* 4. NEW FEATURE: TREN TOPIK MASALAH (FULL WIDTH DI BAWAH 3 KOLOM) */}
+												{/* 5. TREN TOPIK MASALAH (FULL WIDTH) */}
 												<div className="mt-6 mb-8 animate-fade-in-up w-full">
-													<div className="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden">
-														<div className="absolute top-0 right-0 w-64 h-64 bg-amber-50 rounded-bl-full -z-0 opacity-60 pointer-events-none"></div>
-														<h3 className="text-lg font-bold text-slate-800 mb-8 flex items-center gap-2 relative z-10"><FileWarning className="text-amber-500"/> Tren Topik Masalah & Pelanggaran Terbanyak</h3>
+													<div className="bg-white p-6 md:p-8 rounded-[2rem] shadow-sm border border-slate-200/80 relative overflow-hidden">
+														{/* Dekorasi Background */}
+														<div className="absolute top-0 right-0 w-64 h-64 bg-rose-50 rounded-bl-full -z-0 pointer-events-none"></div>
+														<div className="absolute bottom-0 left-0 w-40 h-40 bg-orange-50 rounded-tr-full -z-0 pointer-events-none"></div>
 														
-														{/* Di dalam ini kita buat grid 3 kolom yang membentang luas */}
-														<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-6 relative z-10">
+														<div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 relative z-10">
+															<h3 className="text-lg font-black text-slate-800 flex items-center gap-2.5 tracking-tight">
+																<div className="p-2 bg-rose-50 text-rose-600 rounded-xl shadow-sm border border-rose-100"><FileWarning size={20}/></div> 
+																Tren Topik Masalah & Pelanggaran
+															</h3>
+															<span className="bg-slate-50 text-slate-500 text-[10px] font-bold px-3 py-1.5 rounded-lg border border-slate-200 shadow-sm uppercase tracking-widest">
+																Tingkat Kerawanan Tertinggi
+															</span>
+														</div>
+														
+														<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 relative z-10">
 															{getProblemTrends().map((data, i) => (
-																<div key={i} className="group flex items-center gap-4 hover:bg-amber-50/60 p-3 rounded-xl border border-transparent hover:border-amber-100 transition-all duration-300">
-																	<div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-100 to-orange-100 text-amber-700 flex items-center justify-center font-black text-lg shadow-sm border border-amber-200 group-hover:scale-110 group-hover:-rotate-3 transition-transform">
-																		{i+1}
-																	</div>
-																	<div className="flex-1">
-																		<div className="flex justify-between items-end mb-2">
-																			<span className="text-xs font-bold text-slate-700 uppercase tracking-wider group-hover:text-amber-600 transition-colors line-clamp-1" title={data.label}>{data.label}</span>
-																			<span className="bg-amber-500 text-white px-2.5 py-0.5 rounded-md text-[10px] font-bold shadow-sm">{data.count} Kasus</span>
+																<div key={i} className="group flex flex-col justify-between bg-white border border-slate-200/60 p-4 sm:p-5 rounded-2xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_25px_rgba(225,29,72,0.1)] hover:border-rose-300 transition-all duration-300 transform hover:-translate-y-1">
+																	<div className="flex items-start gap-3.5 mb-5">
+																		{/* Indikator Kerawanan (1: Merah/Bahaya, 2: Oranye/Peringatan, 3: Kuning/Waspada) */}
+																		<div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 shadow-sm border ${
+																			i === 0 ? 'bg-gradient-to-br from-rose-500 to-red-700 text-white border-red-600 shadow-rose-500/30' : 
+																			i === 1 ? 'bg-gradient-to-br from-orange-500 to-orange-700 text-white border-orange-600 shadow-orange-500/30' : 
+																			i === 2 ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white border-amber-500 shadow-amber-500/30' : 
+																			'bg-slate-100 text-slate-500 border-slate-200 group-hover:bg-rose-50 group-hover:text-rose-600 group-hover:border-rose-200'
+																		} transition-colors`}>
+																			#{i+1}
 																		</div>
-																		<div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden shadow-inner border border-slate-200/60">
-																			<div className={`h-2.5 rounded-full bg-gradient-to-r from-amber-400 to-orange-500`} style={{ width: `${data.percentage}%`, transition: 'width 1.5s ease-in-out' }}></div>
+																		
+																		{/* Judul Masalah */}
+																		<h4 className="text-sm font-bold text-slate-700 leading-snug group-hover:text-rose-600 transition-colors pt-1" style={{ wordBreak: 'break-word' }}>
+																			{data.label}
+																		</h4>
+																	</div>
+																	
+																	<div className="mt-auto">
+																		<div className="flex justify-between items-end mb-2">
+																			<span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1"><AlertTriangle size={10} className="text-rose-500"/> Intensitas</span>
+																			<div className="flex items-center gap-2">
+																				<span className="text-slate-800 font-black text-sm group-hover:text-rose-600 transition-colors">{data.count} <span className="text-[10px] font-bold text-slate-500">Kasus</span></span>
+																				<span className="bg-rose-50 text-rose-600 px-2 py-0.5 rounded text-[10px] font-black border border-rose-100">{Math.round(data.percentage)}%</span>
+																			</div>
+																		</div>
+																		<div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/50 shadow-inner">
+																			{/* Bar Animasi Mengikuti Level Kerawanan */}
+																			<div className={`h-full rounded-full ${
+																				i === 0 ? 'bg-gradient-to-r from-rose-500 to-red-600' : 
+																				i === 1 ? 'bg-gradient-to-r from-orange-400 to-orange-600' : 
+																				i === 2 ? 'bg-gradient-to-r from-amber-400 to-amber-500' : 
+																				'bg-gradient-to-r from-slate-400 to-slate-500'
+																			} relative`} style={{ width: `${data.percentage}%`, transition: 'width 1.5s ease-in-out' }}>
+																				<div className="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
+																			</div>
 																		</div>
 																	</div>
 																</div>
 															))}
+															
 															{getProblemTrends().length === 0 && (
-																<div className="col-span-1 md:col-span-2 lg:col-span-3">
-																	<p className="text-sm text-slate-400 italic py-8 text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50">Belum ada data permasalahan / pelanggaran yang tercatat.</p>
+																<div className="col-span-full">
+																	<div className="py-12 flex flex-col items-center justify-center text-center border-2 border-dashed border-slate-200 rounded-2xl bg-slate-50/50">
+																		<ShieldCheck size={36} className="text-slate-300 mb-3"/>
+																		<p className="text-sm font-bold text-slate-600">Sistem Bersih</p>
+																		<p className="text-xs text-slate-400 mt-1">Belum ada data permasalahan atau pelanggaran yang tercatat.</p>
+																	</div>
 																</div>
 															)}
 														</div>
