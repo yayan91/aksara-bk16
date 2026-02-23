@@ -912,8 +912,8 @@
                     if (stat.types.includes('SKORSING')) score += 15; // Punya riwayat berat = Bahaya naik
                     if (score > 98) score = 98; // Maksimal 98%
 
-                    // Hanya tampilkan jika skor di atas 60%
-                    if (score >= 60) {
+                    // Hanya tampilkan jika skor di atas 30%
+                    if (score >= 30) {
                         let insight = "";
                         if (daysSinceLast < 7) insight = `Jeda pelanggaran sangat pendek (${daysSinceLast} hari lalu). Rawan terjadi eskalasi minggu ini.`;
                         else if (stat.counts >= 3) insight = `Pola historis berulang terdeteksi (${stat.counts} kasus). Diperlukan intervensi & pendekatan preventif segera.`;
@@ -3902,4 +3902,5 @@
 </body>
 
 </html>
+
 
