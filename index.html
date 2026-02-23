@@ -1000,43 +1000,68 @@
 			
 			// --- FITUR BARU: SMART AGENDA MENDATANG (DENGAN FILTER TANGGAL LEWAT) ---
             const getUpcomingAgenda = () => {
-                const eventTypes = ['UNDANGAN', 'TUGAS_HOMEVISIT', 'KONFERENSI_KASUS', 'MEDIASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK'];
-                
-                // Mesin AI Pembaca Format Tanggal Indonesia
+                // Mesin AI Pembaca Format Tanggal (Otomatis deteksi YYYY-MM-DD atau Teks Manual)
                 const parseDateStr = (dateStr) => {
                     if (!dateStr) return new Date(0); 
+                    
+                    // Coba format 1: Tanggal baku dari sistem (YYYY-MM-DD)
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return new Date(dateStr);
+
                     const str = String(dateStr).toLowerCase();
                     const months = {'januari':0, 'februari':1, 'maret':2, 'april':3, 'mei':4, 'juni':5, 'juli':6, 'agustus':7, 'september':8, 'oktober':9, 'november':10, 'desember':11, 'jan':0, 'feb':1, 'mar':2, 'apr':3, 'jun':5, 'jul':6, 'agu':7, 'sep':8, 'okt':9, 'nov':10, 'des':11};
                     
-                    // Coba format 1: Teks (Contoh: "Senin, 10 Januari 2026")
+                    // Coba format 2: Teks Manual (Contoh: "Senin, 10 Januari 2026")
                     const matchText = str.match(/(\d{1,2})\s+([a-z]+)\s+(\d{4})/);
                     if (matchText && months[matchText[2]] !== undefined) {
                         return new Date(matchText[3], months[matchText[2]], matchText[1]);
                     }
                     
-                    // Coba format 2: Angka (Contoh: "10/01/2026" atau "10-01-2026")
+                    // Coba format 3: Angka Manual (Contoh: "10/01/2026")
                     const matchNum = str.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-                    if (matchNum) {
-                        return new Date(matchNum[3], matchNum[2] - 1, matchNum[1]);
-                    }
+                    if (matchNum) return new Date(matchNum[3], matchNum[2] - 1, matchNum[1]);
                     
-                    // Jika format aneh/tidak terbaca, kembalikan tanggal hari ini agar tetap tampil sementara
                     return new Date(); 
                 };
 
-                // Ambil waktu hari ini tepat jam 00:00
                 const today = new Date();
                 today.setHours(0, 0, 0, 0); 
 
-                return letters
-                    .filter(l => eventTypes.includes(l.type) && l.hariTanggalAcara && l.waktuAcara)
-                    .filter(l => {
-                        // Saring! Tampilkan HANYA jika tanggal acara >= hari ini (Belum Lewat)
-                        const eventDate = parseDateStr(l.hariTanggalAcara);
-                        return eventDate >= today; 
-                    })
-                    // Urutkan dari jadwal yang paling dekat harinya
-                    .sort((a, b) => parseDateStr(a.hariTanggalAcara) - parseDateStr(b.hariTanggalAcara)); 
+                let agendaList = [];
+
+                letters.forEach(l => {
+                    let sortDate = new Date(0);
+                    let displayDate = '';
+                    let displayTime = '';
+
+                    if (l.type === 'SKORSING') {
+                        // Skorsing: Tampil selama tanggalSelesai belum lewat
+                        sortDate = parseDateStr(l.tanggalSelesai || l.tanggalMulai);
+                        if (sortDate < today) return; 
+                        displayDate = `${formatDate(l.tanggalMulai)} s.d ${formatDate(l.tanggalSelesai)}`;
+                        displayTime = `Masa Skorsing (${l.lamaSkorsing})`;
+                        agendaList.push({ ...l, sortDate, displayDate, displayTime });
+                    } 
+                    else if (l.type === 'KONTRAK') {
+                        // Kontrak: Fokus ke tanggal Tinjauan
+                        sortDate = parseDateStr(l.tanggalTinjauan || l.tanggalKontrak);
+                        if (sortDate < today) return;
+                        displayDate = `Tinjauan: ${formatDate(l.tanggalTinjauan)}`;
+                        displayTime = `Mulai: ${formatDate(l.tanggalKontrak)}`;
+                        agendaList.push({ ...l, sortDate, displayDate, displayTime });
+                    }
+                    else if (l.type === 'UNDANGAN' || l.type === 'TUGAS_HOMEVISIT') {
+                        // Undangan & Homevisit: Fokus ke hari acara
+                        if (!l.hariTanggalAcara) return;
+                        sortDate = parseDateStr(l.hariTanggalAcara);
+                        if (sortDate < today) return;
+                        displayDate = l.hariTanggalAcara;
+                        displayTime = `Pukul ${l.waktuAcara}`;
+                        agendaList.push({ ...l, sortDate, displayDate, displayTime });
+                    }
+                });
+
+                // Urutkan dari jadwal yang paling dekat harinya
+                return agendaList.sort((a, b) => a.sortDate - b.sortDate);
             };
 			
             // -----------------------------------------------------------
@@ -1379,11 +1404,11 @@
                                                         Agenda & Jadwal Terdekat
                                                     </h3>
                                                     <span className="bg-emerald-50 border border-emerald-200 text-emerald-600 text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest shadow-sm flex items-center gap-1.5">
-                                                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Live Update
+                                                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span> Mendatang
                                                     </span>
                                                 </div>
                                                 
-                                                {/* Pembungkus List dengan Scrollbar Maksimal Tinggi 260px */}
+                                                {/* Pembungkus List dengan Scrollbar Maksimal Tinggi */}
                                                 <div className="max-h-[260px] overflow-y-auto custom-scrollbar pr-3 space-y-3 relative z-10">
                                                     {getUpcomingAgenda().length > 0 ? (
                                                         getUpcomingAgenda().map((agenda, i) => (
@@ -1395,16 +1420,16 @@
                                                                     <div>
                                                                         <div className="flex flex-wrap items-center gap-2 mb-1.5">
                                                                             <h4 className="font-bold text-slate-800 group-hover:text-blue-700 transition-colors text-sm md:text-base">{agenda.namaSiswa}</h4>
-                                                                            <span className="bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest shadow-sm">Kls {agenda.kelas}</span>
+                                                                            <span className="bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest shadow-sm">Kelas {agenda.kelas}</span>
                                                                             <span className={`text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest shadow-sm border ${getBadgeStyle(agenda.type)}`}>{agenda.type.replace('_', ' ')}</span>
                                                                         </div>
-                                                                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-slate-500">
-                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Calendar size={12} className="text-slate-400"/> {agenda.hariTanggalAcara}</span>
-                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Monitor size={12} className="text-slate-400"/> Pukul {agenda.waktuAcara}</span>
+                                                                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-slate-500 mt-1">
+                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Calendar size={12} className="text-slate-400"/> {agenda.displayDate}</span>
+                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Monitor size={12} className="text-slate-400"/> {agenda.displayTime}</span>
                                                                             
                                                                             {/* INFO PEMBUAT (PIC) AGENDA */}
                                                                             <span className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-200 shadow-sm ml-auto sm:ml-0">
-                                                                                <User size={12} strokeWidth={2.5}/> PIC: {agenda.namaPetugas || agenda.createdBy || '-'}
+                                                                                <User size={12} strokeWidth={2.5}/> Guru: {agenda.namaPetugas || agenda.createdBy || '-'}
                                                                             </span>
                                                                         </div>
                                                                     </div>
@@ -1420,7 +1445,7 @@
                                                                 <ShieldCheck size={28} strokeWidth={2}/>
                                                             </div>
                                                             <p className="text-slate-700 font-black text-sm tracking-wide">Clear! Tidak ada agenda mendatang.</p>
-                                                            <p className="text-xs text-slate-400 mt-1.5 max-w-sm mx-auto font-medium">Jadwal yang tanggalnya sudah lewat otomatis disembunyikan oleh sistem ke dalam arsip.</p>
+                                                            <p className="text-xs text-slate-400 mt-1.5 max-w-sm mx-auto font-medium">Jadwal Skorsing, Kontrak, Home Visit, & Undangan otomatis tampil di sini.</p>
                                                         </div>
                                                     )}
                                                 </div>
@@ -2527,7 +2552,42 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                         <div><label className="block text-sm font-medium text-gray-700">Lampiran</label><input type="text" name="lampiran" value={formData.lampiran} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
                                         <div className="col-span-2"><label className="block text-sm font-medium text-gray-700">Perihal</label><input type="text" name="perihal" value={formData.perihal} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
-                                        <div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal Acara</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2024" required /></div>
+                                        
+                                        {/* KOLOM TANGGAL PINTAR (DATE PICKER TO TEXT) */}
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Hari/Tanggal Acara</label>
+                                            <div className="flex shadow-sm">
+                                                {/* Pembungkus Ikon yang presisi */}
+                                                <div className="relative flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-r-0 border-gray-300 rounded-l-md px-4 text-blue-600 transition-colors cursor-pointer overflow-hidden">
+                                                    
+                                                    {/* Ikon dibuat tembus klik dengan pointer-events-none */}
+                                                    <Calendar size={18} className="pointer-events-none" />
+                                                    
+                                                    {/* Kalender Transparan dipaksa ke depan dengan z-50 */}
+                                                    <input 
+                                                        type="date" 
+                                                        onChange={(e) => { 
+                                                            if(!e.target.value) return; 
+                                                            const d = new Date(e.target.value); 
+                                                            const f = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+                                                            setFormData(prev => ({...prev, hariTanggalAcara: f})); 
+                                                        }} 
+                                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+                                                        title="Pilih Kalender" 
+                                                    />
+                                                </div>
+                                                <input 
+                                                    type="text" 
+                                                    name="hariTanggalAcara" 
+                                                    value={formData.hariTanggalAcara} 
+                                                    onChange={handleChange} 
+                                                    className="w-full p-2 border border-gray-300 rounded-r-md outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700" 
+                                                    placeholder="Pilih dari kalender 👈 atau ketik manual..." 
+                                                    required 
+                                                />
+                                            </div>
+                                        </div>
+
                                         <div><label className="block text-sm font-medium text-gray-700">Waktu Acara</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
                                         <div className="col-span-2"><label className="block text-sm font-medium text-gray-700">Tempat Acara</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ruang Guru" required /></div>
                                     </div>
