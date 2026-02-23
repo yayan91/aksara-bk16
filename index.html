@@ -139,7 +139,7 @@
             );
         }
 		
-		// --- LOGIN VIEW (UPDATED: SERVER-SIDE CHECK) ---
+		// --- LOGIN VIEW (SPLIT SCREEN MODERN) ---
         function LoginView({ onLogin }) {
             const [username, setUsername] = useState('');
             const [password, setPassword] = useState('');
@@ -164,7 +164,6 @@
                     const result = await response.json();
 
                     if (result.status === 'success') {
-                        // Alert Keren Saat Berhasil Login
                         Swal.fire({
                             icon: 'success',
                             title: 'Berhasil Masuk!',
@@ -175,7 +174,6 @@
                             onLogin(result.user);
                         });
                     } else {
-                        // Alert Keren Saat Gagal
                         Swal.fire({
                             icon: 'error',
                             title: 'Login Gagal',
@@ -190,72 +188,169 @@
                 }
             };
 
+            // Fungsi Info Pop-Up (Hanya untuk tampilan HP)
+            const showInfoModal = () => {
+                Swal.fire({
+                    title: 'Informasi Aplikasi',
+                    html: `
+                        <div class="text-left text-sm space-y-3">
+                            <p><strong>AKSARA-BK16</strong> dirancang khusus untuk mempermudah Guru Bimbingan dan Konseling dalam mengelola persuratan dan administrasi.</p>
+                            <p class="font-bold border-b pb-1 mt-4">Cara Penggunaan:</p>
+                            <ul class="list-decimal pl-5 space-y-1">
+                                <li>Masukkan <strong>Username</strong> dan <strong>Password</strong>.</li>
+                                <li>Pilih jenis layanan di menu sebelah kiri (Skorsing, Mediasi, dll).</li>
+                                <li>Isi form yang disediakan. Nama siswa dapat dicari otomatis.</li>
+                                <li>Klik <strong>Simpan</strong>, lalu gunakan tombol <strong>Cetak PDF</strong>.</li>
+                            </ul>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonText: 'Tutup',
+                    confirmButtonColor: '#3b82f6'
+                });
+            };
+
             return (
-                <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
-                    {isLoading && <LoadingOverlay message="Tunggu Yah.." />}
-                    <div className="absolute inset-0 bg-[url('https://source.unsplash.com/random/1920x1080/?school,book')] bg-cover opacity-20"></div>
-                    <div className="bg-white w-full max-w-md p-8 rounded-2xl shadow-2xl relative z-10 animate-fade-in-up">
+                <div className="min-h-screen w-full flex bg-slate-50 font-sans">
+                    {isLoading && <LoadingOverlay message="Tunggu Yah..." />}
+                    
+                    {/* BAGIAN KIRI: INFO & BRANDING (Hanya Tampil di Layar Besar/Laptop) */}
+                    <div className="hidden lg:flex lg:w-[55%] xl:w-[60%] bg-gradient-to-br from-blue-900 via-indigo-900 to-slate-900 relative flex-col justify-between p-12 overflow-hidden text-white shadow-[inset_-20px_0_40px_rgba(0,0,0,0.1)]">
+                        {/* Efek Cahaya Dekoratif */}
+                        <div className="absolute top-[-20%] left-[-10%] w-[70%] h-[70%] bg-blue-500/20 rounded-full blur-[120px] pointer-events-none"></div>
+                        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/20 rounded-full blur-[100px] pointer-events-none"></div>
                         
-                        {/* Tombol Informasi di pojok kanan atas modal login */}
-                        <button type="button" onClick={() => {
-                            Swal.fire({
-                                title: 'Informasi Aplikasi',
-                                html: `
-                                    <div class="text-left text-sm space-y-3">
-                                        <p><strong>AKSARA-BK16</strong> dirancang khusus untuk mempermudah Guru Bimbingan dan Konseling dalam mengelola persuratan dan administrasi.</p>
-                                        <p class="font-bold border-b pb-1 mt-4">Cara Penggunaan:</p>
-                                        <ul class="list-decimal pl-5 space-y-1">
-                                            <li>Masukkan <strong>Username</strong> dan <strong>Password</strong>.</li>
-                                            <li>Pilih jenis layanan di menu sebelah kiri (Skorsing, Mediasi, Konferensi Kasus, dll).</li>
-                                            <li>Isi form yang disediakan. Nama siswa dapat dicari secara otomatis.</li>
-                                            <li>Klik <strong>Simpan</strong>, lalu gunakan tombol <strong>Cetak PDF</strong> untuk mencetak dokumen/berita acara.</li>
-                                            <li>Data yang disimpan akan otomatis tersinkronisasi.</li>
-                                        </ul>
+                        {/* Tekstur Pattern (Opsional) */}
+                        <div className="absolute inset-0 bg-[url('https://source.unsplash.com/random/1920x1080/?abstract,geometric')] bg-cover opacity-5 mix-blend-overlay pointer-events-none"></div>
+
+                        {/* Konten Kiri Atas - Logo & Tagline */}
+						<div className="relative z-10 animate-fade-in-up">
+							<div className="flex items-center gap-3 mb-8">
+								
+								{/* --- UBAH BAGIAN INI UNTUK LOGO DESKTOP --- */}
+								<div className="w-24 h-30 bg-white/10 backdrop-blur-md rounded-2xl flex items-center justify-center border border-white/20 shadow-lg overflow-hidden">
+									<img 
+										src="https://lh3.googleusercontent.com/u/0/d/1Wr_uC9C32tjzN19PZXLsk3tyBNrzO1wy" 
+										alt="Logo Aksara" 
+										className="w-full h-full object-contain p-1" 
+									/>
+								</div>
+								{/* ----------------------------------------- */}
+
+								<div>
+									<h1 className="text-3xl font-black tracking-tight text-white leading-none">AKSARA<span className="text-blue-400">-16</span></h1>
+									<p className="text-[11px] text-blue-200 mt-1 font-bold tracking-[0.2em] uppercase">Aplikasi Persuratan Bimbingan dan Konseling</p>
+								</div>
+							</div>
+                            <h2 className="text-4xl xl:text-5xl font-extrabold leading-tight mb-6 tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-white to-blue-200">
+                                Mudahkan Langkah,<br/>Rapikan Administrasi Persuratan.
+                            </h2>
+                            <p className="text-blue-100/80 text-lg max-w-lg mb-12 leading-relaxed">
+                                Asisten digital untuk kelancaran tata usaha Bimbingan dan Konseling. Buat, lacak, dan cetak berbagai dokumen persuratan siswa tanpa repot, di mana saja dan kapan saja.
+                            </p>
+
+                            {/* Fitur Utama / Cara Penggunaan (Grid) */}
+                            <div className="grid grid-cols-2 gap-6 max-w-2xl">
+                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
+                                    <div className="bg-blue-500/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-blue-400/30">
+                                        <ShieldCheck size={20} className="text-blue-300"/>
                                     </div>
-                                `,
-                                icon: 'info',
-                                confirmButtonText: 'Tutup',
-                                confirmButtonColor: '#3b82f6'
-                            });
-                        }} className="absolute top-4 right-4 text-gray-400 hover:text-blue-500 transition-colors" title="Informasi & Bantuan">
-                            <Info size={24} />
+                                    <h3 className="font-bold text-white text-sm mb-1">Aman & Terpusat</h3>
+                                    <p className="text-xs text-blue-100/60 leading-relaxed">Semua data tersimpan otomatis di Cloud. Tidak ada lagi dokumen kertas yang hilang.</p>
+                                </div>
+                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
+                                    <div className="bg-purple-500/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-purple-400/30">
+                                        <Sparkles size={20} className="text-purple-300"/>
+                                    </div>
+                                    <h3 className="font-bold text-white text-sm mb-1">AI-Powered</h3>
+                                    <p className="text-xs text-blue-100/60 leading-relaxed">Dilengkapi fitur Sulap AI untuk merangkai kalimat baku dan Radar Prediksi Risiko siswa.</p>
+                                </div>
+                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
+                                    <div className="bg-emerald-500/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-emerald-400/30">
+                                        <Printer size={20} className="text-emerald-300"/>
+                                    </div>
+                                    <h3 className="font-bold text-white text-sm mb-1">Cetak Instan</h3>
+                                    <p className="text-xs text-blue-100/60 leading-relaxed">Generate Berita Acara, Undangan, dan Surat Skorsing ke dalam format cetak PDF.</p>
+                                </div>
+                                <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-5 rounded-2xl">
+                                    <div className="bg-amber-500/20 w-10 h-10 rounded-xl flex items-center justify-center mb-4 border border-amber-400/30">
+                                        <MessageCircle size={20} className="text-amber-300"/>
+                                    </div>
+                                    <h3 className="font-bold text-white text-sm mb-1">Integrasi WA</h3>
+                                    <p className="text-xs text-blue-100/60 leading-relaxed">Kirim pemberitahuan dan surat panggilan langsung ke nomor WhatsApp Orang Tua.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Konten Kiri Bawah - Footer */}
+                        <div className="relative z-10 text-xs text-blue-200/50 font-medium">
+                            &copy; {new Date().getFullYear()} Mappaguru Online. Dikembangkan untuk Guru BK.
+                        </div>
+                    </div>
+
+                    {/* BAGIAN KANAN: AREA LOGIN (Tampil Full di HP, Tampil Kanan di Laptop) */}
+                    <div className="w-full lg:w-[45%] xl:w-[40%] flex items-center justify-center p-6 sm:p-12 relative bg-white lg:bg-slate-50">
+                        
+                        {/* Tombol Info (Hanya Muncul di HP, Karena di Laptop Infonya Ada di Kiri) */}
+                        <button type="button" onClick={showInfoModal} className="lg:hidden absolute top-6 right-6 text-slate-400 hover:text-blue-600 bg-slate-100 hover:bg-blue-50 p-2.5 rounded-full transition-colors shadow-sm" title="Informasi Aplikasi">
+                            <Info size={22} />
                         </button>
 
-                        <div className="text-center mb-8">
-                            {/* Tempat Logo Gambar */}
-                            <div className="w-30 h-24 mx-auto mb-4">
-                                <img 
-                                    src="https://lh3.googleusercontent.com/u/0/d/1Wr_uC9C32tjzN19PZXLsk3tyBNrzO1wy" 
-                                    alt="Logo AKSARA" 
-                                    className="w-full h-full object-contain drop-shadow-md hover:scale-105 transition-transform duration-300" 
-                                />
-                            </div>
-                            <h1 className="text-2xl font-bold text-slate-800">AKSARA-BK16</h1>
-                            <p className="text-slate-500 text-sm">Aplikasi Kelola Surat Bimbingan dan Konseling</p>
-                        </div>
-                        {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-4 text-center">{error}</div>}
-                        <form onSubmit={handleLogin} className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                <div className="relative">
-                                    <User className="absolute left-3 top-2.5 text-gray-400" size={18}/>
-                                    <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Nama Guru" required />
+                       <div className="w-full max-w-[400px] animate-fade-in-up">
+							{/* Header Form Kanan */}
+							<div className="text-center mb-8 lg:text-left">
+								
+								{/* --- UBAH BAGIAN INI UNTUK LOGO MOBILE --- */}
+								<div className="lg:hidden w-24 h-25 mx-auto mb-4 bg-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30 overflow-hidden border border-slate-100">
+									<img 
+										src="https://lh3.googleusercontent.com/u/0/d/1Wr_uC9C32tjzN19PZXLsk3tyBNrzO1wy" 
+										alt="Logo Aksara" 
+										className="w-full h-full object-contain p-2" 
+									/>
+								</div>
+								{/* ---------------------------------------- */}
+
+								<h2 className="text-3xl font-black text-slate-800 mb-2">Selamat Datang 👋</h2>
+								<p className="text-sm text-slate-500 font-medium">Silakan masuk ke akun konselor Anda untuk mengelola data hari ini.</p>
+							</div>
+
+                            {error && <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-lg text-sm mb-6 flex items-center gap-3"><AlertTriangle size={18} className="shrink-0"/> {error}</div>}
+                            
+                            <form onSubmit={handleLogin} className="space-y-5">
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Username / ID Konselor</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <User className="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                        </div>
+                                        <input type="text" value={username} onChange={e => setUsername(e.target.value)} className="w-full pl-11 pr-4 py-3.5 bg-slate-100/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-700 font-semibold" placeholder="Contoh: Pak Hasratul" required />
+                                    </div>
                                 </div>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-                                <div className="relative">
-                                    <Lock className="absolute left-3 top-2.5 text-gray-400" size={18}/>
-                                    <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="••••••" required />
-                                    <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
-                                        {showPass ? <EyeOff size={18}/> : <Eye size={18}/>}
+                                
+                                <div>
+                                    <label className="block text-sm font-bold text-slate-700 mb-1.5 ml-1">Password</label>
+                                    <div className="relative group">
+                                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                            <Lock className="h-5 w-5 text-slate-400 group-focus-within:text-blue-600 transition-colors" />
+                                        </div>
+                                        <input type={showPass ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} className="w-full pl-11 pr-12 py-3.5 bg-slate-100/50 border border-slate-200 rounded-2xl focus:bg-white focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 outline-none transition-all text-slate-700 font-semibold" placeholder="••••••••" required />
+                                        <button type="button" onClick={() => setShowPass(!showPass)} className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none">
+                                            {showPass ? <EyeOff size={20}/> : <Eye size={20}/>}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div className="pt-4">
+                                    <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-lg py-4 rounded-2xl shadow-lg shadow-blue-500/30 transform hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+                                        Masuk Aplikasi <ArrowLeft size={20} className="rotate-180" />
                                     </button>
                                 </div>
+                            </form>
+                            
+                            {/* Footer Mobile (Hidden in Desktop because Desktop has left side footer) */}
+                            <div className="mt-8 text-center text-xs text-slate-400 font-medium lg:hidden">
+                                &copy; {new Date().getFullYear()} UPT SPF SMPN 16 Makassar
                             </div>
-                            <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg shadow transition-colors">Masuk Aplikasi</button>
-                        </form>
-                        <div className="mt-6 text-center text-xs text-gray-400">
-                            &copy; {new Date().getFullYear()} UPT SPF SMP Negeri 16 Makassar
                         </div>
                     </div>
                 </div>
@@ -906,16 +1001,21 @@
                     const stat = studentStats[nama];
                     const daysSinceLast = Math.floor((now - stat.lastDate) / (1000 * 60 * 60 * 24));
                     
-                    // Algoritma Penilaian Risiko Dasar (Mulai dari 30%)
-                    let score = 30 + (stat.counts * 15); 
-                    if (daysSinceLast < 14) score += 20; // Jeda waktu sempit = Bahaya naik
-                    if (stat.types.includes('SKORSING')) score += 15; // Punya riwayat berat = Bahaya naik
+                    // Algoritma Penilaian Risiko Dasar (Nilai awal 5 poin, jumlah kasus x 5)
+                    let score = 5 + (stat.counts * 5); 
+                    
+                    // Jika ada kejadian berulang/baru dalam kurun waktu 7 hari, tambah 10 poin
+                    if (daysSinceLast <= 7) score += 10; 
+                    
+                    // Punya riwayat skorsing tetap tambah 15 poin
+                    if (stat.types.includes('SKORSING')) score += 15; 
+                    
                     if (score > 98) score = 98; // Maksimal 98%
 
-                    // Hanya tampilkan jika skor di atas 30%
-                    if (score >= 30) {
+                    // Hanya tampilkan jika skor mencapai 25% ke atas
+                    if (score >= 25) {
                         let insight = "";
-                        if (daysSinceLast < 7) insight = `Jeda pelanggaran sangat pendek (${daysSinceLast} hari lalu). Rawan terjadi eskalasi minggu ini.`;
+                        if (daysSinceLast <= 7) insight = `Jeda pelanggaran sangat pendek (${daysSinceLast} hari lalu). Rawan terjadi eskalasi minggu ini.`;
                         else if (stat.counts >= 3) insight = `Pola historis berulang terdeteksi (${stat.counts} kasus). Diperlukan intervensi & pendekatan preventif segera.`;
                         else if (stat.types.includes('SKORSING')) insight = `Riwayat sanksi berat sebelumnya. Probabilitas mengulangi pelanggaran cukup tinggi.`;
                         else insight = `Terdapat indikasi penurunan kedisiplinan beruntun. Jadwalkan pemanggilan konseling.`;
@@ -1350,7 +1450,7 @@
                                                         </div>
                                                         <div>
                                                             <h3 className="text-lg md:text-xl font-black text-white tracking-wide uppercase drop-shadow-md">Radar Prediksi Risiko (AI-Scanner)</h3>
-                                                            <p className="text-[11px] md:text-xs text-slate-400 font-medium mt-1">Memindai anomali dan probabilitas pelanggaran siswa dalam 14-30 hari ke depan berdasarkan pola database.</p>
+                                                            <p className="text-[11px] md:text-xs text-slate-400 font-medium mt-1">Memindai anomali dan probabilitas pelanggaran siswa dalam 7-14 hari ke depan berdasarkan pola database.</p>
                                                         </div>
                                                     </div>
 
@@ -3902,5 +4002,3 @@
 </body>
 
 </html>
-
-
