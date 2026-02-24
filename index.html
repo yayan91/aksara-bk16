@@ -2864,7 +2864,34 @@
 										<div><label className="block text-sm font-medium text-gray-700">Tempat</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
 									</div>
 									<div className="grid grid-cols-2 gap-4">
-										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal Konferensi</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2026" required /></div>
+										<div>
+											<label className="block text-sm font-medium text-gray-700 mb-1">Hari/Tanggal Konferensi</label>
+											<div className="flex shadow-sm">
+												<div className="relative flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-r-0 border-gray-300 rounded-l-md px-4 text-blue-600 transition-colors cursor-pointer overflow-hidden">
+													<Calendar size={18} className="pointer-events-none" />
+													<input 
+														type="date" 
+														onChange={(e) => { 
+															if(!e.target.value) return; 
+															const d = new Date(e.target.value); 
+															const f = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+															setFormData(prev => ({...prev, hariTanggalAcara: f})); 
+														}} 
+														className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+														title="Pilih Kalender" 
+													/>
+												</div>
+												<input 
+													type="text" 
+													name="hariTanggalAcara" 
+													value={formData.hariTanggalAcara} 
+													onChange={handleChange} 
+													className="w-full p-2 border border-gray-300 rounded-r-md outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700" 
+													placeholder="Pilih kalender 👈 atau ketik manual..." 
+													required 
+												/>
+											</div>
+										</div>
 										<div><label className="block text-sm font-medium text-gray-700">Waktu</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
 									</div>
 									<div><AILabel label="Gambaran Masalah / Topik Bahasan" stateKey="permasalahan" /><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" required></textarea></div>
@@ -4061,3 +4088,4 @@
 </body>
 
 </html>
+
