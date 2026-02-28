@@ -703,8 +703,25 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI'];
             const [historyStudent, setHistoryStudent] = useState(null);
+			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
+			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
+			const [filteredKardaliStudents, setFilteredKardaliStudents] = useState([]);
+			const [consentData, setConsentData] = useState({ namaSiswa: '', kelas: '', nisn: '', tempat: schoolData?.kota || '', namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || ''});
+			const [showConsentSuggestions, setShowConsentSuggestions] = useState(false);
+			const [filteredConsentStudents, setFilteredConsentStudents] = useState([]);
+			const [refleksiData, setRefleksiData] = useState({ namaSiswa: '', kelas: '', nisn: '', tempat: schoolData?.kota || '', namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || '' });
+			const [showRefleksiSuggestions, setShowRefleksiSuggestions] = useState(false);
+			const [filteredRefleksiStudents, setFilteredRefleksiStudents] = useState([]);
+			const [refleksiKelData, setRefleksiKelData] = useState({ 
+				jenisLayanan: 'Bimbingan Kelompok', 
+				topik: '', 
+				tempatLayanan: 'Ruang BK', 
+				tanggalLayanan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+				namaKonselor: schoolData?.namaPetugas || '', 
+				tempatTtd: schoolData?.kota || '' 
+			});
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
 
@@ -944,6 +961,8 @@
                 const types = [
                     { key: 'SKORSING', label: 'Skorsing', icon: <FileWarning/>, color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
                     { key: 'PERNYATAAN', label: 'Pernyataan', icon: <FileSignature/>, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+					{ key: 'REFLEKSI', label: 'Refleksi Diri', icon: <FileSignature/>, color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200' },
+					{ key: 'PROBATION', label: 'Masa Percobaan', icon: <FileWarning/>, color: 'text-purple-700', bg: 'bg-purple-50', border: 'border-purple-200' },
                     { key: 'UNDANGAN', label: 'Undangan', icon: <Mail/>, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
                     { key: 'KONTRAK', label: 'Kontrak Perilaku', icon: <FileCheck/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
                     { key: 'TUGAS_HOMEVISIT', label: 'Tugas H.Visit', icon: <Briefcase/>, color: 'text-indigo-600', bg: 'bg-indigo-50', border: 'border-indigo-200' },
@@ -1140,7 +1159,15 @@
                         displayDate = `${formatDate(l.tanggalMulai)} s.d ${formatDate(l.tanggalSelesai)}`;
                         displayTime = `Masa Skorsing (${l.lamaSkorsing})`;
                         agendaList.push({ ...l, sortDate, displayDate, displayTime });
-                    } 
+                    }
+					else if (l.type === 'PROBATION') {
+                        // Masa Percobaan: Tampil selama tanggalSelesai belum lewat
+                        sortDate = parseDateStr(l.tanggalSelesai || l.tanggalMulai);
+                        if (sortDate < today) return; 
+                        displayDate = `Berakhir: ${formatDate(l.tanggalSelesai)}`;
+                        displayTime = `Masa Percobaan (${l.durasiPercobaan})`;
+                        agendaList.push({ ...l, sortDate, displayDate, displayTime });
+                    }					
                     else if (l.type === 'KONTRAK') {
                         // Kontrak: Fokus ke tanggal Tinjauan
                         sortDate = parseDateStr(l.tanggalTinjauan || l.tanggalKontrak);
@@ -1176,6 +1203,19 @@
                                 <p><span className="block text-[10px] font-extrabold text-red-500 uppercase tracking-widest">Masa Skorsing</span> {letter.lamaSkorsing} ({formatDate(letter.tanggalMulai)} - {formatDate(letter.tanggalSelesai)})</p>
                             </div>
                         );
+						case 'PROBATION':
+						return (
+							<div className="space-y-2 border-l-2 border-purple-500 pl-3 bg-purple-50 p-2 rounded">
+								<p><span className="block text-[10px] font-extrabold text-purple-700 uppercase tracking-widest">Status Pengawasan</span> Sedang dalam Masa Percobaan ({letter.durasiPercobaan})</p>
+								<p><span className="block text-[10px] font-extrabold text-red-600 uppercase tracking-widest">Sanksi Pelanggaran</span> {letter.sanksiAkhir}</p>
+							</div>
+						);
+						case 'REFLEKSI':
+						return (
+							<div className="space-y-2 border-l-2 border-yellow-400 pl-3 bg-yellow-50 p-2 rounded">
+								<p><span className="block text-[10px] font-extrabold text-yellow-600 uppercase tracking-widest">Deskripsi Peristiwa</span> {letter.deskripsiPeristiwa}</p>
+							</div>
+						);
                     case 'PERNYATAAN':
                         return (
                             <div className="space-y-2">
@@ -1335,6 +1375,12 @@
                             const headerMap = {
                                 'dashboard': { cat: 'Aplikasi', title: 'Dashboard Utama', icon: <LayoutDashboard size={20} className="text-blue-600"/> },
                                 'PERNYATAAN': { cat: 'Pembinaan & Disiplin', title: 'Surat Pernyataan', icon: <FileSignature size={20} className="text-orange-600"/> },
+								'REFLEKSI': { cat: 'Pembinaan & Disiplin', title: 'Surat Refleksi Diri', icon: <FileSignature size={20} className="text-yellow-600"/> },
+								'PROBATION': { cat: 'Pembinaan & Disiplin', title: 'Surat Masa Percobaan', icon: <FileWarning size={20} className="text-purple-700"/> },
+								'KARDALI': { cat: 'Instrumen Pendukung', title: 'Kartu Kendali Siswa', icon: <ClipboardList size={20} className="text-emerald-600"/> },
+								'CONSENT': { cat: 'Instrumen Pendukung', title: 'Informed Consent', icon: <FileSignature size={20} className="text-blue-600"/> },
+								'REFLEKSI_STANDALONE': { cat: 'Instrumen Pendukung', title: 'Refleksi Pasca Layanan', icon: <MessageCircle size={20} className="text-pink-600"/> },
+								'REFLEKSI_KELOMPOK': { cat: 'Instrumen Pendukung', title: 'Refleksi Layanan Kelompok', icon: <Users size={20} className="text-purple-600"/> },
                                 'KONTRAK': { cat: 'Pembinaan & Disiplin', title: 'Kontrak Perilaku', icon: <FileCheck size={20} className="text-emerald-600"/> },
                                 'SKORSING': { cat: 'Pembinaan & Disiplin', title: 'Surat Skorsing', icon: <FileWarning size={20} className="text-red-600"/> },
                                 'BUKU_TAMU': { cat: 'Layanan & Konseling', title: 'Buku Tamu Harian', icon: <BookOpen size={20} className="text-sky-600"/> },
@@ -1952,6 +1998,180 @@
                                     </div>
                                 </div>
                             )}
+							
+							{viewState === 'refleksi_kelompok' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-purple-100 text-purple-600 rounded-xl"><Users size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Refleksi Kelompok</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak kosong untuk diisi tulisan tangan oleh anggota kelompok.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Layanan</label>
+												<select value={refleksiKelData.jenisLayanan} onChange={e => setRefleksiKelData({...refleksiKelData, jenisLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700">
+													<option value="Bimbingan Kelompok">Bimbingan Kelompok</option>
+													<option value="Konseling Kelompok">Konseling Kelompok</option>
+												</select>
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Topik / Masalah Bahasan</label><input type="text" value={refleksiKelData.topik} onChange={e => setRefleksiKelData({...refleksiKelData, topik: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Contoh: Bahaya Bullying" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat Layanan</label><input type="text" value={refleksiKelData.tempatLayanan} onChange={e => setRefleksiKelData({...refleksiKelData, tempatLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal Layanan</label><input type="text" value={refleksiKelData.tanggalLayanan} onChange={e => setRefleksiKelData({...refleksiKelData, tanggalLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Guru BK</label><input type="text" value={refleksiKelData.namaKonselor} onChange={e => setRefleksiKelData({...refleksiKelData, namaKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat TTD (Kota)</label><input type="text" value={refleksiKelData.tempatTtd} onChange={e => setRefleksiKelData({...refleksiKelData, tempatTtd: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Contoh: Makassar" /></div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-purple-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK LEMBAR KELOMPOK</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'refleksi_standalone' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-pink-100 text-pink-600 rounded-xl"><MessageCircle size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Lembar Refleksi</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak dan berikan ke siswa setelah sesi layanan selesai.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={refleksiData.namaSiswa} onChange={(e) => {
+													setRefleksiData({...refleksiData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredRefleksiStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowRefleksiSuggestions(true);
+													} else { setShowRefleksiSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showRefleksiSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredRefleksiStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-pink-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setRefleksiData({...refleksiData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN']});
+																setShowRefleksiSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={refleksiData.kelas} onChange={e => setRefleksiData({...refleksiData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											
+											<div className="md:col-span-2 grid grid-cols-2 gap-5">
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat / Kota</label><input type="text" value={refleksiData.tempat} onChange={e => setRefleksiData({...refleksiData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Contoh: Makassar" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Konselor / Guru BK</label><input type="text" value={refleksiData.namaKonselor} onChange={e => setRefleksiData({...refleksiData, namaKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+												<div className="col-start-2"><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NIP Guru BK</label><input type="text" value={refleksiData.nipKonselor} onChange={e => setRefleksiData({...refleksiData, nipKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="NIP. ..." /></div>
+											</div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-pink-600 hover:bg-pink-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-pink-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK LEMBAR REFLEKSI</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'consent' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><FileSignature size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Persetujuan Konseling</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Informed Consent: Cetak sebelum sesi konseling individual dimulai.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={consentData.namaSiswa} onChange={(e) => {
+													setConsentData({...consentData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredConsentStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowConsentSuggestions(true);
+													} else { setShowConsentSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama klien..." />
+												{showConsentSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredConsentStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setConsentData({...consentData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN']});
+																setShowConsentSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={consentData.kelas} onChange={e => setConsentData({...consentData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={consentData.nisn} onChange={e => setConsentData({...consentData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat / Kota</label><input type="text" value={consentData.tempat} onChange={e => setConsentData({...consentData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Contoh: Makassar" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Konselor / Guru BK</label><input type="text" value={consentData.namaKonselor} onChange={e => setConsentData({...consentData, namaKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Nama Guru BK" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NIP Guru BK</label><input type="text" value={consentData.nipKonselor} onChange={e => setConsentData({...consentData, nipKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="NIP. ........................." /></div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK LEMBAR PERSETUJUAN</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'kardali' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-emerald-100 text-emerald-600 rounded-xl"><ClipboardList size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Cetak Kartu Kendali</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Fitur Standalone: Data tidak masuk ke database riwayat, langsung cetak kertas.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={kardaliData.namaSiswa} onChange={(e) => {
+													setKardaliData({...kardaliData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredKardaliStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowKardaliSuggestions(true);
+													} else { setShowKardaliSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-emerald-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showKardaliSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredKardaliStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-emerald-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setKardaliData({...kardaliData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN']});
+																setShowKardaliSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+														{filteredKardaliStudents.length === 0 && <div className="p-3 text-gray-400 italic text-sm">Siswa tidak ditemukan</div>}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={kardaliData.kelas} onChange={e => setKardaliData({...kardaliData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={kardaliData.nisn} onChange={e => setKardaliData({...kardaliData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Periode Monitoring</label><input type="text" value={kardaliData.periode} onChange={e => setKardaliData({...kardaliData, periode: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl" placeholder="Misal: 10 - 15 Februari 2026" /></div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-emerald-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK KARTU</button>
+										</div>
+									</div>
+								</div>
+							)}
                             
                             {viewState === 'school_settings' && (
                                 <SettingsView 
@@ -2035,9 +2255,335 @@
 
                     {/* HIDDEN PRINT AREA */}
                     {viewState === 'detail' && selectedLetter && (<div className="print-area hidden"><LetterContent data={selectedLetter} schoolData={schoolData} isPreview={false} /></div>)}
-                </div>
-            );
-        }
+					{viewState === 'refleksi_kelompok' && (
+						<div className="print-area hidden bg-white text-black p-[8mm_15mm] w-[215mm] min-h-[330mm] box-border" style={{ fontFamily: 'Times', fontSize: '10.5pt' }}>
+							{/* KOP DIRAPATKAN */}
+							<div className="border-b-4 border-double border-black pb-1 mb-3 flex items-center justify-between">
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData.logoKiri ? <img src={schoolData.logoKiri} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2">
+									<h2 className="font-bold text-[11pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[11pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[11pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[9pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData.logoKanan ? <img src={schoolData.logoKanan} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-3">
+								<h3 className="font-bold underline text-[11.5pt] uppercase tracking-wider">LEMBAR REFLEKSI LAYANAN KELOMPOK</h3>
+								<p className="text-[9.5pt] font-bold uppercase">({refleksiKelData.jenisLayanan})</p>
+							</div>
+
+							{/* BAGIAN A: INFORMASI (DIRAPATKAN) */}
+							<p className="mb-1 text-justify leading-none font-bold bg-gray-100 p-1 border border-black text-[10pt]">A. INFORMASI LAYANAN</p>
+							<table className="w-full mb-2 text-[10pt]">
+								<tbody>
+									<tr><td className="w-40 py-0.5">Topik / Masalah</td><td>: <strong>{refleksiKelData.topik || '........................................................................'}</strong></td></tr>
+									<tr><td className="py-0.5">Tempat, Tanggal</td><td>: {refleksiKelData.tempatLayanan}, {refleksiKelData.tanggalLayanan}</td></tr>
+									<tr><td className="py-0.5">Guru Bimbingan & Konseling</td><td>: {refleksiKelData.namaKonselor}</td></tr>
+								</tbody>
+							</table>
+
+							{/* BAGIAN B: IDENTITAS (DIRAPATKAN) */}
+							<p className="mb-1 text-justify leading-none font-bold bg-gray-100 p-1 border border-black text-[10pt]">B. IDENTITAS ANGGOTA KELOMPOK</p>
+							<table className="w-full mb-2 text-[10pt]">
+								<tbody>
+									<tr><td className="w-40 py-0.5">Nama Lengkap</td><td>: ..........................................................................................................</td></tr>
+									<tr><td className="py-0.5">NISN / Kelas</td><td>: .................................................... / ....................................................</td></tr>
+									<tr><td className="py-0.5">Jenis Kelamin</td><td>: Laki-laki / Perempuan <em>(Coret yang tidak perlu)</em></td></tr>
+								</tbody>
+							</table>
+
+							{/* BAGIAN C: EVALUASI */}
+							<p className="mb-1 text-justify leading-none font-bold bg-gray-100 p-1 border border-black text-[10pt]">C. EVALUASI PROSES & HASIL</p>
+							
+							<p className="mb-1 mt-1.5 text-[10pt] font-bold">1. Skala Pemahaman & Perasaan</p>
+							<p className="mb-1 text-[9.5pt] leading-tight text-gray-700 italic text-justify">Lingkari angka: Seberapa bermanfaat materi hari ini? (1 = Kurang, 5 = Sangat Baik)</p>
+							<div className="flex justify-around items-center border border-black p-1 mb-2.5 font-bold text-[11pt]">
+								<span>[ 1 ]</span><span>[ 2 ]</span><span>[ 3 ]</span><span>[ 4 ]</span><span>[ 5 ]</span>
+							</div>
+
+							<p className="mb-1 text-[10pt] font-bold">2. Dinamika Kelompok</p>
+							<p className="mb-1 text-[9.5pt] leading-tight text-gray-700 italic text-justify">Beri tanda silang (X) atau centang (V) pada kotak yang sesuai:</p>
+							<table className="w-full border-collapse border border-black mb-3 text-[10pt]">
+								<tbody>
+								<tr><td className="border border-black p-1 w-10 text-center text-[11pt] font-bold">[ &nbsp; ]</td><td className="border border-black p-1">Saya merasa aman dan nyaman saat berbicara di dalam kelompok ini.</td></tr>
+								<tr><td className="border border-black p-1 text-center text-[11pt] font-bold">[ &nbsp; ]</td><td className="border border-black p-1">Teman-teman kelompok mendengarkan dan menghargai pendapat saya.</td></tr>
+								<tr><td className="border border-black p-1 text-center text-[11pt] font-bold">[ &nbsp; ]</td><td className="border border-black p-1">Saya mendapatkan wawasan/solusi baru dari pengalaman teman yang lain.</td></tr>
+								<tr><td className="border border-black p-1 text-center text-[11pt] font-bold">[ &nbsp; ]</td><td className="border border-black p-1">Kami saling mendukung untuk memecahkan masalah bersama.</td></tr>
+								<tr><td className="border border-black p-1 text-center text-[11pt] font-bold">[ &nbsp; ]</td><td className="border border-black p-1">Kegiatan hari ini membantu saya memahami diri sendiri dan orang lain lebih baik.</td></tr>
+							</tbody>
+							</table>
+
+							<p className="mb-1 text-[10pt] font-bold">3. Pesan & Rencana Tindakan</p>
+							{/* Tinggi ditambah menjadi h-32 agar siswa lebih leluasa menulis */}
+							<div className="w-full border border-black h-32 p-2 mb-3"></div>
+
+							{/* Tanda Tangan Dipadatkan */}
+							<div className="flex justify-end mt-1 px-8 text-[10pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="text-center min-w-[200px]">
+									<p className="mb-12 text-gray-800">{refleksiKelData.tempatTtd || '..........'}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}<br/>Anggota Kelompok,</p>
+									<p className="font-bold underline text-slate-900">( ......................................................... )</p>
+								</div>
+							</div>
+						</div>
+					)}
+					{viewState === 'refleksi_standalone' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border" style={{ fontFamily: 'Times', fontSize: '11pt' }}>
+							<div className="border-b-4 border-double border-black pb-2 mb-3 flex items-center justify-between">
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKiri ? <img src={schoolData.logoKiri} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKanan ? <img src={schoolData.logoKanan} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-4">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-wider">LEMBAR REFLEKSI SISWA</h3>
+								<p className="text-[10pt] font-bold">(EVALUASI PASCA LAYANAN)</p>
+							</div>
+
+							<table className="w-full mb-3 text-[10.5pt]">
+								<tbody>
+									<tr><td className="w-32 py-0.5">Nama Siswa</td><td>: <strong>{refleksiData.namaSiswa}</strong></td></tr>
+									<tr><td className="py-0.5">Kelas</td><td>: {refleksiData.kelas}</td></tr>
+									<tr><td className="py-0.5">Hari, Tanggal</td><td>: ..................................................................</td></tr>
+								</tbody>
+							</table>
+
+							<p className="mb-1 text-justify leading-snug font-bold">A. Skala Perasaan</p>
+							<p className="mb-2 text-justify leading-snug text-[10pt]">Beri tanda silang (X) atau centang (V) pada angka yang paling menggambarkan perasaanmu. (1 = Sangat Buruk/Sedih, 5 = Sangat Baik/Lega)</p>
+							<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
+								<tbody>
+									<tr>
+										<td className="border border-black p-1.5 bg-gray-50 w-1/2"><strong>Sebelum</strong> mengikuti layanan BK:</td>
+										<td className="border border-black p-1.5 text-center">[ ] 1 &nbsp;&nbsp;&nbsp; [ ] 2 &nbsp;&nbsp;&nbsp; [ ] 3 &nbsp;&nbsp;&nbsp; [ ] 4 &nbsp;&nbsp;&nbsp; [ ] 5</td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 bg-gray-50"><strong>Sesudah</strong> mengikuti layanan BK:</td>
+										<td className="border border-black p-1.5 text-center">[ ] 1 &nbsp;&nbsp;&nbsp; [ ] 2 &nbsp;&nbsp;&nbsp; [ ] 3 &nbsp;&nbsp;&nbsp; [ ] 4 &nbsp;&nbsp;&nbsp; [ ] 5</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<p className="mb-1 text-justify leading-snug font-bold">B. Evaluasi Pemahaman & Sikap</p>
+							<p className="mb-2 text-justify leading-snug text-[10pt]">Beri tanda silang (X) atau centang (V) pada kotak yang sesuai dengan apa yang kamu alami hari ini:</p>
+							<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
+								<tbody>
+									{/* Kolom w-12 dan spasi &nbsp; ditambah agar kotak centangnya lebih lebar dan lega */}
+									<tr><td className="border border-black p-1.5 w-12 text-center text-[12pt] font-bold">[ &nbsp;&nbsp; ]</td><td className="border border-black p-1.5">Saya merasa lebih tenang dan lega setelah bercerita kepada Guru BK.</td></tr>
+									<tr><td className="border border-black p-1.5 text-center text-[12pt] font-bold">[ &nbsp;&nbsp; ]</td><td className="border border-black p-1.5">Saya merasa didengarkan, dipahami, dan dihargai tanpa dihakimi.</td></tr>
+									<tr><td className="border border-black p-1.5 text-center text-[12pt] font-bold">[ &nbsp;&nbsp; ]</td><td className="border border-black p-1.5">Saya mendapatkan pandangan atau solusi baru atas masalah yang saya hadapi.</td></tr>
+									<tr><td className="border border-black p-1.5 text-center text-[12pt] font-bold">[ &nbsp;&nbsp; ]</td><td className="border border-black p-1.5">Saya mengetahui dengan jelas langkah apa yang harus saya lakukan setelah ini.</td></tr>
+									<tr><td className="border border-black p-1.5 text-center text-[12pt] font-bold">[ &nbsp;&nbsp; ]</td><td className="border border-black p-1.5">Saya berkomitmen untuk menerapkan rencana atau nasihat yang telah disepakati bersama.</td></tr>
+								</tbody>
+							</table>
+
+							<p className="mb-1 text-justify leading-snug font-bold">C. Pesan & Kesan Singkat</p>
+							{/* Tinggi kotak ditambah menjadi h-32 dan teks bayangan dihapus */}
+							<div className="w-full border border-black h-32 p-2 mb-4">
+								{/* Kotak dibiarkan kosong agar siswa leluasa menulis */}
+							</div>
+
+							<div className="flex justify-between items-start mt-2 px-4 text-[10.5pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="text-center min-w-[220px]">
+									<p className="mt-[1.4rem] mb-16 text-gray-800">Siswa yang Bersangkutan,</p>
+									<p className="font-bold underline text-slate-900">{refleksiData.namaSiswa || '..................................................'}</p>
+								</div>
+								<div className="text-center min-w-[220px]">
+									<p className="mb-1 text-gray-700">{refleksiData.tempat || '..........'}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+									<p className="mb-16 text-gray-800">Guru Bimbingan dan Konseling,</p>
+									<p className="font-bold underline text-slate-900">{refleksiData.namaKonselor || '..................................................'}</p>
+									<p className="text-[10pt]">NIP. {refleksiData.nipKonselor || '..................................................'}</p>
+								</div>
+							</div>
+						</div>
+					)}
+					{viewState === 'consent' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border" style={{ fontFamily: 'Times', fontSize: '11pt' }}>
+							<div className="border-b-4 border-double border-black pb-2 mb-4 flex items-center justify-between">
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKiri ? <img src={schoolData.logoKiri} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKanan ? <img src={schoolData.logoKanan} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-4">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-wider">LEMBAR PERSETUJUAN LAYANAN KONSELING</h3>
+								<p className="text-[10pt] font-bold">(INFORMED CONSENT)</p>
+							</div>
+
+							<table className="w-full mb-3 text-[10.5pt]">
+								<tbody>
+									<tr><td className="w-32 py-0.5">Nama Siswa / Klien</td><td>: <strong>{consentData.namaSiswa}</strong></td></tr>
+									<tr><td className="py-0.5">Kelas</td><td>: {consentData.kelas}</td></tr>
+									<tr><td className="py-0.5">NISN</td><td>: {consentData.nisn || '-'}</td></tr>
+								</tbody>
+							</table>
+
+							<p className="mb-3 text-justify leading-snug text-[10.5pt]">
+								Ananda yang berbahagia, layanan konseling adalah ruang aman bagi kamu untuk berbagi, bertumbuh, dan menemukan solusi atas tantangan yang sedang dihadapi. Sebelum kita memulai, silakan baca dan pahami hak serta kewajibanmu di bawah ini demi kenyamanan dan keberhasilan proses kita bersama:
+							</p>
+
+							<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
+								<thead>
+									<tr className="bg-gray-100">
+										<th className="border border-black p-1 w-8 text-center">No</th>
+										<th className="border border-black p-1 text-center">Poin Kesepakatan & Pernyataan Klien</th>
+										<th className="border border-black p-1 w-24 text-center">Paraf<br/>Siswa</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">1</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Kesukarelaan:</strong> Saya datang mengikuti sesi ini dengan penuh kesadaran dan tanpa paksaan dari pihak manapun untuk tujuan pengembangan diri.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">2</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Kerahasiaan Mutlak:</strong> Saya memahami bahwa segala cerita saya akan dijaga kerahasiaannya oleh Guru BK, dan tidak akan disampaikan kepada orang lain tanpa izin saya.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">3</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Pengecualian Rahasia:</strong> Saya mengerti kerahasiaan dapat dibuka <strong>hanya jika</strong> terdapat ancaman bahaya terhadap nyawa saya atau orang lain di sekitar saya.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">4</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Kejujuran & Keterbukaan:</strong> Saya bersedia menyampaikan informasi dengan jujur dan terbuka agar Guru BK dapat membantu saya melihat masalah secara jernih.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">5</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Hak Mengakhiri:</strong> Saya memahami bahwa saya memiliki hak untuk mengakhiri atau menjadwalkan ulang sesi jika merasa kurang nyaman pada saat proses berlangsung.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1.5 text-center align-top font-bold">6</td>
+										<td className="border border-black p-1.5 text-justify align-top"><strong>Dokumentasi Layanan:</strong> Saya mengizinkan Guru BK mencatat inti percakapan sebagai arsip layanan untuk memantau perkembangan kemajuan masalah saya.</td>
+										<td className="border border-black p-1.5"></td>
+									</tr>
+								</tbody>
+							</table>
+
+							<p className="mb-4 text-justify leading-snug text-[10.5pt]">
+								Dengan membubuhkan tanda tangan di bawah ini, saya menyatakan telah membaca, memahami, dan setuju untuk terlibat aktif dalam proses konseling ini sesuai dengan prinsip-prinsip yang telah disebutkan di atas.
+							</p>
+
+							<div className="flex justify-between items-start mt-8 px-4 text-[11pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="text-center min-w-[220px]">
+									{/* Memberikan jarak atas agar sejajar dengan kolom sebelah kanan yang ada tanggalnya */}
+									<p className="mt-[1.4rem] mb-20 text-gray-800">Siswa yang Bersangkutan,</p>
+									<p className="font-bold underline text-slate-900">{consentData.namaSiswa || '..................................................'}</p>
+								</div>
+								<div className="text-center min-w-[220px]">
+									<p className="mb-1 text-gray-700">{consentData.tempat || '..........'}, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+									<p className="mb-20 text-gray-800">Guru Bimbingan dan Konseling,</p>
+									<p className="font-bold underline text-slate-900">{consentData.namaKonselor || '..................................................'}</p>
+									<p className="text-[10pt]">NIP. {consentData.nipKonselor || '..................................................'}</p>
+								</div>
+							</div>
+						</div>
+					)}
+					{viewState === 'kardali' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border" style={{ fontFamily: 'Times', fontSize: '11pt' }}>
+							<div className="border-b-4 border-double border-black pb-3 mb-4 flex items-center justify-between">
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKiri ? <img src={schoolData.logoKiri} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2.2cm] h-[2.2cm] flex items-center justify-center shrink-0">{schoolData.logoKanan ? <img src={schoolData.logoKanan} alt="Logo" className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-4">
+								<h3 className="font-bold underline text-[12pt] uppercase">KARTU KENDALI PERILAKU & PEMBINAAN HARIAN</h3>
+								<p className="text-[10pt] font-bold">(INTEGRATED MONITORING)</p>
+							</div>
+
+							<table className="w-full mb-4 text-[11pt]">
+								<tbody>
+									<tr><td className="w-32 py-0.5">Nama Siswa</td><td>: <strong>{kardaliData.namaSiswa}</strong></td><td className="w-24 py-0.5">Kelas</td><td>: <strong>{kardaliData.kelas}</strong></td></tr>
+									<tr><td className="py-0.5">NISN</td><td>: {kardaliData.nisn}</td><td className="py-0.5">Periode</td><td>: <strong>{kardaliData.periode}</strong></td></tr>
+								</tbody>
+							</table>
+
+							{/* ZONA SEKOLAH */}
+							<div className="mb-4">
+								<h4 className="font-bold mb-1 bg-gray-200 p-1 border border-black text-center text-[10pt]">ZONA A: MONITORING LINGKUNGAN SEKOLAH (Diisi oleh Guru)</h4>
+								<table className="w-full border-collapse border border-black text-[10pt]">
+									<thead>
+										<tr className="bg-gray-100">
+											<th className="border border-black p-1 w-8 text-center">No</th>
+											<th className="border border-black p-1 w-28 text-center">Hari/Tanggal</th>
+											<th className="border border-black p-1 w-20 text-center">Jam<br/>Datang</th>
+											<th className="border border-black p-1 text-center">Perilaku di Kelas<br/>(Paraf Guru Mapel)</th>
+											<th className="border border-black p-1 w-48 text-center">Pembinaan BK<br/>(Paraf & Catatan)</th>
+										</tr>
+									</thead>
+									<tbody>
+										{[1,2,3,4,5,6].map(i => (
+											<tr key={i} className="h-[45px]">
+												<td className="border border-black p-1 text-center">{i}</td>
+												<td className="border border-black p-1"></td>
+												<td className="border border-black p-1"></td>
+												<td className="border border-black p-1 text-left align-top px-2 text-[8pt]">Paraf:</td>
+												<td className="border border-black p-1 text-left align-top px-2 text-[8pt]">Paraf:</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+
+							{/* ZONA RUMAH */}
+							<div className="mb-4">
+								<h4 className="font-bold mb-1 bg-gray-200 p-1 border border-black text-center text-[10pt]">ZONA B: MONITORING LINGKUNGAN RUMAH (Diisi oleh Orang Tua)</h4>
+								<table className="w-full border-collapse border border-black text-[10pt]">
+									<thead>
+										<tr className="bg-gray-100">
+											<th className="border border-black p-1 w-8 text-center">No</th>
+											<th className="border border-black p-1 w-28 text-center">Hari/Tanggal</th>
+											<th className="border border-black p-1 w-20 text-center">Jam<br/>Pulang</th>
+											<th className="border border-black p-1 w-32 text-center">Ibadah &<br/>Belajar</th>
+											<th className="border border-black p-1 text-center">Keterangan Kegiatan di Rumah</th>
+											<th className="border border-black p-1 w-24 text-center">Paraf<br/>Ortu</th>
+										</tr>
+									</thead>
+									<tbody>
+										{[1,2,3,4,5,6].map(i => (
+											<tr key={i} className="h-[45px]">
+												<td className="border border-black p-1 text-center">{i}</td>
+												<td className="border border-black p-1"></td>
+												<td className="border border-black p-1"></td>
+												<td className="border border-black p-1 text-left align-top pt-1 text-[8pt] leading-tight">
+													[  ] Rutin<br/>[  ] Tidak
+												</td>
+												<td className="border border-black p-1"></td>
+												<td className="border border-black p-1"></td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+						</div>
+					)}
+				</div>
+			);
+		}
 
         // --- COMPONENTS ---
         // 1. Komponen Bento Box: Group Menu (Kartu Kategori)
@@ -2105,10 +2651,19 @@
                         <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 p-2 mb-3 mx-4 hover:border-slate-300 hover:shadow-md transition-all">
                             <SidebarItem icon={<LayoutDashboard size={18}/>} label="Dashboard Utama" active={activeTab === 'dashboard'} onClick={() => {setActiveTab('dashboard'); setViewState('list');}} />
                         </div>
-
+						
+						{/* KATEGORI BARU: INSTRUMEN PENDUKUNG (STANDALONE) */}
+                        <SidebarGroup icon={<Briefcase size={16}/>} title="Instrumen Pendukung" defaultOpen={['KARDALI', 'CONSENT', 'REFLEKSI_STANDALONE'].includes(activeTab)}>
+                            <SidebarItem icon={<ClipboardList size={18} className="text-emerald-500"/>} label="Kartu Kendali Siswa" active={activeTab === 'KARDALI'} onClick={() => {setActiveTab('KARDALI'); setViewState('kardali');}} />
+                            <SidebarItem icon={<FileSignature size={18} className="text-blue-500"/>} label="Persetujuan Konseling" active={activeTab === 'CONSENT'} onClick={() => {setActiveTab('CONSENT'); setViewState('consent');}} />
+                            <SidebarItem icon={<MessageCircle size={18} className="text-pink-500"/>} label="Lembar Refleksi" active={activeTab === 'REFLEKSI_STANDALONE'} onClick={() => {setActiveTab('REFLEKSI_STANDALONE'); setViewState('refleksi_standalone');}} />
+							<SidebarItem icon={<Users size={18} className="text-purple-500"/>} label="Refleksi Kelompok" active={activeTab === 'REFLEKSI_KELOMPOK'} onClick={() => {setActiveTab('REFLEKSI_KELOMPOK'); setViewState('refleksi_kelompok');}} />
+                        </SidebarGroup>
                         {/* KATEGORI 1 */}
                         <SidebarGroup icon={<ShieldCheck size={16}/>} title="Pembinaan & Disiplin" defaultOpen={['SKORSING', 'PERNYATAAN', 'KONTRAK'].includes(activeTab)}>
                             <SidebarItem icon={<FileSignature size={18}/>} label="Surat Pernyataan" active={activeTab === 'PERNYATAAN'} onClick={() => {setActiveTab('PERNYATAAN'); setViewState('list');}} />
+							<SidebarItem icon={<FileSignature size={18}/>} label="Surat Refleksi Diri" active={activeTab === 'REFLEKSI'} onClick={() => {setActiveTab('REFLEKSI'); setViewState('list');}} />
+							<SidebarItem icon={<FileWarning size={18}/>} label="Surat Masa Percobaan" active={activeTab === 'PROBATION'} onClick={() => {setActiveTab('PROBATION'); setViewState('list');}} />
                             <SidebarItem icon={<FileCheck size={18}/>} label="Kontrak Perilaku" active={activeTab === 'KONTRAK'} onClick={() => {setActiveTab('KONTRAK'); setViewState('list');}} />
                             <SidebarItem icon={<FileWarning size={18}/>} label="Surat Skorsing" active={activeTab === 'SKORSING'} onClick={() => {setActiveTab('SKORSING'); setViewState('list');}} />
                         </SidebarGroup>
@@ -2304,6 +2859,9 @@
                 gambaranMasalah: '', hasilPembicaraan: '', tindakLanjut: '', 
                 pihakTujuan: '', rincianMasalah: '', riwayatPenanganan: '', 
 				// NEW FIELDS FOR V3 (MEDIASI & BERHENTI)
+				deskripsiPeristiwa: '',
+				durasiPercobaan: '30 Hari',
+				sanksiAkhir: 'Dikembalikan kepada Orang Tua (Dikeluarkan)',
                 namaSiswa2: '', kelas2: '', nisn2: '', jenisKelamin2: 'Laki-laki', namaOrangTua2: '',
                 namaWaliKelas2: '', nipWaliKelas2: '',
                 hasilMediasi: '', kesepakatan: '',
@@ -2562,6 +3120,8 @@
                                         >
                                             <optgroup label="🛡️ Pembinaan & Kedisiplinan">
                                                 <option value="PERNYATAAN">Surat Pernyataan Orangtua</option>
+												<option value="REFLEKSI">Surat Refleksi Diri Siswa</option>
+												<option value="PROBATION">Surat Perjanjian Masa Percobaan</option>
                                                 <option value="KONTRAK">Kontrak Perilaku Siswa</option>
                                                 <option value="SKORSING">Surat Skorsing</option>
                                             </optgroup>
@@ -2650,7 +3210,7 @@
                             )}
 
                             {/* IDENTITAS ORANG TUA */}
-                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI') && (
+                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI' || formData.type === 'REFLEKSI' || formData.type === 'PROBATION') && (
                                 <div className="bg-green-50 p-4 rounded-lg space-y-4 border border-green-100">
                                     <h3 className="font-semibold text-green-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Orang Tua / Wali {formData.type === 'MEDIASI' ? '(Pihak 1 & 2)' : ''}</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2682,6 +3242,42 @@
                                     </div>
                                 </div>
                             )}
+							
+							{/* MASA PERCOBAAN */}
+							{formData.type === 'PROBATION' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+										<div><label className="block text-xs font-medium text-gray-600">Durasi Percobaan</label><input type="text" name="durasiPercobaan" value={formData.durasiPercobaan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: 30 Hari / 1 Semester" required /></div>
+										<div><label className="block text-xs font-medium text-gray-600">Mulai Tanggal</label><input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-xs font-medium text-gray-600">Sampai Tanggal</label><input type="date" name="tanggalSelesai" value={formData.tanggalSelesai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									</div>
+									<div><label className="block text-xs font-medium text-gray-600">Sanksi Akhir (Klausul Pelanggaran)</label><input type="text" name="sanksiAkhir" value={formData.sanksiAkhir} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md text-red-600 font-bold" placeholder="Dikembalikan kepada Orang Tua (Dikeluarkan)" required /></div>
+									
+									<div className="bg-purple-50 p-4 rounded-md border border-purple-100">
+										<h4 className="font-semibold text-xs text-purple-800 uppercase mb-2">Guru BK / Konselor Pendamping</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP Guru BK</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
+										</div>
+									</div>
+									<p className="text-[10px] text-gray-500 italic">*Catatan: Kolom indikator perubahan akan dikosongkan agar ditulis tangan oleh siswa. Tanda tangan Kepala Sekolah akan mengambil data dari panel 'Pejabat Penanda Tangan' di paling bawah.</p>
+								</div>
+							)}
+							
+							{/* REFLEKSI DIRI */}
+							{formData.type === 'REFLEKSI' && (
+								<div className="space-y-4 border-t pt-4">
+									<div><AILabel label="Deskripsi Peristiwa Pelanggaran (Diisi Guru BK)" stateKey="deskripsiPeristiwa" /><textarea name="deskripsiPeristiwa" value={formData.deskripsiPeristiwa} onChange={handleChange} rows="4" className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-yellow-200 outline-none" placeholder="Tuliskan kronologi singkat pelanggaran yang dilakukan siswa..." required></textarea></div>
+									<div className="bg-orange-50 p-4 rounded-md border border-orange-100">
+										<h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Guru BK / Konselor Pendamping</h4>
+										<div className="grid grid-cols-2 gap-4">
+											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
+											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+										</div>
+									</div>
+									<p className="text-[10px] text-gray-500 italic mt-2">*Catatan: Isian nomor 2 sampai 5 pada surat akan dikosongkan secara otomatis agar dapat ditulis tangan oleh siswa pada saat dicetak.</p>
+								</div>
+							)}
 
                             {/* PERNYATAAN */}
                             {formData.type === 'PERNYATAAN' && (
@@ -2969,7 +3565,34 @@
 										<div><label className="block text-sm font-medium text-gray-700">Tempat Konseling</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ruang Konseling Kelompok" required /></div>
 									</div>
 									<div className="grid grid-cols-2 gap-4">
-										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div>
+											<label className="block text-sm font-medium text-gray-700 mb-1">Hari/Tanggal</label>
+											<div className="flex shadow-sm">
+												<div className="relative flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-r-0 border-gray-300 rounded-l-md px-4 text-blue-600 transition-colors cursor-pointer overflow-hidden">
+													<Calendar size={18} className="pointer-events-none" />
+													<input 
+														type="date" 
+														onChange={(e) => { 
+															if(!e.target.value) return; 
+															const d = new Date(e.target.value); 
+															const f = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+															setFormData(prev => ({...prev, hariTanggalAcara: f})); 
+														}} 
+														className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+														title="Pilih Kalender" 
+													/>
+												</div>
+												<input 
+													type="text" 
+													name="hariTanggalAcara" 
+													value={formData.hariTanggalAcara} 
+													onChange={handleChange} 
+													className="w-full p-2 border border-gray-300 rounded-r-md outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700" 
+													placeholder="Pilih kalender 👈 atau ketik manual..." 
+													required 
+												/>
+											</div>
+										</div>
 										<div><label className="block text-sm font-medium text-gray-700">Waktu Pelaksanaan</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 - Selesai" required /></div>
 									</div>
 									
@@ -3024,7 +3647,34 @@
 										<div><label className="block text-sm font-medium text-gray-700">Tempat Bimbingan</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Ruang BK / Taman" required /></div>
 									</div>
 									<div className="grid grid-cols-2 gap-4">
-										<div><label className="block text-sm font-medium text-gray-700">Hari/Tanggal</label><input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Senin, 10 Januari 2026" required /></div>
+										<div>
+											<label className="block text-sm font-medium text-gray-700 mb-1">Hari/Tanggal</label>
+											<div className="flex shadow-sm">
+												<div className="relative flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-r-0 border-gray-300 rounded-l-md px-4 text-blue-600 transition-colors cursor-pointer overflow-hidden">
+													<Calendar size={18} className="pointer-events-none" />
+													<input 
+														type="date" 
+														onChange={(e) => { 
+															if(!e.target.value) return; 
+															const d = new Date(e.target.value); 
+															const f = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); 
+															setFormData(prev => ({...prev, hariTanggalAcara: f})); 
+														}} 
+														className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50" 
+														title="Pilih Kalender" 
+													/>
+												</div>
+												<input 
+													type="text" 
+													name="hariTanggalAcara" 
+													value={formData.hariTanggalAcara} 
+													onChange={handleChange} 
+													className="w-full p-2 border border-gray-300 rounded-r-md outline-none focus:ring-2 focus:ring-blue-500 font-semibold text-slate-700" 
+													placeholder="Pilih kalender 👈 atau ketik manual..." 
+													required 
+												/>
+											</div>
+										</div>
 										<div><label className="block text-sm font-medium text-gray-700">Waktu Pelaksanaan</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 - 10.30 WITA" required /></div>
 									</div>
 									
@@ -3260,6 +3910,178 @@
                             </div>
                             <div className="mt-4 text-[10pt]"><p>Tembusan:</p><ol className="list-decimal list-inside"><li>Orang Tua/Wali Siswa ({data.namaOrangTua})</li><li>Arsip</li></ol></div></div>)}
                         
+						{data.type === 'PROBATION' && (
+							<div>
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase tracking-wider">SURAT PERJANJIAN MASA PERCOBAAN</h3>
+									<p className="font-bold text-[10pt]">(LAST OPPORTUNITY)</p>
+								</div>
+								<p className="mb-2">Saya yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-32 py-1 align-top">Nama</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-1 align-top">NISN</td><td>: {data.nisn || '-'}</td></tr>
+										<tr><td className="py-1 align-top">Kelas</td><td>: {data.kelas}</td></tr>
+										<tr><td className="py-1 align-top">Alamat</td><td>: {data.alamatOrangTua || '....................................................................'}</td></tr>
+									</tbody>
+								</table>
+								
+								<p className="mb-4 text-justify">
+									Sehubungan dengan pelanggaran tata tertib yang telah saya lakukan berulang kali, dengan ini saya memohon kepada pihak sekolah untuk memberikan kesempatan terakhir melalui <strong>Masa Percobaan</strong> dengan ketentuan sebagai berikut:
+								</p>
+
+								<div className="mb-4 text-justify">
+									<h4 className="font-bold text-sm mb-1">1. Durasi Masa Percobaan</h4>
+									<p className="pl-4">Saya akan berada dalam pengawasan khusus selama <strong>{data.durasiPercobaan}</strong>, terhitung mulai tanggal <strong>{formatDate(data.tanggalMulai)}</strong> sampai dengan <strong>{formatDate(data.tanggalSelesai)}</strong>.</p>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-1">2. Indikator Perubahan Perilaku (Syarat Mutlak)</h4>
+									<p className="pl-4 mb-3 text-justify">Selama masa percobaan ini, saya berjanji untuk: <br/><span className="text-[10pt] italic text-gray-500">(Contoh: Hadir tepat waktu 100%, tidak terlibat perkelahian, mengerjakan semua tugas)</span></p>
+									<div className="pl-4">
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+									</div>
+								</div>
+
+								<div className="mb-4 text-justify">
+									<h4 className="font-bold text-sm mb-1">3. Sistem Monitoring</h4>
+									<p className="pl-4">Saya bersedia mengikuti prosedur pemantauan harian oleh Guru BK, Guru Wali dan Wali Kelas, serta melaporkan kartu kendali perilaku setiap hari.</p>
+								</div>
+
+								<div className="mb-6 text-justify">
+									<h4 className="font-bold text-sm mb-1">4. Klausul Pelanggaran Tunggal</h4>
+									<p className="pl-4">Saya memahami sepenuhnya bahwa apabila selama masa percobaan ini saya melakukan <strong>satu kali saja pelanggaran</strong> terhadap tata tertib sekolah, maka saya bersedia menerima sanksi <strong>{data.sanksiAkhir}</strong> tanpa perlu melalui proses panggilan atau mediasi kembali.</p>
+								</div>
+
+								<div style={{ pageBreakInside: 'avoid' }}>
+									<p className="mb-6 text-sm text-justify">Demikian surat perjanjian ini saya buat dengan penuh kesadaran dan tanpa paksaan.</p>
+
+									<div className="mt-4 text-[11pt]">
+										<div className="flex justify-between text-center px-4 mb-10">
+											<div className="min-w-[200px]">
+												<p className="mb-16">Siswa yang Bersangkutan,</p>
+												<p className="font-bold underline">{data.namaSiswa}</p>
+											</div>
+											<div className="min-w-[200px]">
+												<p className="mb-1">{data.tempat || 'Makassar'}, {formatDate(data.tanggal)}</p>
+												<p className="mb-14">Orang Tua / Wali,</p>
+												<p className="font-bold underline">{data.namaOrangTua}</p>
+											</div>
+										</div>
+										
+										<p className="font-bold mb-4 text-center w-full">Mengetahui & Menyetujui:</p>
+										
+										<div className="flex justify-between text-center px-4">
+											<div className="min-w-[250px]">
+												<p className="mb-16">Kepala Sekolah,</p>
+												<p className="font-bold underline">{data.penandaTangan}</p>
+												<p>NIP. {data.nipPenandaTangan || '-'}</p>
+											</div>
+											<div className="min-w-[250px]">
+												<p className="mb-16">Guru Bimbingan dan Konseling,</p>
+												<p className="font-bold underline">{data.namaPetugas || data.createdBy}</p>
+												<p>NIP. {data.nipPetugas || '-'}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
+						
+						{data.type === 'REFLEKSI' && (() => {
+							const getHari = (dateStr) => { const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']; return dateStr ? days[new Date(dateStr).getDay()] : '.....'; };
+							return (
+							<div>
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase">SURAT REFLEKSI DIRI & KOMITMEN PERBAIKAN</h3>
+								</div>
+								<p className="mb-2">Saya yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-32 py-1 align-top">Nama</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-1 align-top">NISN</td><td>: {data.nisn || '-'}</td></tr>
+										<tr><td className="py-1 align-top">Kelas</td><td>: {data.kelas}</td></tr>
+										<tr><td className="py-1 align-top">Alamat</td><td>: {data.alamatOrangTua || '....................................................................'}</td></tr>
+									</tbody>
+								</table>
+								
+								<p className="mb-4 text-justify">
+									Pada hari ini <strong>{getHari(data.tanggal)}</strong>, tanggal <strong>{formatDate(data.tanggal)}</strong>, saya telah melakukan tindakan pelanggaran. Dengan ini saya menyatakan dengan sejujurnya dan penuh kesadaran bahwa:
+								</p>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-1">1. Deskripsi Peristiwa (Apa yang terjadi?)</h4>
+									<div className="text-justify whitespace-pre-line pl-4">{data.deskripsiPeristiwa}</div>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-1">2. Analisis Dampak (Siapa yang saya rugikan?)</h4>
+									<div className="pl-4">
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+									</div>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-1">3. Pernyataan Penyesalan (Apa yang saya rasakan sekarang?)</h4>
+									<div className="pl-4">
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+									</div>
+								</div>
+
+								<div className="mb-4">
+									<h4 className="font-bold text-sm mb-1">4. Rencana Perbaikan (Bagaimana cara saya menebusnya?)</h4>
+									<div className="pl-4">
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+									</div>
+								</div>
+
+								<div className="mb-6">
+									<h4 className="font-bold text-sm mb-1">5. Kesanggupan Menerima Konsekuensi</h4>
+									<div className="pl-4">
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+										<div className="border-b border-black border-dotted mb-6 w-full h-4"></div>
+									</div>
+								</div>
+
+								{/* Bagian penutup dan tanda tangan dibuat agar tidak terpotong setengah jika pindah halaman */}
+								<div style={{ pageBreakInside: 'avoid' }}>
+									<p className="mb-8 text-sm text-justify">Demikian surat refleksi dan komitmen ini saya buat dengan sebenar-benarnya dan penuh tanggung jawab tanpa paksaan dari pihak manapun.</p>
+
+									<div className="mt-4 text-[11pt]">
+										<div className="flex justify-between text-center px-4 mb-6">
+											<div className="min-w-[200px]">
+												<p className="mb-16">Siswa yang Bersangkutan,</p>
+												<p className="font-bold underline">{data.namaSiswa}</p>
+											</div>
+											<div className="min-w-[200px]">
+												<p className="mb-16">Orang Tua / Wali,</p>
+												<p className="font-bold underline">{data.namaOrangTua}</p>
+											</div>
+										</div>
+										<div className="flex justify-center text-center">
+											<div className="min-w-[250px]">
+												<p className="mb-1">Mengetahui,</p>
+												<p className="mb-16">Guru Bimbingan dan Konseling,</p>
+												<p className="font-bold underline">{data.namaPetugas || data.createdBy}</p>
+												<p>NIP. {data.nipPetugas || '-'}</p>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							);
+						})()}
+						
                         {data.type === 'PERNYATAAN' && (<div>
                             <div className="text-center mb-4"><h3 className="font-bold underline text-[12pt] uppercase">SURAT PERNYATAAN ORANG TUA / WALI</h3></div>
                             <p className="mb-1">Saya yang bertanda tangan di bawah ini:</p>
@@ -4064,6 +4886,8 @@
             const styles = {
                 'SKORSING': 'bg-red-100 text-red-700 border-red-200',
                 'PERNYATAAN': 'bg-orange-100 text-orange-700 border-orange-200',
+				'REFLEKSI': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+				'PROBATION': 'bg-purple-100 text-purple-700 border-purple-200',
                 'KONTRAK': 'bg-emerald-100 text-emerald-700 border-emerald-200',
                 'UNDANGAN': 'bg-blue-100 text-blue-700 border-blue-200',
                 'TUGAS_HOMEVISIT': 'bg-indigo-100 text-indigo-700 border-indigo-200',
@@ -4088,5 +4912,3 @@
 </body>
 
 </html>
-
-
