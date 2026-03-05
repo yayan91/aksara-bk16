@@ -17,9 +17,16 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; }
         
-        /* Loading Spinner */
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .loader { border-top-color: #3498db; -webkit-animation: spin 1s linear infinite; animation: spin 1s linear infinite; }
+        /* Efek Animasi Surat Terbang (Loading) */
+        @keyframes fly-mail {
+            0% { transform: translate(-30px, 30px) rotate(-15deg) scale(0.8); opacity: 0; }
+            30% { transform: translate(-10px, 10px) rotate(-5deg) scale(1); opacity: 1; }
+            70% { transform: translate(10px, -10px) rotate(5deg) scale(1.1); opacity: 1; }
+            100% { transform: translate(40px, -40px) rotate(15deg) scale(0.8); opacity: 0; }
+        }
+        .animate-fly-mail {
+            animation: fly-mail 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
 
         /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
@@ -67,6 +74,81 @@
             }
             
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
+		
+		/* --- KUSTOMISASI GLOBAL SWEETALERT PREMIUM (LUXURY EDITION) --- */
+        div:where(.swal2-container) div:where(.swal2-popup) {
+            border-radius: 2.5rem !important; /* Ekstra melengkung ala iOS */
+            font-family: 'Inter', sans-serif !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important; /* Gradasi background halus */
+            border: 1px solid rgba(255, 255, 255, 0.8) !important;
+            box-shadow: 0 30px 60px -12px rgba(15, 23, 42, 0.25), inset 0 0 0 1px rgba(255, 255, 255, 0.5) !important;
+            padding: 2.5em 2em !important;
+        }
+        /* Judul Mengkilap (Gradient Text) */
+        div:where(.swal2-container) h2:where(.swal2-title) {
+            font-weight: 900 !important;
+            font-size: 1.8rem !important;
+            background: linear-gradient(to right, #1e293b, #3b82f6, #6366f1) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            letter-spacing: -0.02em !important;
+            margin-bottom: 0.5rem !important;
+        }
+        /* Teks Keterangan Elegan */
+        div:where(.swal2-container) div:where(.swal2-html-container) {
+            color: #64748b !important;
+            font-weight: 600 !important;
+            font-size: 1.05rem !important;
+            line-height: 1.6 !important;
+        }
+        /* Bentuk Dasar Tombol */
+        div:where(.swal2-container) button:where(.swal2-styled) {
+            border-radius: 1.25rem !important;
+            font-weight: 900 !important;
+            padding: 14px 36px !important;
+            letter-spacing: 0.05em !important;
+            text-transform: uppercase !important;
+            font-size: 0.85rem !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        /* Tombol OK / Biru (Glowing 3D) */
+        div:where(.swal2-container) button:where(.swal2-confirm) {
+            background: linear-gradient(135deg, #3b82f6, #6366f1) !important;
+            box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.5), inset 0 2px 4px rgba(255,255,255,0.3) !important;
+            color: #ffffff !important;
+            border: none !important;
+        }
+        div:where(.swal2-container) button:where(.swal2-confirm):hover {
+            transform: translateY(-4px) scale(1.02) !important;
+            box-shadow: 0 20px 35px -5px rgba(99, 102, 241, 0.6), inset 0 2px 4px rgba(255,255,255,0.4) !important;
+        }
+        /* Tombol Batal / Merah (Soft Hapus) */
+        div:where(.swal2-container) button:where(.swal2-deny) {
+            background: linear-gradient(135deg, #ef4444, #e11d48) !important;
+            box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.5) !important;
+        }
+        div:where(.swal2-container) button:where(.swal2-deny):hover {
+            transform: translateY(-4px) scale(1.02) !important;
+            box-shadow: 0 20px 35px -5px rgba(239, 68, 68, 0.6) !important;
+        }
+        /* Tombol Cancel Biasa (Silver Elegan) */
+        div:where(.swal2-container) button:where(.swal2-cancel) {
+            background: #f1f5f9 !important;
+            color: #64748b !important;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,1), 0 4px 10px -2px rgba(0,0,0,0.05) !important;
+            border: 1px solid #e2e8f0 !important;
+        }
+        div:where(.swal2-container) button:where(.swal2-cancel):hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+            transform: translateY(-2px) !important;
+        }
+        /* Ikon Punya Bayangan Timbul */
+        div:where(.swal2-container) div:where(.swal2-icon) {
+            border-width: 0.25em !important;
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15)) !important;
+            margin-bottom: 2rem !important;
         }
     </style>
 	
@@ -132,6 +214,8 @@
 		const PieChart = (props) => <IconBase {...props}><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></IconBase>;
 		const Sparkles = (props) => <IconBase {...props}><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></IconBase>;
 		const Monitor = (props) => <IconBase {...props}><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></IconBase>;
+		const ArrowUp = (props) => <IconBase {...props}><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></IconBase>;
+        const ArrowDown = (props) => <IconBase {...props}><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></IconBase>;
 		// --- IKON TAMBAHAN UNTUK FITUR TRACKING ---
 		const Archive = (props) => <IconBase {...props}><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></IconBase>;
 		const Inbox = (props) => <IconBase {...props}><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></IconBase>;
@@ -139,12 +223,17 @@
 		const SearchCode = (props) => <IconBase {...props}><path d="m13 13.5 2-2.5-2-2.5"/><path d="m21 21-4.3-4.3"/><circle cx="11" cy="11" r="8"/><path d="m9 8.5-2 2.5 2 2.5"/></IconBase>;
 		const Clock = (props) => <IconBase {...props}><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></IconBase>;
 
-        // --- LOADING OVERLAY ---
+        // --- LOADING OVERLAY (EFEK SURAT TERBANG) ---
         function LoadingOverlay({ message }) {
             return (
-                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex flex-col items-center justify-center text-white">
-                    <div className="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-12 w-12 mb-4"></div>
-                    <p className="font-semibold text-lg animate-pulse">{message}</p>
+                <div className="fixed inset-0 bg-slate-900/70 backdrop-blur-md z-[150] flex flex-col items-center justify-center text-white">
+                    <div className="relative w-32 h-32 flex items-center justify-center mb-2">
+                        {/* Efek Awan / Cahaya di belakang Pesawat */}
+                        <div className="absolute inset-0 bg-blue-500/20 rounded-full blur-[30px] animate-pulse"></div>
+                        {/* Ikon Pesawat Kertas Terbang */}
+                        <Send size={56} className="text-blue-400 animate-fly-mail drop-shadow-[0_0_15px_rgba(96,165,250,0.6)]" strokeWidth={1.5} />
+                    </div>
+                    <p className="font-black text-lg tracking-widest uppercase animate-pulse text-blue-100 drop-shadow-md">{message}</p>
                 </div>
             );
         }
@@ -895,7 +984,11 @@
                         if (result.data.suratMasuk) setSuratMasuk(result.data.suratMasuk);
 
                     } else {
-                        alert('Gagal mengambil data: ' + result.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Sinkronisasi Gagal!',
+                            text: 'Gagal mengambil data dari server: ' + result.message
+                        });
                     }
                 } catch (error) {
                     console.error("Error fetching:", error);
@@ -1649,7 +1742,7 @@
                     case 'TUGAS_HOMEVISIT':
                         return (
                             <div className="space-y-2">
-                                <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Ditugaskan Kepada</span> {letter.namaPetugas}</p>
+                                <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Tim Home Visit</span> {letter.daftarPegawai && letter.daftarPegawai.length > 0 ? letter.daftarPegawai.map(p => p.nama).join(', ') : letter.namaPetugas}</p>
                                 <p><span className="block text-[10px] font-extrabold text-indigo-500 uppercase tracking-widest">Tujuan / Keperluan Kunjungan</span> {letter.keperluan}</p>
                             </div>
                         );
@@ -1922,7 +2015,7 @@
                         })()}
 
                         {/* MAIN CONTENT AREA - SCROLLABLE INTERNAL */}
-                        <div className="flex-1 overflow-y-auto p-4 md:p-6 no-print scroll-smooth">
+                        <div id="main-scroll-area" className="flex-1 overflow-y-auto p-4 md:p-6 no-print scroll-smooth relative">
                             {viewState === 'list' && (
                                 <div className="space-y-6 pb-10 max-w-7xl mx-auto">
                                     {activeTab === 'dashboard' && (
@@ -2301,7 +2394,7 @@
                                     </div>
 
                                     {/* SCROLLABLE TABLE CONTAINER (ULTRA-MODERN EXCLUSIVE + ZEBRA & COLORED HEADER) */}
-                                    <div className="relative bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] border border-white flex flex-col max-h-[calc(100vh-220px)] overflow-hidden animate-fade-in-up p-2 md:p-4">
+                                    <div className="relative bg-gradient-to-br from-white/80 to-white/40 backdrop-blur-3xl rounded-[2.5rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] border border-white flex flex-col min-h-[70vh] md:min-h-[80vh] max-h-[calc(100vh-90px)] md:max-h-[calc(100vh-100px)] overflow-hidden animate-fade-in-up p-2 md:p-4">
                                         
                                         {/* Ambient Glow di belakang tabel */}
                                         <div className="absolute top-0 left-0 w-64 h-64 bg-blue-400/10 rounded-full blur-[80px] pointer-events-none"></div>
@@ -2336,8 +2429,8 @@
                                                     <tr className="bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 shadow-md">
                                                         <th className="px-6 py-4 text-[10px] font-extrabold text-white uppercase tracking-[0.2em] w-48 rounded-l-2xl">Kategori Dokumen</th>
                                                         <th className="px-6 py-4 text-[10px] font-extrabold text-blue-50 uppercase tracking-[0.2em]">Identitas & Pembuat</th>
-                                                        <th className="px-6 py-4 text-[10px] font-extrabold text-blue-50 uppercase tracking-[0.2em]">Siswa Tertuju</th>
-                                                        <th className="px-6 py-4 text-[10px] font-extrabold text-blue-50 uppercase tracking-[0.2em] w-40">Jadwal Acara</th>
+                                                        <th className="px-6 py-4 text-[10px] font-extrabold text-blue-50 uppercase tracking-[0.2em]">Tujuan Surat</th>
+                                                        <th className="px-6 py-4 text-[10px] font-extrabold text-blue-50 uppercase tracking-[0.2em] w-40">Tanggal Surat</th>
                                                         <th className="px-6 py-4 text-[10px] font-extrabold text-white uppercase tracking-[0.2em] text-center w-[220px] rounded-r-2xl">Aksi Cepat</th>
                                                     </tr>
                                                 </thead>
@@ -2356,7 +2449,7 @@
                                                                 </td>
                                                                 <td className="px-6 py-3 align-middle border-t border-b border-transparent group-hover:border-blue-100">
                                                                     <div className="text-[11px] text-slate-800 font-bold group-hover:text-blue-700 transition-colors flex items-center gap-2">
-                                                                        {letter.nomorSurat || 'TANPA NOMOR'}
+                                                                        {letter.nomorSurat || 'Tanpa Nomor Surat'}
                                                                     </div>
                                                                     <div className="text-[9px] text-slate-400 flex items-center gap-1 mt-1 font-bold uppercase tracking-widest">
                                                                         Oleh: <span className="text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded flex items-center gap-1 border border-indigo-200 shadow-sm"><User size={9} strokeWidth={3}/> {letter.createdBy || 'SYSTEM'}</span>
@@ -2883,6 +2976,23 @@
 								© {new Date().getFullYear()} Mappaguru Online. Hak cipta dilindungi undang-undang.
 							</p>
 						</footer>
+						
+						{/* TOMBOL LIFT SCROLL (NAIK/TURUN) */}
+                        <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 flex flex-col gap-3 z-[60] no-print">
+                            <button onClick={() => {
+                                const el = document.getElementById('main-scroll-area');
+                                if (el) el.scrollTo({ top: 0, behavior: 'smooth' });
+                            }} className="bg-blue-600 hover:bg-blue-500 text-white p-3 md:p-3.5 rounded-full shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1 hover:scale-110 border border-blue-400 group" title="Kembali ke Atas">
+                                <ArrowUp size={22} strokeWidth={3} className="group-hover:-translate-y-1 transition-transform" />
+                            </button>
+                            
+                            <button onClick={() => {
+                                const el = document.getElementById('main-scroll-area');
+                                if (el) el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+                            }} className="bg-slate-700 hover:bg-slate-600 text-white p-3 md:p-3.5 rounded-full shadow-lg shadow-slate-900/30 transition-all transform hover:translate-y-1 hover:scale-110 border border-slate-500 group" title="Ke Paling Bawah">
+                                <ArrowDown size={22} strokeWidth={3} className="group-hover:translate-y-1 transition-transform" />
+                            </button>
+                        </div>
 						
                     </main>
 					
@@ -4458,12 +4568,19 @@
                             {formData.type === 'TUGAS_HOMEVISIT' && (
                                 <div className="space-y-4 border-t pt-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat Tugas</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-                                    <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
-                                        <h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Guru yang Ditugaskan</h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div><label className="block text-xs font-medium text-gray-600">Nama Guru / Petugas</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+                                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 mt-2 mb-4">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h4 className="font-bold text-xs text-orange-800 uppercase flex items-center gap-2"><Users size={16}/> Tim Home Visit yang Ditugaskan</h4>
+                                            <button type="button" onClick={handleAddPegawai} className="text-[10px] font-bold bg-orange-600 text-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-orange-700 transition-all">+ Tambah Petugas</button>
                                         </div>
+                                        {(formData.daftarPegawai || []).map((p, index) => (
+                                            <div key={index} className="flex flex-col md:flex-row gap-2 mb-3 md:mb-2 items-end border-b border-orange-100 pb-3 md:border-0 md:pb-0">
+                                                <div className="w-full md:flex-1"><label className="block text-[10px] font-medium text-gray-600 mb-1">Nama Petugas</label><input type="text" value={p.nama} onChange={(e) => handleChangePegawai(index, 'nama', e.target.value)} className="w-full p-2 text-sm border border-orange-200 rounded-md" placeholder="Nama & Gelar..." required /></div>
+                                                <div className="w-full md:w-1/4"><label className="block text-[10px] font-medium text-gray-600 mb-1">NIP/NIPPPK</label><input type="text" value={p.nip} onChange={(e) => handleChangePegawai(index, 'nip', e.target.value)} className="w-full p-2 text-sm border border-orange-200 rounded-md" placeholder="NIP / Strip (-)" required /></div>
+                                                <div className="w-full md:w-1/3"><label className="block text-[10px] font-medium text-gray-600 mb-1">Unsur / Jabatan</label><input type="text" value={p.jabatan} onChange={(e) => handleChangePegawai(index, 'jabatan', e.target.value)} className="w-full p-2 text-sm border border-orange-200 rounded-md" placeholder="Cth: Guru BK / Wali Kelas" required /></div>
+                                                <button type="button" onClick={() => handleRemovePegawai(index)} className="bg-red-50 text-red-500 p-2 border border-red-100 rounded-md hover:bg-red-100 hover:text-red-700 md:mb-[1px] w-full md:w-auto flex justify-center"><Trash2 size={18}/></button>
+                                            </div>
+                                        ))}
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
@@ -4543,12 +4660,25 @@
                                     <div><AILabel label="Gambaran Masalah" stateKey="gambaranMasalah" /><textarea name="gambaranMasalah" value={formData.gambaranMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsi kondisi siswa/rumah..."></textarea></div>
                                     <div><AILabel label="Hasil Pembicaraan" stateKey="hasilPembicaraan" /><textarea name="hasilPembicaraan" value={formData.hasilPembicaraan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Tanggapan orang tua..."></textarea></div>
                                     <div><AILabel label="Rencana Tindak Lanjut (Kesepakatan)" stateKey="tindakLanjut" /><textarea name="tindakLanjut" value={formData.tindakLanjut} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Apa yang akan dilakukan selanjutnya..."></textarea></div>
-                                    <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
-                                        <h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Pelapor (Guru BK)</h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
+                                    <div className="bg-orange-50 p-4 rounded-xl border border-orange-200 mt-2 mb-4">
+                                        <h4 className="font-semibold text-xs text-orange-800 uppercase mb-3">Pelapor Utama (Guru BK)</h4>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                            <div><label className="block text-[10px] font-medium text-gray-600 mb-1">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 text-sm border border-orange-200 rounded-md" required /></div>
+                                            <div><label className="block text-[10px] font-medium text-gray-600 mb-1">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 text-sm border border-orange-200 rounded-md" /></div>
                                         </div>
+                                        
+                                        <div className="flex justify-between items-center mb-3 border-t border-orange-200 pt-3">
+                                            <h4 className="font-bold text-xs text-orange-800 uppercase flex items-center gap-2"><Users size={16}/> Tim Pendamping (Opsional)</h4>
+                                            <button type="button" onClick={handleAddPegawai} className="text-[10px] font-bold bg-orange-600 text-white px-3 py-1.5 rounded-lg shadow-sm hover:bg-orange-700 transition-all">+ Tambah Rekan</button>
+                                        </div>
+                                        <p className="text-[10px] text-orange-600 mb-3 italic">*Siswa, Wali, dan Guru BK otomatis masuk ke Lampiran Daftar Hadir. Tambahkan nama guru lain (Misal: Wali Kelas) di sini jika ada.</p>
+                                        {(formData.daftarPegawai || []).map((p, index) => (
+                                            <div key={index} className="flex flex-col md:flex-row gap-2 mb-3 md:mb-2 items-end border-b border-orange-100 pb-3 md:border-0 md:pb-0">
+                                                <div className="w-full md:flex-1"><label className="block text-[10px] font-medium text-gray-600 mb-1">Nama Pendamping</label><input type="text" value={p.nama} onChange={(e) => handleChangePegawai(index, 'nama', e.target.value)} className="w-full p-2 text-sm border border-orange-200 rounded-md" placeholder="Nama & Gelar..." required /></div>
+                                                <div className="w-full md:w-1/3"><label className="block text-[10px] font-medium text-gray-600 mb-1">Unsur / Jabatan</label><input type="text" value={p.jabatan} onChange={(e) => handleChangePegawai(index, 'jabatan', e.target.value)} className="w-full p-2 text-sm border border-orange-200 rounded-md" placeholder="Cth: Wali Kelas / Kesiswaan" required /></div>
+                                                <button type="button" onClick={() => handleRemovePegawai(index)} className="bg-red-50 text-red-500 p-2 border border-red-100 rounded-md hover:bg-red-100 hover:text-red-700 md:mb-[1px] w-full md:w-auto flex justify-center"><Trash2 size={18}/></button>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}
@@ -5100,9 +5230,17 @@
                                     <p>Nomor: {data.nomorSurat}</p>
                                 </div>
 
-                                <p className="mb-4 text-justify indent-8 leading-relaxed">
-                                    Yang bertanda tangan di bawah ini, Kepala {schoolData.namaSekolah}, memberikan <strong>Dispensasi (Izin Meninggalkan Jam Pelajaran)</strong> kepada siswa-siswi yang namanya tercantum di bawah ini:
-                                </p>
+                                <p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
+										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
+									</tbody>
+								</table>
+								<p className="mb-4 text-justify leading-relaxed">
+									Dengan ini memberikan <strong>Dispensasi (Izin Meninggalkan Jam Pelajaran)</strong> kepada siswa-siswi yang namanya tercantum di bawah ini:
+								</p>
 
                                 <div className="mb-4 px-2">
                                     <table className="w-full border-collapse border border-black text-[10.5pt]">
@@ -5172,8 +5310,8 @@
                                 </div>
 
                                 <p className="mb-4 text-justify indent-8 leading-relaxed">
-                                    Menindaklanjuti Surat dari <strong>{data.instansiKampus}</strong> Nomor: <strong>{data.noSuratMasuk}</strong> perihal Permohonan Izin Penelitian/Observasi, maka dengan ini Kepala {schoolData.namaSekolah} memberikan izin kepada nama-nama yang tercantum di bawah ini:
-                                </p>
+									Menindaklanjuti Surat dari <strong>{data.instansiKampus}</strong> Nomor: <strong>{data.noSuratMasuk}</strong> perihal Permohonan Izin Penelitian/Observasi, maka dengan ini <strong>{data.jabatan}</strong> {schoolData.namaSekolah} memberikan izin kepada nama-nama yang tercantum di bawah ini:
+								</p>
 
                                 <div className="mb-4 px-2">
                                     <table className="w-full border-collapse border border-black text-[10.5pt]">
@@ -5302,7 +5440,15 @@
                                     <p>Nomor: {data.nomorSurat}</p>
                                 </div>
 
-                                <p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Kepala {schoolData.namaSekolah}, menerangkan dengan sesungguhnya bahwa:</p>
+                                <p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
+										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
+									</tbody>
+								</table>
+								<p className="mb-4 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
                                 
                                 <table className="w-full mb-4 pl-4">
                                     <tbody>
@@ -5438,7 +5584,15 @@
 									<p>Nomor: {data.nomorSurat}</p>
 								</div>
 
-								<p className="mb-4 text-justify">Yang bertanda tangan di bawah ini, Kepala {schoolData.namaSekolah}, menerangkan dengan sesungguhnya bahwa:</p>
+								<p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
+										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
+									</tbody>
+								</table>
+								<p className="mb-4 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
 								
 								<table className="w-full mb-4 pl-4">
 									<tbody>
@@ -5675,13 +5829,33 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="mb-4 text-center font-bold text-[12pt]">MEMBERI TUGAS KEPADA:</div>
-                                <div className="mb-4">
-                                    <table className="w-full mb-2 pl-4">
+                                <div className="mb-3 text-center font-bold text-[12pt]">MEMBERI TUGAS KEPADA:</div>
+                                <div className="mb-5 px-4">
+                                    <table className="w-full border-collapse border border-black text-[10.5pt]">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="border border-black p-1.5 w-10 text-center">No</th>
+                                                <th className="border border-black p-1.5 text-center">Nama Pegawai / Guru</th>
+                                                <th className="border border-black p-1.5 text-center w-32">NIP / NIPPPK</th>
+                                                <th className="border border-black p-1.5 text-center w-40">Unsur / Jabatan</th>
+                                            </tr>
+                                        </thead>
                                         <tbody>
-                                            <tr><td className="w-40 align-top">Nama</td><td>: <span className="font-bold">{data.namaPetugas}</span></td></tr>
-                                            <tr><td className="align-top">NIP</td><td>: {data.nipPetugas || '-'}</td></tr>
-                                            <tr><td className="align-top">Jabatan</td><td>: Guru BK / Konselor</td></tr>
+                                            {(data.daftarPegawai && data.daftarPegawai.length > 0) ? data.daftarPegawai.map((p, i) => (
+                                                <tr key={i}>
+                                                    <td className="border border-black p-1.5 text-center">{i + 1}</td>
+                                                    <td className="border border-black p-1.5"><strong>{p.nama}</strong></td>
+                                                    <td className="border border-black p-1.5 text-center">{p.nip || '-'}</td>
+                                                    <td className="border border-black p-1.5 text-center">{p.jabatan}</td>
+                                                </tr>
+                                            )) : (
+                                                <tr>
+                                                    <td className="border border-black p-1.5 text-center">1</td>
+                                                    <td className="border border-black p-1.5"><strong>{data.namaPetugas}</strong></td>
+                                                    <td className="border border-black p-1.5 text-center">{data.nipPetugas || '-'}</td>
+                                                    <td className="border border-black p-1.5 text-center">Guru BK / Konselor</td>
+                                                </tr>
+                                            )}
                                         </tbody>
                                     </table>
                                 </div>
@@ -5744,25 +5918,82 @@
                                     <h4 className="font-bold underline mb-1">C. RENCANA TINDAK LANJUT (KESEPAKATAN)</h4>
                                     <div className="border border-black p-2 min-h-[80px] text-justify whitespace-pre-line">{data.tindakLanjut}</div>
                                 </div>
-                                <div className="flex justify-between items-end mt-8 px-2">
-                                    <div className="text-center min-w-[200px] mb-4">
-                                        <p className="mb-16">Orang Tua / Wali,</p>
-                                        <p className="font-bold underline">..............................</p>
-                                        <p>{data.statusPihakDitemui}</p>
+                                {/* Tanda Tangan Halaman 1 (Hanya Kepsek & BK) */}
+                                <div className="flex justify-between items-end mt-12 px-2" style={{ pageBreakInside: 'avoid' }}>
+                                    <div className="text-center min-w-[250px]">
+                                        <p className="mb-1">Mengetahui,</p>
+                                        <p className="mb-16">{data.jabatan}</p>
+                                        <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+                                        <p>NIP. {data.nipPenandaTangan}</p>
                                     </div>
-                                    <div className="text-center min-w-[200px] mb-4">
-                                        <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-                                        <p className="mb-16">Guru BK / Konselor,</p>
-                                        <p className="font-bold underline">{data.namaPetugas}</p>
+                                    <div className="flex flex-col items-center justify-end h-full pb-2">
+                                        <img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" />
+                                    </div>
+                                    <div className="text-center min-w-[250px]">
+                                        <p className="mb-1">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
+                                        <p className="mb-16">Pelapor / Guru BK</p>
+                                        <p className="font-bold underline whitespace-nowrap">{data.namaPetugas}</p>
                                         <p>NIP. {data.nipPetugas || '-'}</p>
                                     </div>
                                 </div>
-                                <div className="flex justify-center mt-4">
-                                    <div className="text-center">
-                                        <p className="mb-16">Mengetahui,<br/>{data.jabatan}</p>
-                                        <p className="font-bold underline">{data.penandaTangan}</p>
-                                        <p>NIP. {data.nipPenandaTangan}</p>
+
+                                {/* HALAMAN 2: LAMPIRAN DAFTAR HADIR (Terbuat Otomatis) */}
+                                <div style={{ pageBreakBefore: 'always', fontFamily: 'Times New Roman, Times, serif' }} className="pt-8 text-black">
+                                    <div className="text-center mb-6">
+                                        <h3 className="font-bold underline text-[12pt] uppercase tracking-wider">LAMPIRAN DAFTAR HADIR</h3>
+                                        <p className="font-bold text-[11pt]">KUNJUNGAN RUMAH (HOME VISIT)</p>
                                     </div>
+
+                                    <table className="w-full mb-6 text-[11pt]">
+                                        <tbody>
+                                            <tr><td className="w-40 py-1 font-bold">Nama Siswa</td><td>: {data.namaSiswa}</td></tr>
+                                            <tr><td className="py-1 font-bold">Kelas</td><td>: {data.kelas}</td></tr>
+                                            <tr><td className="py-1 font-bold">Hari / Tanggal</td><td>: {data.hariTanggalAcara}</td></tr>
+                                        </tbody>
+                                    </table>
+
+                                    <table className="w-full border-collapse border border-black text-[11pt]">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="border border-black p-2 w-12 text-center">No</th>
+                                                <th className="border border-black p-2 text-text-center">Nama Lengkap</th>
+                                                <th className="border border-black p-2 w-48 text-center">Unsur / Jabatan</th>
+                                                <th className="border border-black p-2 w-40 text-center">Tanda Tangan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {/* Baris 1: Siswa */}
+                                            <tr>
+                                                <td className="border border-black p-3 text-center">1</td>
+                                                <td className="border border-black p-3">{data.namaSiswa}</td>
+                                                <td className="border border-black p-3 text-center">Siswa</td>
+                                                <td className="border border-black p-3"></td>
+                                            </tr>
+                                            {/* Baris 2: Orang Tua */}
+                                            <tr>
+                                                <td className="border border-black p-3 text-center">2</td>
+                                                <td className="border border-black p-3">{data.pihakDitemui}</td>
+                                                <td className="border border-black p-3 text-center">{data.statusPihakDitemui}</td>
+                                                <td className="border border-black p-3"></td>
+                                            </tr>
+                                            {/* Baris 3: Guru BK Utama */}
+                                            <tr>
+                                                <td className="border border-black p-3 text-center">3</td>
+                                                <td className="border border-black p-3">{data.namaPetugas}</td>
+                                                <td className="border border-black p-3 text-center">Guru BK</td>
+                                                <td className="border border-black p-3"></td>
+                                            </tr>
+                                            {/* Looping Tambahan (Wali Kelas, dll) */}
+                                            {(data.daftarPegawai || []).map((p, i) => (
+                                                <tr key={i}>
+                                                    <td className="border border-black p-3 text-center">{i + 4}</td>
+                                                    <td className="border border-black p-3">{p.nama}</td>
+                                                    <td className="border border-black p-3 text-center">{p.jabatan}</td>
+                                                    <td className="border border-black p-3"></td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         )}
@@ -6147,7 +6378,15 @@
                                     <h3 className="font-bold underline text-[12pt] uppercase">SURAT KETERANGAN BERKELAKUAN BAIK</h3>
                                     <p>Nomor: {data.nomorSurat}</p>
                                 </div>
-                                <p className="mb-4">Yang bertanda tangan di bawah ini Kepala {schoolData.namaSekolah}, menerangkan bahwa:</p>
+                                <p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
+										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
+									</tbody>
+								</table>
+								<p className="mb-4 text-justify">Dengan ini menerangkan bahwa:</p>
                                 <table className="w-full mb-6 pl-4">
                                     <tbody>
                                         <tr><td className="w-48 align-top py-1">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
@@ -6303,9 +6542,15 @@
                                     <p>Nomor: {data.nomorSurat}</p>
                                 </div>
 
-                                <p className="mb-3 text-justify">
-                                    Yang bertanda tangan di bawah ini, Kepala {schoolData.namaSekolah} dan Guru Bimbingan dan Konseling, menerangkan dengan sesungguhnya bahwa:
-                                </p>
+                                <p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<table className="w-full mb-4 pl-4">
+									<tbody>
+										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
+										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
+									</tbody>
+								</table>
+								<p className="mb-4 text-justify">Bersama dengan Guru Bimbingan dan Konseling, dengan ini menerangkan dengan sesungguhnya bahwa:</p>
 
                                 <table className="w-full mb-4 pl-4">
                                     <tbody>
@@ -6528,4 +6773,3 @@
 </body>
 
 </html>
-
