@@ -915,7 +915,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN'];
             const [historyStudent, setHistoryStudent] = useState(null);
 			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
@@ -1383,6 +1383,8 @@
 					{ key: 'UNDANGAN_RAPAT', label: 'Undangan Rapat/Umum', icon: <Mail/>, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
 					{ key: 'REKOMENDASI_PINDAH', label: 'Rekom. Pindah', icon: <Share/>, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
 					{ key: 'DISPENSASI', label: 'Dispensasi', icon: <UserCheck/>, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+					{ key: 'IZIN_PENELITIAN', label: 'Izin Penelitian', icon: <FileCheck/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+					{ key: 'UNDANGAN_KEGIATAN', label: 'Undangan Kegiatan', icon: <Sparkles/>, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
                 ];
                 return types.map(t => ({
                     ...t,
@@ -1572,7 +1574,7 @@
                         agendaList.push({ ...l, sortDate, displayDate, displayTime });
                     }
                     // 3. UNDANGAN ORTU, HOMEVISIT, SURAT TUGAS, & UNDANGAN RAPAT (Tipe Agenda Tunggal)
-                    else if (l.type === 'UNDANGAN' || l.type === 'TUGAS_HOMEVISIT' || l.type === 'SURAT_TUGAS_GURU' || l.type === 'UNDANGAN_RAPAT') {
+                    else if (l.type === 'UNDANGAN' || l.type === 'TUGAS_HOMEVISIT' || l.type === 'SURAT_TUGAS_GURU' || l.type === 'UNDANGAN_RAPAT' || l.type === 'UNDANGAN_KEGIATAN') {
                         if (!l.hariTanggalAcara) return;
                         sortDate = parseDateStr(l.hariTanggalAcara);
                         if (sortDate < today) return;
@@ -1772,6 +1774,20 @@
                                 <p><span className="block text-[10px] font-extrabold text-orange-600 uppercase tracking-widest">Waktu/Tempat</span> {letter.waktuPelaksanaan} ({letter.tempatKegiatan})</p>
                             </div>
                         );
+					case 'IZIN_PENELITIAN':
+                        return (
+                            <div className="space-y-2 border-l-4 border-emerald-500 pl-3">
+                                <p><span className="block text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Kampus / Instansi</span> {letter.instansiKampus}</p>
+                                <p><span className="block text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Judul Penelitian</span> {letter.judulPenelitian}</p>
+                            </div>
+                        );
+					case 'UNDANGAN_KEGIATAN':
+                        return (
+                            <div className="space-y-2 border-l-4 border-amber-400 pl-3">
+                                <p><span className="block text-[10px] font-extrabold text-amber-600 uppercase tracking-widest">Kegiatan & Tujuan</span> {letter.namaKegiatan} (Kpd: {letter.sasaranUndangan})</p>
+                                <p><span className="block text-[10px] font-extrabold text-amber-600 uppercase tracking-widest">Jadwal & Tempat</span> {letter.hariTanggalAcara} di {letter.tempatAcara}</p>
+                            </div>
+                        );
                     default:
                         return (
                             <p className="italic text-slate-500 text-sm">
@@ -1841,6 +1857,8 @@
 								'UNDANGAN_RAPAT': { cat: 'Tata Usaha', title: 'Undangan Rapat/Dinas', icon: <Mail size={20} className="text-blue-600"/> },
 								'REKOMENDASI_PINDAH': { cat: 'Keterangan & Keluar', title: 'Rekomendasi Pindah', icon: <Share size={20} className="text-fuchsia-600"/> },
 								'DISPENSASI': { cat: 'Tata Usaha', title: 'Dispensasi Siswa', icon: <UserCheck size={20} className="text-orange-600"/> },
+								'IZIN_PENELITIAN': { cat: 'Kemitraan & Kunjungan', title: 'Izin Penelitian / Observasi', icon: <FileCheck size={20} className="text-emerald-600"/> },
+								'UNDANGAN_KEGIATAN': { cat: 'Tata Usaha', title: 'Undangan Kegiatan / Event', icon: <Sparkles size={20} className="text-amber-600"/> },
 								// --- MENU ARSIP TRACKING ---
 								'SURAT_MASUK': { cat: 'Pengarsipan & Lacak', title: 'Buku Surat Masuk', icon: <Inbox size={20} className="text-emerald-600"/> },
 								'SURAT_KELUAR': { cat: 'Pengarsipan & Lacak', title: 'Arsip Surat Keluar', icon: <Send size={20} className="text-blue-600"/> },
@@ -2008,40 +2026,42 @@
 														getUpcomingAgenda().map((agenda, i) => (
 															<div key={i} onClick={() => {setSelectedLetter(agenda); setViewState('detail');}} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-white hover:bg-slate-50 border border-slate-200 hover:border-blue-300 rounded-2xl cursor-pointer transition-all duration-300 group gap-4 shadow-sm hover:shadow-md">
 																<div className="flex items-center gap-4">
-																	<div className={`w-14 h-14 rounded-[1rem] flex items-center justify-center border shadow-inner transition-all shrink-0 ${
-																		agenda.type === 'UNDANGAN_RAPAT' ? 'bg-blue-50 border-blue-100 text-blue-600' : 
-																		agenda.type === 'DISPENSASI' ? 'bg-orange-50 border-orange-100 text-orange-600' : 
-																		'bg-slate-50 border-slate-200 text-slate-400'
-																	} group-hover:scale-110`}>
-																		{agenda.type === 'UNDANGAN_RAPAT' ? <Mail size={24}/> : agenda.type === 'DISPENSASI' ? <UserCheck size={24}/> : <Calendar size={24}/>}
-																	</div>
-																	<div>
-																		<div className="flex flex-wrap items-center gap-2 mb-1.5">
-																			<h4 className="font-bold text-slate-800 group-hover:text-blue-700 transition-colors text-sm md:text-base">
-																				{agenda.type === 'SURAT_TUGAS_GURU' || agenda.type === 'DISPENSASI' ? agenda.namaKegiatan : 
-																				 agenda.type === 'UNDANGAN_RAPAT' ? agenda.perihal : 
-																				 agenda.namaSiswa}
-																			</h4>
-																			<span className="bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest shadow-sm">
-																				{agenda.type === 'SURAT_TUGAS_GURU' ? 'PEGAWAI' : 
-																				 agenda.type === 'UNDANGAN_RAPAT' ? 'DINAS/UMUM' : 
-																				 agenda.type === 'DISPENSASI' ? 'ROMBONGAN' : 
-																				 `Kelas ${agenda.kelas}`}
-																			</span>
-																			<span className={`text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest shadow-sm border ${getBadgeStyle(agenda.type)}`}>
-																				{agenda.type.replace('_', ' ')}
-																			</span>
-																		</div>
-																		<div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-slate-500 mt-1">
-																			<span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Calendar size={12} className="text-slate-400"/> {agenda.displayDate || agenda.hariTanggalAcara}</span>
-																			<span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Monitor size={12} className="text-slate-400"/> {agenda.displayTime || agenda.waktuAcara || '08.00 - Selesai'}</span>
-																			
-																			<span className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-200 shadow-sm ml-auto sm:ml-0">
-																				<User size={12} strokeWidth={2.5}/> Pembuat: {agenda.namaPetugas || agenda.createdBy || '-'}
-																			</span>
-																		</div>
-																	</div>
-																</div>
+                                                                    <div className={`w-14 h-14 rounded-[1rem] flex items-center justify-center border shadow-inner transition-all shrink-0 ${
+                                                                        agenda.type === 'UNDANGAN_RAPAT' ? 'bg-blue-50 border-blue-100 text-blue-600' : 
+                                                                        agenda.type === 'UNDANGAN_KEGIATAN' ? 'bg-amber-50 border-amber-100 text-amber-600' : 
+                                                                        agenda.type === 'DISPENSASI' ? 'bg-orange-50 border-orange-100 text-orange-600' : 
+                                                                        'bg-slate-50 border-slate-200 text-slate-400'
+                                                                    } group-hover:scale-110`}>
+                                                                        {agenda.type === 'UNDANGAN_RAPAT' ? <Mail size={24}/> : agenda.type === 'UNDANGAN_KEGIATAN' ? <Sparkles size={24}/> : agenda.type === 'DISPENSASI' ? <UserCheck size={24}/> : <Calendar size={24}/>}
+                                                                    </div>
+                                                                    <div>
+                                                                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                                                                            <h4 className="font-bold text-slate-800 group-hover:text-blue-700 transition-colors text-sm md:text-base">
+                                                                                {agenda.type === 'SURAT_TUGAS_GURU' || agenda.type === 'DISPENSASI' || agenda.type === 'UNDANGAN_KEGIATAN' ? agenda.namaKegiatan : 
+                                                                                 agenda.type === 'UNDANGAN_RAPAT' ? agenda.perihal : 
+                                                                                 agenda.namaSiswa}
+                                                                            </h4>
+                                                                            <span className="bg-slate-800 text-white text-[9px] px-2 py-0.5 rounded uppercase font-bold tracking-widest shadow-sm">
+                                                                                {agenda.type === 'SURAT_TUGAS_GURU' ? 'PEGAWAI' : 
+                                                                                 agenda.type === 'UNDANGAN_RAPAT' ? 'DINAS/UMUM' : 
+                                                                                 agenda.type === 'UNDANGAN_KEGIATAN' ? 'EVENT/UMUM' : 
+                                                                                 agenda.type === 'DISPENSASI' ? 'ROMBONGAN' : 
+                                                                                 `Kelas ${agenda.kelas}`}
+                                                                            </span>
+                                                                            <span className={`text-[9px] px-2 py-0.5 rounded font-black uppercase tracking-widest shadow-sm border ${getBadgeStyle(agenda.type)}`}>
+                                                                                {agenda.type.replace('_', ' ')}
+                                                                            </span>
+                                                                        </div>
+                                                                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-slate-500 mt-1">
+                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Calendar size={12} className="text-slate-400"/> {agenda.displayDate || agenda.hariTanggalAcara}</span>
+                                                                            <span className="flex items-center gap-1.5 bg-slate-100 px-2 py-1 rounded-md border border-slate-200"><Monitor size={12} className="text-slate-400"/> {agenda.displayTime || agenda.waktuAcara || '08.00 - Selesai'}</span>
+                                                                            
+                                                                            <span className="flex items-center gap-1.5 bg-indigo-50 text-indigo-700 px-2 py-1 rounded-md border border-indigo-200 shadow-sm ml-auto sm:ml-0">
+                                                                                <User size={12} strokeWidth={2.5}/> Pembuat: {agenda.namaPetugas || agenda.createdBy || '-'}
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 																<div className="hidden sm:flex items-center gap-2 text-xs font-black text-slate-400 group-hover:text-blue-600 transition-colors whitespace-nowrap uppercase tracking-widest bg-slate-50 group-hover:bg-blue-100 px-3 py-2 rounded-xl">
 																	Cek Detail <ChevronRight size={14} strokeWidth={3}/>
 																</div>
@@ -2350,11 +2370,17 @@
                                                                         </div>
                                                                         <div>
                                                                             <div className="font-bold text-[11px] text-slate-800 group-hover:text-blue-700 transition-colors tracking-wide">
-																			{letter.type === 'SURAT_TUGAS_GURU' ? (letter.daftarPegawai && letter.daftarPegawai.length > 0 ? letter.daftarPegawai[0].nama + (letter.daftarPegawai.length > 1 ? ` (+${letter.daftarPegawai.length - 1} lainnya)` : '') : 'Belum ada pegawai') : letter.type === 'DISPENSASI' ? (letter.daftarSiswa && letter.daftarSiswa.length > 0 ? letter.daftarSiswa[0].nama + (letter.daftarSiswa.length > 1 ? ` (+${letter.daftarSiswa.length - 1} lainnya)` : '') : 'Belum ada siswa') : letter.type === 'UNDANGAN_RAPAT' ? letter.sasaranUndangan : (letter.namaSiswa || 'Siswa Tidak Diketahui')}
-																		</div>
-                                                                            <div className="text-slate-500 text-[9px] mt-0.5 font-black tracking-widest uppercase">
-																			{letter.type === 'DISPENSASI' ? 'ROMBONGAN / TIM' : letter.type === 'SURAT_TUGAS_GURU' ? 'PEGAWAI / GURU' : letter.type === 'UNDANGAN_RAPAT' ? 'UMUM / DINAS' : `KELAS ${letter.kelas || '-'}`}
-																		</div>
+                                                                            {letter.type === 'SURAT_TUGAS_GURU' ? (letter.daftarPegawai && letter.daftarPegawai.length > 0 ? letter.daftarPegawai[0].nama + (letter.daftarPegawai.length > 1 ? ` (+${letter.daftarPegawai.length - 1} lainnya)` : '') : 'Belum ada pegawai') : 
+                                                                             letter.type === 'DISPENSASI' ? (letter.daftarSiswa && letter.daftarSiswa.length > 0 ? letter.daftarSiswa[0].nama + (letter.daftarSiswa.length > 1 ? ` (+${letter.daftarSiswa.length - 1} lainnya)` : '') : 'Belum ada siswa') : 
+                                                                             letter.type === 'IZIN_PENELITIAN' ? (letter.daftarPeneliti && letter.daftarPeneliti.length > 0 ? letter.daftarPeneliti[0].nama + (letter.daftarPeneliti.length > 1 ? ` (+${letter.daftarPeneliti.length - 1} lainnya)` : '') : 'Belum ada peneliti') : 
+                                                                             (letter.type === 'UNDANGAN_RAPAT' || letter.type === 'UNDANGAN_KEGIATAN') ? letter.sasaranUndangan : (letter.namaSiswa || 'Siswa Tidak Diketahui')}
+                                                                        </div>
+                                                                        <div className="text-slate-500 text-[9px] mt-0.5 font-black tracking-widest uppercase">
+                                                                            {letter.type === 'DISPENSASI' ? 'ROMBONGAN / TIM' : 
+                                                                             letter.type === 'SURAT_TUGAS_GURU' ? 'PEGAWAI / GURU' : 
+                                                                             letter.type === 'IZIN_PENELITIAN' ? 'TIM PENELITI' : 
+                                                                             (letter.type === 'UNDANGAN_RAPAT' || letter.type === 'UNDANGAN_KEGIATAN') ? 'UMUM / DINAS' : `KELAS ${letter.kelas || '-'}`}
+                                                                        </div>
                                                                         </div>
                                                                     </div>
                                                                 </td>
@@ -3342,8 +3368,10 @@
 							<SidebarItem icon={<Briefcase size={18}/>} label="Surat Tugas Pegawai" active={activeTab === 'SURAT_TUGAS_GURU'} onClick={() => {setActiveTab('SURAT_TUGAS_GURU'); setViewState('list');}} />
 							<SidebarItem icon={<ClipboardList size={18}/>} label="Ket. Aktif Sekolah" active={activeTab === 'SK_AKTIF'} onClick={() => {setActiveTab('SK_AKTIF'); setViewState('list');}} />
 							<SidebarItem icon={<Mail size={18}/>} label="Undangan Rapat/Umum" active={activeTab === 'UNDANGAN_RAPAT'} onClick={() => {setActiveTab('UNDANGAN_RAPAT'); setViewState('list');}} />
+							<SidebarItem icon={<Sparkles size={18}/>} label="Undangan Kegiatan / Event" active={activeTab === 'UNDANGAN_KEGIATAN'} onClick={() => {setActiveTab('UNDANGAN_KEGIATAN'); setViewState('list');}} />
 							<SidebarItem icon={<Share size={18}/>} label="Rekomendasi Pindah" active={activeTab === 'REKOMENDASI_PINDAH'} onClick={() => {setActiveTab('REKOMENDASI_PINDAH'); setViewState('list');}} />
 							<SidebarItem icon={<UserCheck size={18}/>} label="Dispensasi Siswa" active={activeTab === 'DISPENSASI'} onClick={() => {setActiveTab('DISPENSASI'); setViewState('list');}} />
+							<SidebarItem icon={<FileCheck size={18}/>} label="Izin Penelitian/Observasi" active={activeTab === 'IZIN_PENELITIAN'} onClick={() => {setActiveTab('IZIN_PENELITIAN'); setViewState('list');}} />
                         </SidebarGroup>
 						
 						{/* KATEGORI ARSIP & LACAK (BARU) */}
@@ -3627,6 +3655,9 @@
 				sasaranUndangan: '', agendaRapat: '', catatanTambahan: '',
 				namaSekolahTujuan: '', alasanPindah: '', daftarLampiran: '',
 				namaKegiatan: '', waktuPelaksanaan: '', tempatKegiatan: '', daftarSiswa: [],
+				instansiKampus: '', judulPenelitian: '', noSuratMasuk: '', 
+				daftarPeneliti: [{ nama: '', nim: '', jk: 'Laki-laki', jurusan: '' }],
+				pakaian: 'Batik / Pakaian Bebas Rapi',
                 // Shared fields
                 penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah', 
                 createdBy: currentUser.username 
@@ -3911,8 +3942,10 @@
 												<option value="SURAT_TUGAS_GURU">Surat Tugas Pegawai/Guru</option>
 												<option value="SK_AKTIF">Surat Keterangan Aktif Sekolah</option>
 												<option value="UNDANGAN_RAPAT">Surat Undangan Rapat / Dinas Umum</option>
+												<option value="UNDANGAN_KEGIATAN">Surat Undangan Kegiatan / Event Formal</option>
 												<option value="REKOMENDASI_PINDAH">Surat Rekomendasi Pindah Sekolah (Mutasi)</option>
 												<option value="DISPENSASI">Surat Dispensasi Siswa (Izin Kegiatan / Lomba)</option>
+												<option value="IZIN_PENELITIAN">Surat Izin Penelitian / Observasi</option>
                                             </optgroup>
                                         </select>
                                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
@@ -3925,8 +3958,8 @@
                             </div>
                             
                             {/* IDENTITAS SISWA */}
-							{formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && formData.type !== 'SURAT_TUGAS_GURU' && formData.type !== 'UNDANGAN_RAPAT' && formData.type !== 'DISPENSASI' && (
-								<div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
+                            {formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && formData.type !== 'SURAT_TUGAS_GURU' && formData.type !== 'UNDANGAN_RAPAT' && formData.type !== 'DISPENSASI' && formData.type !== 'IZIN_PENELITIAN' && formData.type !== 'UNDANGAN_KEGIATAN' && (
+                                <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
 									<h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 										<div className="relative">
@@ -4111,6 +4144,88 @@
                                     <div className="border-l-4 border-gray-400 pl-4 py-2 bg-gray-50 rounded-r-md">
                                         <label className="block text-sm font-bold text-gray-700 mb-1">Daftar Berkas Lampiran (Opsional)</label>
                                         <textarea name="daftarLampiran" value={formData.daftarLampiran} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-gray-400" placeholder="Ketik daftar lampiran... Kosongkan jika tidak ada lampiran.&#10;1. Fotokopi Raport Semester 1-4&#10;2. Surat Keterangan Bebas Pustaka"></textarea>
+                                    </div>
+                                </div>
+                            )}
+							
+							{/* IZIN PENELITIAN / OBSERVASI */}
+                            {formData.type === 'IZIN_PENELITIAN' && (
+                                <div className="space-y-4 border-t pt-4 animate-fade-in-up">
+                                    <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 mb-4">
+                                        <h3 className="font-bold text-emerald-800 text-sm flex items-center gap-2 mb-1"><FileCheck size={16}/> Izin Penelitian & Observasi</h3>
+                                        <p className="text-xs text-emerald-600">Surat balasan resmi untuk memberikan izin kepada Mahasiswa/Peneliti luar.</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Nomor Surat Balasan (Sekolah)</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md font-bold text-blue-700" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Nomor Surat Pengantar (Kampus)</label><input type="text" name="noSuratMasuk" value={formData.noSuratMasuk} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: 123/UNM/2026" required /></div>
+                                    </div>
+
+                                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                        <div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">Nama Kampus / Instansi</label><input type="text" name="instansiKampus" value={formData.instansiKampus} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Universitas Negeri Makassar" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Tgl Mulai</label><input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Tgl Selesai</label><input type="date" name="tanggalSelesai" value={formData.tanggalSelesai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+                                    </div>
+
+                                    <div><label className="block text-sm font-medium text-gray-700">Judul Penelitian / Tujuan Observasi</label><textarea name="judulPenelitian" value={formData.judulPenelitian} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Pengaruh Gadget Terhadap Motivasi Belajar Siswa..." required></textarea></div>
+
+                                    {/* TABEL PENELITI MULTI-INPUT */}
+                                    <div className="border border-emerald-200 rounded-md p-3 bg-white shadow-sm mt-4">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <label className="block text-sm font-bold text-gray-700 border-l-4 border-emerald-500 pl-2">Daftar Tim Peneliti / Mahasiswa</label>
+                                            <button type="button" onClick={() => setFormData(prev => ({...prev, daftarPeneliti: [...(prev.daftarPeneliti || []), {nama: '', nim: '', jk: 'Laki-laki', jurusan: ''}]}))} className="bg-emerald-500 hover:bg-emerald-600 text-white px-3 py-1.5 rounded text-xs font-bold transition-all transform hover:scale-105 shadow-sm">+ Tambah Peneliti</button>
+                                        </div>
+                                        {(formData.daftarPeneliti || []).map((p, idx) => (
+                                            <div key={idx} className="flex flex-col md:flex-row gap-2 mb-3 bg-emerald-50/30 p-2 rounded border border-emerald-100 items-start md:items-center">
+                                                <div className="hidden md:block w-6 text-center text-xs font-bold text-gray-500">{idx + 1}.</div>
+                                                <input type="text" placeholder="Nama Lengkap" value={p.nama} onChange={(e) => { const newList = [...formData.daftarPeneliti]; newList[idx].nama = e.target.value; setFormData({...formData, daftarPeneliti: newList}); }} className="w-full md:flex-1 p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-emerald-400 outline-none" required/>
+                                                <input type="text" placeholder="NIM/No.Identitas" value={p.nim} onChange={(e) => { const newList = [...formData.daftarPeneliti]; newList[idx].nim = e.target.value; setFormData({...formData, daftarPeneliti: newList}); }} className="w-full md:w-32 p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-emerald-400 outline-none" required/>
+                                                <select value={p.jk} onChange={(e) => { const newList = [...formData.daftarPeneliti]; newList[idx].jk = e.target.value; setFormData({...formData, daftarPeneliti: newList}); }} className="w-full md:w-28 p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-emerald-400 outline-none bg-white">
+                                                    <option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+                                                </select>
+                                                <input type="text" placeholder="Jurusan" value={p.jurusan} onChange={(e) => { const newList = [...formData.daftarPeneliti]; newList[idx].jurusan = e.target.value; setFormData({...formData, daftarPeneliti: newList}); }} className="w-full md:flex-1 p-2 border border-gray-300 rounded text-sm focus:ring-1 focus:ring-emerald-400 outline-none" required/>
+                                                <button type="button" onClick={() => { const newList = [...formData.daftarPeneliti]; newList.splice(idx, 1); setFormData({...formData, daftarPeneliti: newList}); }} className="bg-red-50 hover:bg-red-500 hover:text-white text-red-500 p-2 rounded transition-colors w-full md:w-auto flex justify-center"><Trash2 size={16}/></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+							
+							{/* UNDANGAN KEGIATAN (EVENT) */}
+                            {formData.type === 'UNDANGAN_KEGIATAN' && (
+                                <div className="space-y-4 border-t pt-4 animate-fade-in-up">
+                                    <div className="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-4">
+                                        <h3 className="font-bold text-amber-800 text-sm flex items-center gap-2 mb-1"><Sparkles size={16}/> Undangan Kegiatan Resmi</h3>
+                                        <p className="text-xs text-amber-600">Gunakan form ini untuk mengundang tamu VIP/Instansi ke acara resmi (misal: Penamatan, Perayaan, dll) tanpa rundown acara.</p>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md font-bold text-blue-700" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Lampiran</label><input type="text" name="lampiran" value={formData.lampiran} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: - / 1 Lembar" required /></div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Nama Kegiatan</label><input type="text" name="namaKegiatan" value={formData.namaKegiatan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md font-bold" placeholder="Contoh: Penamatan Siswa Kelas IX" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Tujuan (Kepada Yth.)</label><input type="text" name="sasaranUndangan" value={formData.sasaranUndangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Kepala Dinas Pendidikan / Orang Tua Siswa" required /></div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-1">Hari/Tgl Acara</label>
+                                            <div className="flex shadow-sm">
+                                                <div className="relative flex items-center justify-center bg-blue-50 hover:bg-blue-100 border border-r-0 border-gray-300 rounded-l-md px-4 text-blue-600 overflow-hidden cursor-pointer">
+                                                    <Calendar size={18} className="pointer-events-none" />
+                                                    <input type="date" onChange={(e) => { if(e.target.value){ setFormData(prev => ({...prev, hariTanggalAcara: formatDate(e.target.value)})); } }} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-50"/>
+                                                </div>
+                                                <input type="text" name="hariTanggalAcara" value={formData.hariTanggalAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-r-md outline-none" placeholder="Pilih kalender atau ketik..." required />
+                                            </div>
+                                        </div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Waktu (Jam)</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="09.00 WITA - Selesai" required /></div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div><label className="block text-sm font-medium text-gray-700">Tempat Pelaksanaan</label><input type="text" name="tempatAcara" value={formData.tempatAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Lapangan Upacara SMPN 16 Makassar" required /></div>
+                                        <div><label className="block text-sm font-medium text-gray-700">Pakaian (Dresscode)</label><input type="text" name="pakaian" value={formData.pakaian} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Batik / Bebas Rapi" required /></div>
                                     </div>
                                 </div>
                             )}
@@ -4878,7 +4993,7 @@
                             <h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
                             <h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
                             <h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
-                            {!['SKORSING', 'TUGAS_HOMEVISIT', 'ALIH_KASUS', 'SKBB', 'BERHENTI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI'].includes(data.type) && (<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+                            {!['SKORSING', 'TUGAS_HOMEVISIT', 'ALIH_KASUS', 'SKBB', 'BERHENTI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN'].includes(data.type) && (<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
                             )}
                             <p className="text-[10pt] italic mt-1 whitespace-pre-line leading-tight">{schoolData.alamat}</p>
                         </div>
@@ -5040,6 +5155,137 @@
                                     </div>
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
+                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+                                        <p>NIP. {data.nipPenandaTangan || '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+						
+						{/* KERTAS CETAK IZIN PENELITIAN */}
+                        {data.type === 'IZIN_PENELITIAN' && (
+                            <div className="text-[11.5pt]" style={{ fontFamily: 'Times New Roman, Times, serif' }}>
+                                <div className="text-center mb-6">
+                                    <h3 className="font-bold underline text-[12pt] uppercase tracking-wider">SURAT IZIN PENELITIAN / OBSERVASI</h3>
+                                    <p>Nomor: {data.nomorSurat}</p>
+                                </div>
+
+                                <p className="mb-4 text-justify indent-8 leading-relaxed">
+                                    Menindaklanjuti Surat dari <strong>{data.instansiKampus}</strong> Nomor: <strong>{data.noSuratMasuk}</strong> perihal Permohonan Izin Penelitian/Observasi, maka dengan ini Kepala {schoolData.namaSekolah} memberikan izin kepada nama-nama yang tercantum di bawah ini:
+                                </p>
+
+                                <div className="mb-4 px-2">
+                                    <table className="w-full border-collapse border border-black text-[10.5pt]">
+                                        <thead>
+                                            <tr className="bg-gray-100">
+                                                <th className="border border-black py-1 px-2 w-10 text-center">No</th>
+                                                <th className="border border-black py-1 px-2">Nama Peneliti / Mahasiswa</th>
+                                                <th className="border border-black py-1 px-2 w-32 text-center">NIM</th>
+                                                <th className="border border-black py-1 px-2 w-12 text-center">L/P</th>
+                                                <th className="border border-black py-1 px-2 w-48 text-center">Jurusan</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {(data.daftarPeneliti && data.daftarPeneliti.length > 0) ? data.daftarPeneliti.map((p, idx) => (
+                                                <tr key={idx}>
+                                                    <td className="border border-black py-1 px-2 text-center">{idx + 1}</td>
+                                                    <td className="border border-black py-1 px-2 font-bold">{p.nama}</td>
+                                                    <td className="border border-black py-1 px-2 text-center">{p.nim}</td>
+                                                    <td className="border border-black py-1 px-2 text-center">{p.jk === 'Laki-laki' ? 'L' : 'P'}</td>
+                                                    <td className="border border-black py-1 px-2 text-center">{p.jurusan}</td>
+                                                </tr>
+                                            )) : (
+                                                <tr><td colSpan="5" className="border border-black py-2 px-2 text-center italic">Tidak ada data peneliti</td></tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <p className="mb-4 text-justify leading-relaxed">
+                                    Untuk melaksanakan kegiatan penelitian/observasi di lingkungan {schoolData.namaSekolah} dengan judul penelitian:
+                                </p>
+                                <div className="border-l-4 border-black pl-3 py-1 mb-4 italic font-bold">
+                                    "{data.judulPenelitian}"
+                                </div>
+
+                                <p className="mb-2 text-justify">
+                                    Adapun pelaksanaan kegiatan tersebut direncanakan berlangsung mulai tanggal <strong>{formatDate(data.tanggalMulai)}</strong> sampai dengan <strong>{formatDate(data.tanggalSelesai)}</strong>, dengan ketentuan yang wajib dipatuhi sebagai berikut:
+                                </p>
+                                <ol className="list-decimal pl-10 pr-4 mb-6 text-justify space-y-1">
+                                    <li>Melaporkan diri kepada Tata Usaha / Guru Piket setiap kali datang berkunjung ke sekolah.</li>
+                                    <li>Menjaga kerahasiaan data pribadi siswa/guru sesuai kode etik penelitian (Tidak mempublikasikan wajah dan nama terang tanpa sensor di jurnal publik).</li>
+                                    <li>Menjaga ketertiban dan memastikan kegiatan penelitian tidak mengganggu proses Kegiatan Belajar Mengajar (KBM) yang sedang berlangsung.</li>
+                                    <li>Menyerahkan 1 (satu) bundle salinan hasil penelitian (Skripsi/Tesis/Jurnal) yang telah selesai kepada pihak sekolah sebagai arsip perpustakaan.</li>
+                                </ol>
+
+                                <p className="mb-6 text-justify indent-8">
+                                    Demikian surat izin ini diberikan agar dapat dipergunakan sebagaimana mestinya.
+                                </p>
+
+                                {/* Area Tanda Tangan */}
+                                <div className="flex justify-between items-end mt-6 px-2" style={{ pageBreakInside: 'avoid' }}>
+                                    <div className="flex flex-col items-center justify-end h-full pb-2">
+                                        <img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" />
+                                    </div>
+                                    <div className="text-center min-w-[250px]">
+                                        <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
+                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+                                        <p>NIP. {data.nipPenandaTangan || '-'}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+						
+						{/* CETAK UNDANGAN KEGIATAN (FORMAL & INFORMATIF) */}
+                        {data.type === 'UNDANGAN_KEGIATAN' && (
+                            <div className="text-[11.5pt]">
+                                <div className="flex justify-between mb-8 leading-snug">
+                                    <div>
+                                        <table className="whitespace-nowrap">
+                                            <tbody>
+                                                <tr><td className="w-24">Nomor</td><td>: {data.nomorSurat}</td></tr>
+                                                <tr><td>Lampiran</td><td>: {data.lampiran || '-'}</td></tr>
+                                                <tr><td>Perihal</td><td className="font-bold">: Undangan Kegiatan / Acara</td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="text-right">
+                                        <p>{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
+                                    </div>
+                                </div>
+
+                                <div className="mb-6">
+                                    <p>Yth.</p>
+                                    <p className="font-bold whitespace-pre-line leading-tight">{data.sasaranUndangan}</p>
+                                    <p>di -</p>
+                                    <p className="ml-6">Tempat</p>
+                                </div>
+
+                                <p className="mb-4 text-justify">Dengan hormat,</p>
+                                <p className="mb-4 text-justify leading-relaxed indent-8">
+                                    Sehubungan dengan akan dilaksanakannya kegiatan <strong>{data.namaKegiatan}</strong> di lingkungan {schoolData.namaSekolah}, maka dengan ini kami mengundang Bapak/Ibu/Saudara(i) untuk hadir pada:
+                                </p>
+
+                                <table className="w-full mb-6 pl-8">
+                                    <tbody>
+                                        <tr><td className="w-40 py-1.5 font-bold">Hari / Tanggal</td><td>: <strong>{data.hariTanggalAcara}</strong></td></tr>
+                                        <tr><td className="py-1.5 font-bold">Waktu</td><td>: <strong>{data.waktuAcara}</strong></td></tr>
+                                        <tr><td className="py-1.5 font-bold align-top">Tempat</td><td className="align-top">: <strong>{data.tempatAcara}</strong></td></tr>
+                                        <tr><td className="py-1.5 font-bold align-top">Pakaian</td><td className="align-top">: <strong>{data.pakaian}</strong></td></tr>
+                                    </tbody>
+                                </table>
+
+                                <p className="mb-8 text-justify indent-8 leading-relaxed">
+                                    Kehadiran Bapak/Ibu merupakan suatu kehormatan bagi kami dan akan memberikan motivasi serta dukungan bagi seluruh warga sekolah. Demikian undangan ini kami sampaikan. Atas perhatian dan kesediaan Bapak/Ibu/Saudara(i) untuk memenuhi undangan ini, kami ucapkan terima kasih.
+                                </p>
+
+                                <div className="flex justify-between items-end mt-12 px-4" style={{ pageBreakInside: 'avoid' }}>
+                                    <div className="flex flex-col items-center justify-end h-full pb-2">
+                                        <img src={qrUrl} alt="Validasi" className="w-[2.2cm] h-[2.2cm]" />
+                                    </div>
+                                    <div className="text-center min-w-[250px]">
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -6270,6 +6516,8 @@
 				'DISPENSASI': 'bg-orange-100 text-orange-800 border-orange-300',
 				'BUKU_TAMU': 'bg-sky-100 text-sky-700 border-sky-200',
 				'REKOMENDASI_STUDI': 'bg-blue-100 text-blue-800 border-blue-300',
+				'IZIN_PENELITIAN': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+				'UNDANGAN_KEGIATAN': 'bg-amber-100 text-amber-800 border-amber-300',
             };
             return styles[type] || 'bg-slate-100 text-slate-700 border-slate-200';
         }
@@ -6280,4 +6528,3 @@
 </body>
 
 </html>
-
