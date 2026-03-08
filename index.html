@@ -6767,7 +6767,7 @@
 											<td className="w-[110px] font-bold align-top pb-3">Menetapkan</td>
 											<td className="w-[15px] align-top pb-3">:</td>
 											<td className="align-top pb-3">
-												<span className="uppercase font-bold">{data.judulSk?.replace(/KEPUTUSAN.*?TENTANG\s*/i, '')}</span>
+												<span className="uppercase font-bold"></span>
 											</td>
 										</tr>
 										<tr>
@@ -6793,18 +6793,35 @@
 									</tbody>
 								</table>
 
-								{/* Blok Tanda Tangan Konsideran Utama */}
-								<div className="flex justify-end items-end mt-4 px-2" style={{ pageBreakInside: 'avoid' }}>
-									<div className="flex flex-col items-center justify-end h-full pb-2">
-										{qrUrl && <img src={qrUrl} alt="Validasi" className="w-[2.2cm] h-[2.2cm]" />}
+								{/* ========================================================= */}
+								{/* AREA BAWAH: TEMBUSAN (KIRI) & TANDA TANGAN (KANAN) */}
+								{/* ========================================================= */}
+								<div className="flex justify-between items-end mt-10 px-2" style={{ pageBreakInside: 'avoid' }}>
+									
+									{/* TEMBUSAN DI SEBELAH KIRI */}
+									<div className="text-[9pt] leading-relaxed self-end pb-2">
+										<p className="font-bold mb-1">Tembusan:</p>
+										<ol className="list-decimal pl-4">
+											<li>Pengawas Sekolah</li>
+											<li>Yang bersangkutan untuk diketahui</li>
+											<li>Arsip</li>
+										</ol>
 									</div>
-									<div className="text-center min-w-[250px]">
-										<p className="mb-1">Ditetapkan di: {data.tempat || 'Makassar'}</p>
-										<p className="mb-2 border-b border-black pb-2 inline-block">Pada Tanggal: {formatDateNoDay(data.tanggal)}</p>
-										<p className="mb-16 font-normal mt-1">{data.jabatan},</p>
-										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
-										<p>NIP. {data.nipPenandaTangan || '-'}</p>
+
+									{/* BLOK TANDA TANGAN DI SEBELAH KANAN */}
+									<div className="flex gap-4 items-end">
+										<div className="flex flex-col items-center justify-end h-full pb-2">
+											{qrUrl && <img src={qrUrl} alt="Validasi" className="w-[2.2cm] h-[2.2cm]" />}
+										</div>
+										<div className="text-center min-w-[250px]">
+											<p className="mb-1">Ditetapkan di: {data.tempat || 'Makassar'}</p>
+											<p className="mb-2 border-b border-black pb-2 inline-block">Pada Tanggal: {formatDateNoDay(data.tanggal)}</p>
+											<p className="mb-16 font-normal mt-1">{data.jabatan},</p>
+											<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+											<p>NIP. {data.nipPenandaTangan || '-'}</p>
+										</div>
 									</div>
+
 								</div>
 
 								{/* ========================================================= */}
@@ -6815,14 +6832,17 @@
 									{/* Kop Lampiran */}
 									<table className="w-full text-[10pt] mb-8 leading-snug">
 										<tbody>
-											<tr><td className="w-[100px] align-top">Lampiran SK</td><td className="w-[15px] align-top">:</td><td>{data.jabatan} {schoolData.namaSekolah}</td></tr>
+											<tr><td className="w-[100px] align-top">Lampiran SK</td><td className="w-[15px] align-top">:</td><td>SK Panitia Pelaksana</td></tr>
 											<tr><td className="w-[100px] align-top">Nomor</td><td className="w-[15px] align-top">:</td><td>{data.nomorSurat}</td></tr>
 											<tr><td className="w-[100px] align-top">Tanggal</td><td className="w-[15px] align-top">:</td><td>{formatDateNoDay(data.tanggal)}</td></tr>
 										</tbody>
 									</table>
 									
 									<h3 className="font-bold text-center text-[12pt] mb-6 uppercase tracking-wider">
-										SUSUNAN {data.judulSk?.replace(/KEPUTUSAN.*?TENTANG\s*/i, '')}
+										{data.judulSk?.replace(/KEPUTUSAN.*?TENTANG\s*/i, '')}
+									</h3>
+									<h3 className="font-bold text-center text-[12pt] mb-6 uppercase tracking-wider">
+										DAFTAR SUSUNAN PANITIA
 									</h3>
 									
 									{/* Tabel Panitia - Menggunakan table-fixed agar tidak melar sembarangan */}
@@ -6830,7 +6850,7 @@
 										<thead>
 											<tr className="bg-gray-100">
 												<th className="border border-black p-2 w-[8%] text-center">No</th>
-												<th className="border border-black p-2 w-[37%] text-center">Nama / NIP</th>
+												<th className="border border-black p-2 w-[37%] text-center">Nama Lengkap / NIP</th>
 												<th className="border border-black p-2 w-[25%] text-center">Jabatan</th>
 												<th className="border border-black p-2 w-[30%] text-center">Peran dalam Kepanitiaan</th>
 											</tr>
