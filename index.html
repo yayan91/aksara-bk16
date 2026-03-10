@@ -1010,7 +1010,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH', 'PERMOHONAN_PINDAH'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH'];
             const [historyStudent, setHistoryStudent] = useState(null);
 			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
@@ -5771,7 +5771,7 @@
 						
 						{/* KERTAS CETAK PERMOHONAN PINDAH DARI ORTU */}
 						{data.type === 'PERMOHONAN_PINDAH' && (
-							<div className="absolute top-0 left-0 w-full min-h-full bg-white z-50 p-[15mm_20mm]" style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '11pt' }}>
+							<div className="absolute top-0 left-0 w-full min-h-full bg-white z-50 p-[15mm_20mm] print:p-0" style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '11pt' }}>
 								
 								{/* Tanggal Rata Kanan */}
 								<div className="text-right mb-4">
