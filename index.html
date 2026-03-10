@@ -6742,7 +6742,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5 align-top">Pangkat</td><td>: {data.pangkatPejabat || '-'}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
@@ -7091,7 +7091,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5 align-top">Pangkat</td><td>: {data.pangkatPejabat || '-'}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
