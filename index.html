@@ -3930,6 +3930,7 @@
                         penandaTangan: official['Nama Pejabat'],
                         nipPenandaTangan: official['NIP'],
 						pangkatPejabat: official['Pangkat'],
+						golonganPejabat: official['Golongan'],
                         jabatan: official['Jabatan']
                     }));
                 }
@@ -5345,12 +5346,13 @@
                                         ))}
                                     </select>
                                 </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div><label className="block text-sm font-medium text-gray-700">Nama</label><input type="text" name="penandaTangan" value={formData.penandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-									<div><label className="block text-sm font-medium text-gray-700">Pangkat</label><input type="text" name="pangkatPejabat" value={formData.pangkatPejabat || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kosongkan jika tdk ada" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">NIP</label><input type="text" name="nipPenandaTangan" value={formData.nipPenandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
-                                    <div><label className="block text-sm font-medium text-gray-700">Jabatan</label><input type="text" name="jabatan" value={formData.jabatan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
-                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+									<div><label className="block text-sm font-medium text-gray-700">Nama</label><input type="text" name="penandaTangan" value={formData.penandaTangan || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Pangkat</label><input type="text" name="pangkatPejabat" value={formData.pangkatPejabat || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Cth: Pembina" /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Golongan</label><input type="text" name="golonganPejabat" value={formData.golonganPejabat || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Cth: IV.a" /></div>
+									<div><label className="block text-sm font-medium text-gray-700">NIP</label><input type="text" name="nipPenandaTangan" value={formData.nipPenandaTangan || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Jabatan</label><input type="text" name="jabatan" value={formData.jabatan || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+								</div>
                             </div>
                             
                             {/* BUTTONS STICKY AT BOTTOM */}
@@ -5495,7 +5497,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
@@ -5709,7 +5711,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
@@ -5941,7 +5943,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
@@ -6004,7 +6006,7 @@
 									<tbody>
 										<tr><td className="w-40 py-1">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
+										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
 										<tr><td className="py-0.5">Unit Kerja</td><td>: {schoolData.namaSekolah}</td></tr>
 									</tbody>
 								</table>
@@ -6171,21 +6173,22 @@
                         {data.type === 'TUGAS_HOMEVISIT' && (
                             <div>
                                 <div className="text-center mb-6">
-                                    <h3 className="font-bold underline text-[12pt] uppercase">SURAT TUGAS</h3>
+                                    <h3 className="font-bold underline text-[12pt] uppercase">SURAT TUGAS KUNJUNGAN RUMAH</h3>
                                     <p>Nomor: {data.nomorSurat}</p>
                                 </div>
-                                <div className="mb-4">
+                                <div className="mb-3">
                                     <p className="mb-2">Yang bertanda tangan di bawah ini:</p>
                                     <table className="w-full mb-2 pl-4">
                                         <tbody>
                                             <tr><td className="w-40 align-top">Nama</td><td>: <span className="font-bold">{data.penandaTangan}</span></td></tr>
                                             <tr><td className="align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+											{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
                                             <tr><td className="align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="mb-3 text-center font-bold text-[12pt]">MEMBERI TUGAS KEPADA:</div>
-                                <div className="mb-5 px-4">
+                                <div className="mb-2 text-center font-bold text-[12pt]">MEMBERI TUGAS KEPADA:</div>
+                                <div className="mb-2 px-4">
                                     <table className="w-full border-collapse border border-black text-[10.5pt]">
                                         <thead>
                                             <tr className="bg-gray-100">
@@ -6214,7 +6217,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-3">
                                     <p className="mb-2">Untuk melaksanakan <strong>Kunjungan Rumah (Home Visit)</strong> kepada siswa:</p>
                                     <table className="w-full mb-2 pl-4">
                                         <tbody>
@@ -6224,7 +6227,7 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <div className="mb-6">
+                                <div className="mb-3">
                                     <p className="mb-2">Adapun kegiatan tersebut akan dilaksanakan pada:</p>
                                     <table className="w-full mb-2 pl-4">
                                         <tbody>
@@ -6234,13 +6237,14 @@
                                         </tbody>
                                     </table>
                                 </div>
-                                <p className="mb-8 text-justify">Demikian surat tugas ini diberikan untuk dilaksanakan dengan penuh tanggung jawab.</p>
+                                <p className="mb-3 text-justify">Demikian surat tugas ini diberikan untuk dilaksanakan dengan penuh tanggung jawab.</p>
                                 <div className="flex justify-end gap-4 items-end">
                                     <div className="flex flex-col items-center justify-end h-full pb-2"><img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" /></div>
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan}</p>
                                     </div>
                                 </div>
