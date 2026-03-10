@@ -3929,6 +3929,7 @@
                         ...prev,
                         penandaTangan: official['Nama Pejabat'],
                         nipPenandaTangan: official['NIP'],
+						pangkatPejabat: official['Pangkat'],
                         jabatan: official['Jabatan']
                     }));
                 }
@@ -5346,6 +5347,7 @@
                                 </div>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div><label className="block text-sm font-medium text-gray-700">Nama</label><input type="text" name="penandaTangan" value={formData.penandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									<div><label className="block text-sm font-medium text-gray-700">Pangkat</label><input type="text" name="pangkatPejabat" value={formData.pangkatPejabat || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kosongkan jika tdk ada" /></div>
                                     <div><label className="block text-sm font-medium text-gray-700">NIP</label><input type="text" name="nipPenandaTangan" value={formData.nipPenandaTangan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
                                     <div><label className="block text-sm font-medium text-gray-700">Jabatan</label><input type="text" name="jabatan" value={formData.jabatan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                 </div>
@@ -5493,14 +5495,15 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
-								<p className="mb-4 text-justify leading-relaxed">
+								<p className="mb-2 text-justify leading-relaxed">
 									Dengan ini memberikan <strong>Dispensasi (Izin Meninggalkan Jam Pelajaran)</strong> kepada siswa-siswi yang namanya tercantum di bawah ini:
 								</p>
 
-                                <div className="mb-4 px-2">
+                                <div className="mb-2 px-2">
                                     <table className="w-full border-collapse border border-black text-[10.5pt]">
                                         <thead>
                                             <tr className="bg-gray-100">
@@ -5525,22 +5528,22 @@
                                     </table>
                                 </div>
 
-                                <p className="mb-4 text-justify indent-8 leading-relaxed">
+                                <p className="mb-2 text-justify indent-8 leading-relaxed">
                                     Dispensasi ini diberikan sehubungan dengan keikutsertaan siswa-siswi tersebut dalam kegiatan <strong>"{data.namaKegiatan}"</strong>, yang akan dilaksanakan pada:
                                 </p>
 
-                                <table className="w-full mb-4 pl-8">
+                                <table className="w-full mb-2 pl-8">
                                     <tbody>
                                         <tr><td className="w-48 py-1 font-bold">Waktu Pelaksanaan</td><td>: {data.waktuPelaksanaan}</td></tr>
                                         <tr><td className="py-1 font-bold">Tempat Kegiatan</td><td className="capitalize">: {data.tempatKegiatan}</td></tr>
                                     </tbody>
                                 </table>
 
-                                <p className="mb-6 text-justify indent-8 leading-relaxed">
+                                <p className="mb-2 text-justify indent-8 leading-relaxed">
                                     Kepada Bapak/Ibu Guru Mata Pelajaran yang mengajar di kelas siswa tersebut pada hari/jam yang bersangkutan, dimohon perkenannya untuk memberikan izin dan <strong>tidak mencatat alpa</strong>, serta memberikan kesempatan untuk menyusul tugas/ulangan apabila ada.
                                 </p>
 
-                                <p className="mb-6 text-justify indent-8">
+                                <p className="mb-2 text-justify indent-8">
                                     Demikian surat dispensasi ini dibuat untuk dapat dipergunakan sebagaimana mestinya.
                                 </p>
 
@@ -5553,6 +5556,7 @@
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                 </div>
@@ -5628,6 +5632,7 @@
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                 </div>
@@ -5684,6 +5689,7 @@
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                 </div>
@@ -5703,6 +5709,7 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
@@ -5763,6 +5770,7 @@
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                 </div>
@@ -5863,7 +5871,7 @@
                                             <tbody>
                                                 <tr><td className="w-24">Nomor</td><td>: {data.nomorSurat}</td></tr>
                                                 <tr><td>Lampiran</td><td>: {data.lampiran || '-'}</td></tr>
-                                                <tr><td>Perihal</td><td className="font-bold uppercase">: {data.perihal}</td></tr>
+                                                <tr><td>Perihal</td><td className="font-bold">: {data.perihal}</td></tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -5914,6 +5922,7 @@
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                 </div>
@@ -5932,10 +5941,11 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
-								<p className="mb-4 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
+								<p className="mb-2 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
 								
 								<table className="w-full mb-4 pl-4">
 									<tbody>
@@ -5947,7 +5957,7 @@
 									</tbody>
 								</table>
 
-								<p className="mb-4 text-justify">Anak kandung / anak tiri / anak angkat dari:</p>
+								<p className="mb-2 text-justify">Anak kandung / anak tiri / anak angkat dari:</p>
 
 								<table className="w-full mb-4 pl-4">
 									<tbody>
@@ -5959,11 +5969,11 @@
 									</tbody>
 								</table>
 
-								<p className="mb-4 text-justify indent-8 leading-relaxed">
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
 									Menerangkan bahwa nama tersebut di atas adalah <strong>benar siswa yang masih aktif belajar</strong> di {schoolData.namaSekolah} pada Semester <strong>{data.semesterAktif}</strong> Tahun Pelajaran <strong>{data.tahunPelajaran}</strong>.
 								</p>
 
-								<p className="mb-8 text-justify indent-8 leading-relaxed">
+								<p className="mb-4 text-justify indent-8 leading-relaxed">
 									Surat keterangan ini diberikan untuk keperluan: <strong>"{data.keperluan}"</strong>. Demikian surat keterangan ini diberikan untuk dapat dipergunakan sebagaimana mestinya.
 								</p>
 
@@ -5975,6 +5985,7 @@
 										<p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
 										<p className="mb-16 font-bold">{data.jabatan}</p>
 										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 										<p>NIP. {data.nipPenandaTangan || '-'}</p>
 									</div>
 								</div>
@@ -5988,17 +5999,17 @@
 									<p>Nomor: {data.nomorSurat}</p>
 								</div>
 
-								<p className="mb-3 text-justify">Yang bertanda tangan di bawah ini:</p>
+								<p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
 								<table className="w-full mb-4 pl-4">
 									<tbody>
 										<tr><td className="w-40 py-1">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
-										<tr><td className="py-1">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
-										<tr><td className="py-1">Jabatan</td><td>: {data.jabatan}</td></tr>
-										<tr><td className="py-1">Unit Kerja</td><td>: {schoolData.namaSekolah}</td></tr>
+										<tr><td className="py-0.5">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5">Pangkat</td><td>: {data.pangkatPejabat}</td></tr>
+										<tr><td className="py-0.5">Unit Kerja</td><td>: {schoolData.namaSekolah}</td></tr>
 									</tbody>
 								</table>
 
-								<p className="mb-3 text-justify">Berdasarkan <strong>{data.dasarTugas}</strong>, dengan ini memberikan tugas kepada:</p>
+								<p className="mb-2 text-justify">Berdasarkan <strong>{data.dasarTugas}</strong>, dengan ini memberikan tugas kepada:</p>
 								
 								<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
 									<thead>
@@ -6021,7 +6032,7 @@
 									</tbody>
 								</table>
 
-								<p className="mb-3 text-justify">Untuk melaksanakan tugas sebagai <strong>{data.peranTugas}</strong> dalam kegiatan <strong>{data.namaKegiatan}</strong>, yang akan diselenggarakan pada:</p>
+								<p className="mb-2 text-justify">Untuk melaksanakan tugas sebagai <strong>{data.peranTugas}</strong> dalam kegiatan <strong>{data.namaKegiatan}</strong>, yang akan diselenggarakan pada:</p>
 								<table className="w-full mb-4 pl-4">
 									<tbody>
 										<tr><td className="w-40 py-1 align-top">Hari / Tanggal</td><td className="align-top">: {data.hariTanggalAcara}</td></tr>
@@ -6030,8 +6041,8 @@
 									</tbody>
 								</table>
 
-								<p className="mb-4 text-justify">Segala biaya yang timbul akibat pelaksanaan tugas ini dibebankan pada <strong>{data.bebanBiaya}</strong>.</p>
-								<p className="mb-8 text-justify">Demikian surat tugas ini diberikan untuk dilaksanakan dengan penuh rasa tanggung jawab.</p>
+								<p className="mb-2 text-justify">Segala biaya yang timbul akibat pelaksanaan tugas ini dibebankan pada <strong>{data.bebanBiaya}</strong>.</p>
+								<p className="mb-2 text-justify">Demikian surat tugas ini diberikan untuk dilaksanakan dengan penuh rasa tanggung jawab.</p>
 
 								<div className="flex justify-between items-end mt-4 px-2" style={{ pageBreakInside: 'avoid' }}>
 									<div className="flex flex-col items-center justify-end h-full pb-2">
@@ -6041,6 +6052,7 @@
 										<p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
 										<p className="mb-16 font-bold">{data.jabatan}</p>
 										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 										<p>NIP. {data.nipPenandaTangan || '-'}</p>
 									</div>
 								</div>
@@ -6726,32 +6738,33 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Pangkat</td><td>: {data.pangkatPejabat || '-'}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
-								<p className="mb-4 text-justify">Dengan ini menerangkan bahwa:</p>
+								<p className="mb-2 text-justify">Dengan ini menerangkan bahwa:</p>
                                 <table className="w-full mb-6 pl-4">
                                     <tbody>
-                                        <tr><td className="w-48 align-top py-1">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
-                                        <tr><td className="align-top py-1">NISN</td><td>: {data.nisn || '-'}</td></tr>
-                                        <tr><td className="align-top py-1">Kelas</td><td>: {data.kelas}</td></tr>
-                                        <tr><td className="align-top py-1">Jenis Kelamin</td><td>: {data.jenisKelamin}</td></tr>
-                                        <tr><td className="align-top py-1">Asal Sekolah</td><td>: UPT SPF SMP Negeri 16 Makassar</td></tr>
+                                        <tr><td className="w-48 align-top py-0.5">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+                                        <tr><td className="align-top py-0.5">NISN</td><td>: {data.nisn || '-'}</td></tr>
+                                        <tr><td className="align-top py-0.5">Kelas</td><td>: {data.kelas}</td></tr>
+                                        <tr><td className="align-top py-0.5">Jenis Kelamin</td><td>: {data.jenisKelamin}</td></tr>
+                                        <tr><td className="align-top py-0.5">Asal Sekolah</td><td>: UPT SPF SMP Negeri 16 Makassar</td></tr>
                                     </tbody>
                                 </table>
 
-                                <p className="mb-4 text-justify indent-8">Berdasarkan catatan tata tertib siswa dan laporan Bimbingan Konseling di sekolah kami, nama tersebut di atas adalah benar-benar siswa kami dan selama menjadi siswa:</p>
+                                <p className="mb-2 text-justify indent-8">Berdasarkan catatan tata tertib siswa dan laporan Bimbingan Konseling di sekolah kami, nama tersebut di atas adalah benar-benar siswa kami dan selama menjadi siswa:</p>
                                 
                                 <div className="border-2 border-black p-4 mb-4 mx-8 font-bold text-center uppercase bg-gray-50">
                                     BERKELAKUAN BAIK
                                 </div>
                                 
-                                <p className="mb-4 text-justify indent-8">Serta tidak pernah terlibat dalam tindakan Kriminal, Penyalahgunaan Narkoba, maupun Pelanggaran Berat Tata Tertib sekolah lainnya.</p>
+                                <p className="mb-2 text-justify indent-8">Serta tidak pernah terlibat dalam tindakan Kriminal, Penyalahgunaan Narkoba, maupun Pelanggaran Berat Tata Tertib sekolah lainnya.</p>
                                 
                                 <p className="mb-2">Surat keterangan ini diberikan untuk keperluan:</p>
                                 <div className="font-bold italic text-center mb-6">"{data.keperluan}"</div>
 
-                                <p className="mb-8 text-justify indent-8">Demikian surat keterangan ini dibuat dengan sesungguhnya untuk dapat dipergunakan sebagaimana mestinya.</p>
+                                <p className="mb-6 text-justify indent-8">Demikian surat keterangan ini dibuat dengan sesungguhnya untuk dapat dipergunakan sebagaimana mestinya.</p>
 
                                 <div className="flex justify-end gap-4 items-end mt-12">
                                     <div className="flex flex-col items-center justify-end h-full pb-2"><img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" /></div>
@@ -6759,6 +6772,7 @@
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
                                         <p className="mb-16 font-bold">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan}</p>
                                     </div>
                                 </div>
@@ -6945,6 +6959,7 @@
 											<p className="mb-2 border-b border-black pb-2 inline-block">Pada Tanggal: {formatDateNoDay(data.tanggal)}</p>
 											<p className="mb-16 font-normal mt-1">{data.jabatan},</p>
 											<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+											{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 											<p>NIP. {data.nipPenandaTangan || '-'}</p>
 										</div>
 									</div>
@@ -7002,6 +7017,7 @@
 										<div className="text-center min-w-[250px]">
 											<p className="mb-16 font-normal">{data.jabatan},</p>
 											<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+											{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 											<p>NIP. {data.nipPenandaTangan || '-'}</p>
 										</div>
 									</div>
@@ -7071,10 +7087,11 @@
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
+										<tr><td className="py-0.5 align-top">Pangkat</td><td>: {data.pangkatPejabat || '-'}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
-								<p className="mb-4 text-justify">Bersama dengan Guru Bimbingan dan Konseling, dengan ini menerangkan dengan sesungguhnya bahwa:</p>
+								<p className="mb-2 text-justify">Bersama dengan Guru Bimbingan dan Konseling, dengan ini menerangkan dengan sesungguhnya bahwa:</p>
 
                                 <table className="w-full mb-4 pl-4">
                                     <tbody>
@@ -7089,7 +7106,7 @@
                                     Berdasarkan hasil evaluasi, pengamatan perilaku, serta capaian akademik dan non-akademik selama menempuh pendidikan, siswa tersebut memiliki rekam jejak sebagai berikut:
                                 </p>
 
-                                <div className="mb-3">
+                                <div className="mb-2">
                                     <p className="font-bold mb-1">A. Capaian Akademik (Mata Pelajaran Dominan)</p>
                                     <table className="w-full border-collapse border border-black mb-1 text-[10pt]">
                                         <thead>
@@ -7115,7 +7132,7 @@
                                     </table>
                                 </div>
 
-                                <div className="mb-4">
+                                <div className="mb-2">
                                     <p className="font-bold mb-1">B. Capaian Non-Akademik & Asesmen Psikologis</p>
                                     <ul className="list-disc pl-6 text-justify">
                                         <li className="mb-1"><strong>Prestasi / Keaktifan:</strong> {data.prestasi || 'Tidak ada catatan khusus.'}</li>
@@ -7123,7 +7140,7 @@
                                     </ul>
                                 </div>
 
-                                <div className="mb-4">
+                                <div className="mb-2">
                                     <p className="font-bold mb-1">C. Kesimpulan & Rekomendasi</p>
                                     <p className="text-justify mb-2">Memperhatikan potensi dan capaian di atas, maka siswa tersebut <strong>sangat direkomendasikan</strong> untuk melanjutkan pendidikan ke:</p>
                                     <div className="p-3 border-2 border-black text-center mb-3 bg-gray-50">
@@ -7132,7 +7149,7 @@
                                     <p className="text-justify italic">"{data.uraianRekomendasi}"</p>
                                 </div>
 
-                                <p className="text-justify mb-8">
+                                <p className="text-justify mb-4">
                                     Demikian surat keterangan rekomendasi ini dibuat dengan sebenar-benarnya untuk dapat dipergunakan sebagai bahan pertimbangan oleh <strong>{data.tujuanSurat}</strong>.
                                 </p>
 
@@ -7141,6 +7158,7 @@
                                         <p className="mb-1">Mengetahui,</p>
                                         <p className="mb-16">{data.jabatan}</p>
                                         <p className="font-bold underline">{data.penandaTangan}</p>
+										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
                                     </div>
                                     <div className="flex flex-col items-center justify-end h-full pb-2">
