@@ -1010,7 +1010,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH', 'PERMOHONAN_PINDAH'];
             const [historyStudent, setHistoryStudent] = useState(null);
 			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
@@ -1478,6 +1478,7 @@
 					{ key: 'SK_AKTIF', label: 'Aktif Sekolah', icon: <ClipboardList/>, color: 'text-cyan-600', bg: 'bg-cyan-50', border: 'border-cyan-200' },
 					{ key: 'UNDANGAN_RAPAT', label: 'Undangan Rapat/Umum', icon: <Mail/>, color: 'text-blue-600', bg: 'bg-blue-50', border: 'border-blue-200' },
 					{ key: 'REKOMENDASI_PINDAH', label: 'Rekom. Pindah', icon: <Share/>, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
+					{ key: 'PERMOHONAN_PINDAH', label: 'Permohonan Pindah', icon: <Share/>, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
 					{ key: 'DISPENSASI', label: 'Dispensasi', icon: <UserCheck/>, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
 					{ key: 'IZIN_PENELITIAN', label: 'Izin Penelitian', icon: <FileCheck/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
 					{ key: 'UNDANGAN_KEGIATAN', label: 'Undangan Kegiatan', icon: <Sparkles/>, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
@@ -1864,6 +1865,13 @@
                                 <p><span className="block text-[10px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Alasan</span> {letter.alasanPindah}</p>
                             </div>
                         );
+					case 'PERMOHONAN_PINDAH':
+						return (
+							<div className="space-y-2 border-l-4 border-fuchsia-500 pl-3">
+								<p><span className="block text-[10px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Tujuan Pindah</span> {letter.namaSekolahTujuan}</p>
+								<p><span className="block text-[10px] font-extrabold text-fuchsia-600 uppercase tracking-widest">Alasan</span> {letter.alasanPindah}</p>
+							</div>
+						);
 					case 'DISPENSASI':
                         return (
                             <div className="space-y-2 border-l-4 border-orange-500 pl-3">
@@ -1960,6 +1968,7 @@
 								'SK_AKTIF': { cat: 'Keterangan & Keluar', title: 'Ket. Aktif Sekolah', icon: <ClipboardList size={20} className="text-cyan-600"/> },
 								'UNDANGAN_RAPAT': { cat: 'Tata Usaha', title: 'Undangan Rapat/Dinas', icon: <Mail size={20} className="text-blue-600"/> },
 								'REKOMENDASI_PINDAH': { cat: 'Keterangan & Keluar', title: 'Rekomendasi Pindah', icon: <Share size={20} className="text-fuchsia-600"/> },
+								'PERMOHONAN_PINDAH': { cat: 'Keterangan & Keluar', title: 'Permohonan Pindah', icon: <Share size={20} className="text-fuchsia-600"/> },
 								'DISPENSASI': { cat: 'Tata Usaha', title: 'Dispensasi Siswa', icon: <UserCheck size={20} className="text-orange-600"/> },
 								'IZIN_PENELITIAN': { cat: 'Kemitraan & Kunjungan', title: 'Izin Penelitian / Observasi', icon: <FileCheck size={20} className="text-emerald-600"/> },
 								'UNDANGAN_KEGIATAN': { cat: 'Tata Usaha', title: 'Undangan Kegiatan / Event', icon: <Sparkles size={20} className="text-amber-600"/> },
@@ -3493,6 +3502,7 @@
 							<SidebarItem icon={<Mail size={18}/>} label="Undangan Rapat/Umum" active={activeTab === 'UNDANGAN_RAPAT'} onClick={() => {setActiveTab('UNDANGAN_RAPAT'); setViewState('list');}} />
 							<SidebarItem icon={<Sparkles size={18}/>} label="Undangan Kegiatan / Event" active={activeTab === 'UNDANGAN_KEGIATAN'} onClick={() => {setActiveTab('UNDANGAN_KEGIATAN'); setViewState('list');}} />
 							<SidebarItem icon={<Share size={18}/>} label="Rekomendasi Pindah" active={activeTab === 'REKOMENDASI_PINDAH'} onClick={() => {setActiveTab('REKOMENDASI_PINDAH'); setViewState('list');}} />
+							<SidebarItem icon={<Share size={18}/>} label="Permohonan Pindah (Ortu)" active={activeTab === 'PERMOHONAN_PINDAH'} onClick={() => {setActiveTab('PERMOHONAN_PINDAH'); setViewState('list');}} />
 							<SidebarItem icon={<UserCheck size={18}/>} label="Dispensasi Siswa" active={activeTab === 'DISPENSASI'} onClick={() => {setActiveTab('DISPENSASI'); setViewState('list');}} />
 							<SidebarItem icon={<FileCheck size={18}/>} label="Izin Penelitian/Observasi" active={activeTab === 'IZIN_PENELITIAN'} onClick={() => {setActiveTab('IZIN_PENELITIAN'); setViewState('list');}} />
                         </SidebarGroup>
@@ -4078,6 +4088,7 @@
 												<option value="UNDANGAN_RAPAT">Surat Undangan Rapat / Dinas Umum</option>
 												<option value="UNDANGAN_KEGIATAN">Surat Undangan Kegiatan / Event Formal</option>
 												<option value="REKOMENDASI_PINDAH">Surat Rekomendasi Pindah Sekolah (Mutasi)</option>
+												<option value="PERMOHONAN_PINDAH">Surat Permohonan Pindah (Dari Ortu)</option>
 												<option value="DISPENSASI">Surat Dispensasi Siswa (Izin Kegiatan / Lomba)</option>
 												<option value="IZIN_PENELITIAN">Surat Izin Penelitian / Observasi</option>
                                             </optgroup>
@@ -4473,6 +4484,37 @@
                                     </div>
                                 </div>
                             )}
+							
+							{/* FORM PERMOHONAN PINDAH DARI ORTU */}
+							{formData.type === 'PERMOHONAN_PINDAH' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="bg-blue-50 p-4 rounded-xl border border-blue-100 mb-4">
+										<h3 className="font-bold text-blue-800 text-sm mb-1">Permohonan Pindah (Bikinan Orang Tua)</h3>
+										<p className="text-xs text-blue-600">Surat ini dicetak polos tanpa Kop Sekolah, seakan-akan diketik mandiri oleh Orang Tua.</p>
+									</div>
+									
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nama Orang Tua/Wali</label><input type="text" name="namaOrangTua" value={formData.namaOrangTua || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Pekerjaan</label><input type="text" name="pekerjaanOrangTua" value={formData.pekerjaanOrangTua || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">Alamat Lengkap Ortu</label><input type="text" name="alamatOrangTua" value={formData.alamatOrangTua || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">No. HP / WA</label><input type="text" name="noHpOrangTua" value={formData.noHpOrangTua || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									</div>
+
+									<div className="border-t border-gray-200 my-4"></div>
+
+									<div className="grid grid-cols-1 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Tempat, Tgl Lahir Siswa</label><input type="text" name="tempatTglLahir" value={formData.tempatTglLahir || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Makassar, 12 Mei 2010" required /></div>
+									</div>
+
+									<div className="border-t border-gray-200 my-4"></div>
+
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Sekolah Tujuan</label><input type="text" name="namaSekolahTujuan" value={formData.namaSekolahTujuan || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: SMP Negeri 1 Jakarta" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Alamat Sekolah Tujuan</label><input type="text" name="alamatSekolahTujuan" value={formData.alamatSekolahTujuan || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kabupaten/Kota tujuan" required /></div>
+										<div className="md:col-span-2"><label className="block text-sm font-medium text-gray-700">Alasan Pindah</label><input type="text" name="alasanPindah" value={formData.alasanPindah || ''} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: Mengikuti kepindahan tugas orang tua" required /></div>
+									</div>
+								</div>
+							)}
 							
 							{/* IZIN PENELITIAN / OBSERVASI */}
                             {formData.type === 'IZIN_PENELITIAN' && (
@@ -5657,49 +5699,49 @@
                                 </div>
 
                                 <p className="mb-2 text-justify">Yang bertanda tangan di bawah ini:</p>
-								<table className="w-full mb-4 pl-4">
+								<table className="w-full mb-2 pl-4">
 									<tbody>
 										<tr><td className="w-40 py-0.5 align-top">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5 align-top">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
 										<tr><td className="py-0.5 align-top">Jabatan</td><td>: {data.jabatan}</td></tr>
 									</tbody>
 								</table>
-								<p className="mb-4 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
+								<p className="mb-2 text-justify">Dengan ini menerangkan dengan sesungguhnya bahwa:</p>
                                 
-                                <table className="w-full mb-4 pl-4">
+                                <table className="w-full mb-2 pl-4">
                                     <tbody>
-                                        <tr><td className="w-48 py-1">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
-                                        <tr><td className="py-1">Tempat, Tgl Lahir</td><td>: {data.tempatTglLahir}</td></tr>
-                                        <tr><td className="py-1">NIS / NISN</td><td>: {data.nisn || '-'}</td></tr>
-                                        <tr><td className="py-1">Kelas / Gender</td><td>: {data.kelas} / {data.jenisKelamin}</td></tr>
-                                        <tr><td className="py-1">Nama Orang Tua</td><td>: {data.namaOrangTua}</td></tr>
+                                        <tr><td className="w-48 py-0.5">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+                                        <tr><td className="py-0.5">Tempat, Tgl Lahir</td><td>: {data.tempatTglLahir}</td></tr>
+                                        <tr><td className="py-0.5">NIS / NISN</td><td>: {data.nisn || '-'}</td></tr>
+                                        <tr><td className="py-0.5">Kelas / Gender</td><td>: {data.kelas} / {data.jenisKelamin}</td></tr>
+                                        <tr><td className="py-0.5">Nama Orang Tua</td><td>: {data.namaOrangTua}</td></tr>
                                     </tbody>
                                 </table>
 
-                                <p className="mb-4 text-justify leading-relaxed indent-8">
+                                <p className="mb-2 text-justify leading-relaxed indent-8">
                                     Adalah benar siswa kami yang pada saat ini mengajukan permohonan pindah sekolah (mutasi) ke <strong>{data.namaSekolahTujuan}</strong> dengan alasan <strong>{data.alasanPindah}</strong>.
                                 </p>
 
                                 <p className="mb-2 text-justify indent-8">
                                     Berdasarkan pengamatan, catatan akademik, dan rekam jejak tata tertib di sekolah kami, dengan ini kami menyatakan bahwa selama menjadi siswa di {schoolData.namaSekolah}, yang bersangkutan:
                                 </p>
-                                <ol className="list-decimal pl-14 pr-4 mb-4 text-justify space-y-1">
+                                <ol className="list-decimal pl-14 pr-4 mb-2 text-justify space-y-1">
                                     <li>Berkelakuan sangat baik dan santun kepada guru maupun sesama teman.</li>
                                     <li>Tidak pernah terlibat dalam tindakan kriminal, penyalahgunaan narkoba, maupun pelanggaran berat tata tertib sekolah lainnya.</li>
                                     <li>Seluruh kewajiban administrasi dan akademik di sekolah kami telah diselesaikan dengan baik.</li>
                                 </ol>
 
                                 {data.catatanTambahan && (
-                                    <p className="mb-4 text-justify indent-8 italic">
+                                    <p className="mb-2 text-justify indent-8 italic">
                                         Sebagai tambahan informasi, {data.catatanTambahan}
                                     </p>
                                 )}
 
-                                <p className="mb-6 text-justify indent-8 leading-relaxed">
-                                    Oleh karena itu, kami memberikan <strong>REKOMENDASI</strong> sepenuhnya agar siswa tersebut dapat diterima dan melanjutkan pendidikannya di sekolah yang Bapak/Ibu pimpin. Kami meyakini bahwa ananda dapat beradaptasi dan memberikan hal positif di lingkungan sekolah yang baru.
+                                <p className="mb-2 text-justify indent-8 leading-relaxed">
+                                    Oleh karena itu, kami memberikan <strong>Rekomendasi</strong> sepenuhnya agar siswa tersebut dapat diterima dan melanjutkan pendidikannya di sekolah yang Bapak/Ibu pimpin. Kami meyakini bahwa ananda dapat beradaptasi dan memberikan hal positif di lingkungan sekolah yang baru.
                                 </p>
 
-                                <p className="mb-6 text-justify indent-8">
+                                <p className="mb-2 text-justify indent-8">
                                     Demikian surat rekomendasi ini dibuat dengan sesungguhnya untuk dapat dipergunakan sebagaimana mestinya.
                                 </p>
 
@@ -5726,6 +5768,91 @@
                                 </div>
                             </div>
                         )}
+						
+						{/* KERTAS CETAK PERMOHONAN PINDAH DARI ORTU */}
+						{data.type === 'PERMOHONAN_PINDAH' && (
+							<div className="absolute top-0 left-0 w-full min-h-full bg-white z-50 p-[15mm_20mm]" style={{ fontFamily: '"Times New Roman", Times, serif', fontSize: '11pt' }}>
+								
+								{/* Tanggal Rata Kanan */}
+								<div className="text-right mb-4">
+									Makassar, {formatDateNoDay(data.tanggal)}
+								</div>
+
+								{/* Perihal Rata Kiri */}
+								<div className="mb-6">
+									<table className="w-fit leading-snug">
+										<tbody>
+											<tr><td className="w-24">Perihal</td><td>: <strong>Permohonan Pindah Sekolah / Mutasi Siswa</strong></td></tr>
+											<tr><td>Lampiran</td><td>: 1 (Satu) Berkas</td></tr>
+										</tbody>
+									</table>
+								</div>
+
+								{/* Tujuan (Dinamis sesuai nama sekolah) */}
+								<div className="mb-6 leading-snug">
+									<p>Kepada Yth.</p>
+									<p className="text-[12pt] font-bold">Kepala {schoolData.namaSekolah}</p>
+									<p>di -</p>
+									<p className="pl-6">Tempat</p>
+								</div>
+
+								{/* Pembuka */}
+								<div className="mb-3 leading-relaxed">
+									<p>Dengan hormat,</p>
+									<p>Yang bertanda tangan di bawah ini:</p>
+								</div>
+
+								{/* Tabel Data Ortu (Spasi rapat 0.5) */}
+								<table className="w-full mb-3 pl-4 leading-snug text-[11pt]">
+									<tbody>
+										<tr><td className="w-48 py-0.5">Nama</td><td>: {data.namaOrangTua}</td></tr>
+										<tr><td className="py-0.5">Pekerjaan</td><td>: {data.pekerjaanOrangTua}</td></tr>
+										<tr><td className="py-0.5 align-top">Alamat</td><td className="align-top">: {data.alamatOrangTua}</td></tr>
+										<tr><td className="py-0.5">No. HP / WA</td><td>: {data.noHpOrangTua}</td></tr>
+									</tbody>
+								</table>
+
+								<p className="mb-3 leading-relaxed">Adalah orang tua / wali dari peserta didik:</p>
+
+								{/* Tabel Data Siswa (Spasi rapat 0.5) */}
+								<table className="w-full mb-5 pl-4 leading-snug text-[11pt]">
+									<tbody>
+										<tr><td className="w-48 py-0.5">Nama</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-0.5">Tempat, Tanggal Lahir</td><td>: {data.tempatTglLahir}</td></tr>
+										<tr><td className="py-0.5">NIS / NISN</td><td>: {data.nisn || '-'}</td></tr>
+										<tr><td className="py-0.5">Kelas</td><td>: {data.kelas}</td></tr>
+									</tbody>
+								</table>
+
+								{/* Isi / Alasan Pindah (Spasi paragraf lebih lebar menyerupai spasi 2) */}
+								<p className="mb-3 text-justify leading-[1.8]">
+									Melalui surat ini, kami bermaksud mengajukan permohonan pindah sekolah / mutasi bagi anak kami tersebut dari <strong>{schoolData.namaSekolah}</strong> ke <strong>{data.namaSekolahTujuan}</strong> yang beralamat di <strong>{data.alamatSekolahTujuan}</strong>.
+								</p>
+
+								<p className="mb-3 text-justify leading-[1.8]">
+									Adapun yang menjadi alasan kepindahan anak kami adalah karena <strong>{data.alasanPindah}</strong>.
+								</p>
+
+								{/* Penutup */}
+								<p className="mb-8 text-justify leading-[1.8]">
+									Demikian surat permohonan pindah sekolah ini kami buat dengan sebenarnya dan atas kemauan sendiri tanpa paksaan dari pihak manapun. Atas perhatian, bantuan, serta bimbingan Bapak/Ibu guru selama anak kami bersekolah di sini, kami ucapkan terima kasih.
+								</p>
+
+								{/* Ruang Tanda Tangan */}
+								<div className="flex justify-between text-center px-6 leading-snug" style={{ pageBreakInside: 'avoid' }}>
+									<div className="min-w-[200px]">
+										<p className="mb-1">Mengetahui,</p>
+										<p className="mb-20">Siswa yang bersangkutan,</p>
+										<p className="font-bold underline">{data.namaSiswa}</p>
+									</div>
+									<div className="min-w-[200px]">
+										<p className="mb-1">Hormat kami,</p>
+										<p className="mb-20">Orang Tua / Wali,</p>
+										<p className="font-bold underline">{data.namaOrangTua}</p>
+									</div>
+								</div>
+							</div>
+						)}
 						
 						{/* CETAK UNDANGAN RAPAT / UMUM */}
                         {data.type === 'UNDANGAN_RAPAT' && (
