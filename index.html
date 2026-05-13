@@ -1010,7 +1010,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'SURAT_IZIN', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH'];
             const [historyStudent, setHistoryStudent] = useState(null);
 			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
@@ -1480,6 +1480,7 @@
 					{ key: 'REKOMENDASI_PINDAH', label: 'Rekom. Pindah', icon: <Share/>, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
 					{ key: 'PERMOHONAN_PINDAH', label: 'Permohonan Pindah', icon: <Share/>, color: 'text-fuchsia-600', bg: 'bg-fuchsia-50', border: 'border-fuchsia-200' },
 					{ key: 'DISPENSASI', label: 'Dispensasi', icon: <UserCheck/>, color: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-200' },
+					{ key: 'SURAT_IZIN', label: 'Surat Izin', icon: <FileCheck/>, color: 'text-teal-600', bg: 'bg-teal-50', border: 'border-teal-200' },
 					{ key: 'IZIN_PENELITIAN', label: 'Izin Penelitian', icon: <FileCheck/>, color: 'text-emerald-600', bg: 'bg-emerald-50', border: 'border-emerald-200' },
 					{ key: 'UNDANGAN_KEGIATAN', label: 'Undangan Kegiatan', icon: <Sparkles/>, color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
 					{ key: 'SK_PANITIA', label: 'SK Kepanitiaan', icon: <FileSignature/>, color: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-200' },
@@ -1970,6 +1971,7 @@
 								'REKOMENDASI_PINDAH': { cat: 'Keterangan & Keluar', title: 'Rekomendasi Pindah', icon: <Share size={20} className="text-fuchsia-600"/> },
 								'PERMOHONAN_PINDAH': { cat: 'Keterangan & Keluar', title: 'Permohonan Pindah', icon: <Share size={20} className="text-fuchsia-600"/> },
 								'DISPENSASI': { cat: 'Tata Usaha', title: 'Dispensasi Siswa', icon: <UserCheck size={20} className="text-orange-600"/> },
+								'SURAT_IZIN': { cat: 'Keterangan & Keluar', title: 'Surat Izin Siswa', icon: <FileCheck size={20} className="text-teal-600"/> },
 								'IZIN_PENELITIAN': { cat: 'Kemitraan & Kunjungan', title: 'Izin Penelitian / Observasi', icon: <FileCheck size={20} className="text-emerald-600"/> },
 								'UNDANGAN_KEGIATAN': { cat: 'Tata Usaha', title: 'Undangan Kegiatan / Event', icon: <Sparkles size={20} className="text-amber-600"/> },
 								// --- MENU ARSIP TRACKING ---
@@ -3504,6 +3506,7 @@
 							<SidebarItem icon={<Share size={18}/>} label="Rekomendasi Pindah" active={activeTab === 'REKOMENDASI_PINDAH'} onClick={() => {setActiveTab('REKOMENDASI_PINDAH'); setViewState('list');}} />
 							<SidebarItem icon={<Share size={18}/>} label="Permohonan Pindah (Ortu)" active={activeTab === 'PERMOHONAN_PINDAH'} onClick={() => {setActiveTab('PERMOHONAN_PINDAH'); setViewState('list');}} />
 							<SidebarItem icon={<UserCheck size={18}/>} label="Dispensasi Siswa" active={activeTab === 'DISPENSASI'} onClick={() => {setActiveTab('DISPENSASI'); setViewState('list');}} />
+							<SidebarItem icon={<FileCheck size={18}/>} label="Surat Izin Siswa" active={activeTab === 'SURAT_IZIN'} onClick={() => {setActiveTab('SURAT_IZIN'); setViewState('list');}} />
 							<SidebarItem icon={<FileCheck size={18}/>} label="Izin Penelitian/Observasi" active={activeTab === 'IZIN_PENELITIAN'} onClick={() => {setActiveTab('IZIN_PENELITIAN'); setViewState('list');}} />
                         </SidebarGroup>
 						
@@ -4092,6 +4095,7 @@
 												<option value="REKOMENDASI_PINDAH">Surat Rekomendasi Pindah Sekolah (Mutasi)</option>
 												<option value="PERMOHONAN_PINDAH">Surat Permohonan Pindah (Dari Ortu)</option>
 												<option value="DISPENSASI">Surat Dispensasi Siswa (Izin Kegiatan / Lomba)</option>
+												<option value="SURAT_IZIN">Surat Keterangan Izin Siswa</option>
 												<option value="IZIN_PENELITIAN">Surat Izin Penelitian / Observasi</option>
                                             </optgroup>
 											<optgroup label="📂 Pengarsipan & Lacak">
@@ -5207,6 +5211,52 @@
 											<div><label className="block text-xs font-medium text-gray-600">Nama Guru BK</label><input type="text" name="namaPetugas" value={formData.namaPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" required /></div>
 											<div><label className="block text-xs font-medium text-gray-600">NIP</label><input type="text" name="nipPetugas" value={formData.nipPetugas} onChange={handleChange} className="w-full p-2 border border-orange-200 rounded-md" /></div>
 										</div>
+									</div>
+								</div>
+							)}
+							
+							{/* FORM SURAT IZIN SISWA - UPDATED */}
+							{formData.type === 'SURAT_IZIN' && (
+								<div className="space-y-4 border-t pt-4">
+									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Nama Orang Tua / Wali (Untuk TTD)</label><input type="text" name="namaOrangTua" value={formData.namaOrangTua} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Nama lengkap orang tua" required /></div>
+									</div>
+									
+									<div className="bg-teal-50 p-4 rounded-xl border border-teal-100">
+										<h4 className="font-semibold text-xs text-teal-800 uppercase mb-3">Detail Informasi Izin</h4>
+										<div className="space-y-3">
+											<div>
+												<label className="block text-xs font-medium text-gray-600 mb-1">Alasan Izin (Ketik Manual)</label>
+												<input type="text" name="alasanIzin" value={formData.alasanIzin} onChange={handleChange} className="w-full p-2 border border-teal-200 rounded-md font-bold" placeholder="Contoh: Sakit demam dan flu / Urusan keluarga di luar kota" required />
+											</div>
+											<div>
+												<label className="block text-xs font-medium text-gray-600 mb-1">Metode Pelaporan Ortu</label>
+												<select name="metodePelaporan" value={formData.metodePelaporan || 'Menghadap Langsung di Sekolah'} onChange={handleChange} className="w-full p-2 border border-teal-200 rounded-md" required>
+													<option value="Menghadap Langsung di Sekolah">Menghadap Langsung di Sekolah</option>
+													<option value="Panggilan Telepon">Panggilan Telepon</option>
+													<option value="Pesan WhatsApp">Pesan WhatsApp</option>
+													<option value="Surat Kertas Tertulis">Surat Kertas Tertulis</option>
+												</select>
+											</div>
+											<div>
+												<label className="block text-xs font-medium text-gray-600 mb-1">Catatan Tambahan</label>
+												<input type="text" name="catatanTambahan" value={formData.catatanTambahan} onChange={handleChange} className="w-full p-2 border border-teal-200 rounded-md" placeholder="Contoh: Disertai surat dokter / Akan masuk kembali hari Senin" />
+											</div>
+										</div>
+									</div>
+
+									<div className="grid grid-cols-3 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Lama Izin (Hari)</label><input type="number" name="lamaIzin" value={formData.lamaIzin} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Cth: 2" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Mulai Tanggal</label><input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div><label className="block text-sm font-medium text-gray-700">Sampai Tanggal</label><input type="date" name="tanggalSelesai" value={formData.tanggalSelesai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+									</div>
+
+									<div className="bg-purple-50 p-4 rounded-xl border border-purple-100">
+										 <div className="grid grid-cols-2 gap-4">
+											 <div><label className="block text-xs font-medium text-gray-600 mb-1">Wali Kelas</label><input type="text" name="namaWaliKelas" value={formData.namaWaliKelas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" required /></div>
+											 <div><label className="block text-xs font-medium text-gray-600 mb-1">NIP Wali Kelas</label><input type="text" name="nipWaliKelas" value={formData.nipWaliKelas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
+										 </div>
 									</div>
 								</div>
 							)}
@@ -6730,6 +6780,92 @@
 								</div>
 							</div>
 						)}
+						
+						{/* KERTAS CETAK SURAT IZIN SISWA - FORMAT KOLOM RAPI & PADAT */}
+						{data.type === 'SURAT_IZIN' && (
+							<div className="text-[11.5pt]" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase tracking-wider">SURAT KETERANGAN IZIN SISWA</h3>
+									<p>Nomor: {data.nomorSurat}</p>
+								</div>
+
+								<p className="mb-3 text-justify">Yang bertanda tangan di bawah ini, Wali Kelas {data.kelas} <strong>{schoolData.namaSekolah}</strong> menerangkan bahwa:</p>
+								
+								<table className="w-full mb-3 ml-6">
+									<tbody>
+										<tr><td className="w-44 py-0.5">Nama Siswa</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
+										<tr><td className="py-0.5">NIS / NISN</td><td>: {data.nisn || '-'}</td></tr>
+										<tr><td className="py-0.5">Kelas</td><td>: {data.kelas}</td></tr>
+									</tbody>
+								</table>
+
+								<p className="mb-4 text-justify leading-snug indent-8">
+									Memberikan izin kepada siswa tersebut untuk <strong>Tidak Mengikuti</strong> Kegiatan Belajar Mengajar (KBM) di sekolah, selama <strong>{data.lamaIzin}</strong> hari, terhitung mulai tanggal <strong>{formatDate(data.tanggalMulai)}</strong> sampai dengan tanggal <strong>{formatDate(data.tanggalSelesai)}</strong>.
+								</p>
+
+								{/* TABEL INFORMASI IZIN */}
+								<div className="ml-6 mb-4">
+									<table className="w-full border-collapse border border-gray-400">
+										<thead>
+											<tr className="bg-gray-100">
+												<th className="border border-gray-400 px-3 py-1.5 text-center w-1/3">Komponen Keterangan</th>
+												<th className="border border-gray-400 px-3 py-1.5 text-center">Penjelasan / Detail</th>
+											</tr>
+										</thead>
+										<tbody>
+											<tr>
+												<td className="border border-gray-400 px-3 py-1.5 font-semibold">Alasan Izin</td>
+												<td className="border border-gray-400 px-3 py-1.5">{data.alasanIzin}</td>
+											</tr>
+											<tr>
+												<td className="border border-gray-400 px-3 py-1.5 font-semibold">Metode Pelaporan Ortu</td>
+												<td className="border border-gray-400 px-3 py-1.5">{data.metodePelaporan}</td>
+											</tr>
+											<tr>
+												<td className="border border-gray-400 px-3 py-1.5 font-semibold">Catatan Tambahan</td>
+												<td className="border border-gray-400 px-3 py-1.5">{data.catatanTambahan || '-'}</td>
+											</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<p className="mb-6 text-justify leading-snug indent-8">
+									Demikian surat keterangan izin ini dibuat agar dapat dipergunakan sebagaimana mestinya dan menjadi maklum bagi Bapak/Ibu Guru Mata Pelajaran.
+								</p>
+
+								{/* FORMAT TANDA TANGAN SEJAJAR 2 BARIS */}
+								<div className="w-full text-center" style={{ pageBreakInside: 'avoid' }}>
+									{/* Baris 1: Siswa & Orang Tua */}
+									<div className="flex justify-between px-4 mb-6">
+										<div className="w-1/2">
+											<p className="mb-16 mt-5">Siswa yang bersangkutan,</p>
+											<p className="font-bold underline">{data.namaSiswa}</p>
+										</div>
+										<div className="w-1/2">
+											<p className="mb-1">Makassar, {formatDateNoDay(data.tanggal)}</p>
+											<p className="mb-16">Orang Tua / Wali Siswa,</p>
+											<p className="font-bold underline">{data.namaOrangTua}</p>
+										</div>
+									</div>
+
+									{/* Baris 2: Kepala Sekolah & Wali Kelas */}
+									<div className="flex justify-between px-4">
+										<div className="w-1/2">
+											<p className="mb-1">Mengetahui,</p>
+											<p className="mb-16">Kepala Sekolah,</p>
+											<p className="font-bold underline">{data.penandaTangan}</p>
+											<p>NIP. {data.nipPenandaTangan || '-'}</p>
+										</div>
+										<div className="w-1/2">
+											<p className="mb-1">Menyetujui,</p>
+											<p className="mb-16">Wali Kelas {data.kelas},</p>
+											<p className="font-bold underline">{data.namaWaliKelas || '..........................'}</p>
+											<p>NIP. {data.nipWaliKelas || '-'}</p>
+										</div>
+									</div>
+								</div>
+							</div>
+						)}
 
                         {data.type === 'SKBB' && (
                             <div>
@@ -7305,6 +7441,7 @@
 				'UNDANGAN_RAPAT': 'bg-blue-100 text-blue-800 border-blue-300',
 				'REKOMENDASI_PINDAH': 'bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300',
 				'DISPENSASI': 'bg-orange-100 text-orange-800 border-orange-300',
+				'SURAT_IZIN': 'bg-teal-100 text-teal-800 border-teal-300',
 				'BUKU_TAMU': 'bg-sky-100 text-sky-700 border-sky-200',
 				'REKOMENDASI_STUDI': 'bg-blue-100 text-blue-800 border-blue-300',
 				'IZIN_PENELITIAN': 'bg-emerald-100 text-emerald-800 border-emerald-300',
