@@ -1016,6 +1016,12 @@
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
 			const [filteredKardaliStudents, setFilteredKardaliStudents] = useState([]);
 			const [consentData, setConsentData] = useState({ namaSiswa: '', kelas: '', nisn: '', tempat: schoolData?.kota || '', namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || ''});
+			const [umpanBalikData, setUmpanBalikData] = useState({ namaOrangTua: '', namaSiswa: '', kelas: '', jenisLayanan: 'Konsultasi Orang Tua / Wali', tempat: schoolData?.kota || 'Makassar', tanggalLayanan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || '' });
+			const [showUmpanBalikSuggestions, setShowUmpanBalikSuggestions] = useState(false);
+			const [filteredUmpanBalikStudents, setFilteredUmpanBalikStudents] = useState([]);
+			const [umpanBalikGuruData, setUmpanBalikGuruData] = useState({ namaGuru: '', nipGuru: '', jabatan: '', namaSiswa: '', kelas: '', jenisLayanan: 'Konferensi Kasus / Kasus Khusus', tempat: schoolData?.kota || 'Makassar', tanggalLayanan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }), namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || '' });
+			const [showUmpanBalikGuruSuggestions, setShowUmpanBalikGuruSuggestions] = useState(false);
+			const [filteredUmpanBalikGuruStudents, setFilteredUmpanBalikGuruStudents] = useState([]);
 			const [showConsentSuggestions, setShowConsentSuggestions] = useState(false);
 			const [filteredConsentStudents, setFilteredConsentStudents] = useState([]);
 			const [refleksiData, setRefleksiData] = useState({ namaSiswa: '', kelas: '', nisn: '', tempat: schoolData?.kota || '', namaKonselor: schoolData?.namaPetugas || '', nipKonselor: schoolData?.nipPetugas || '' });
@@ -1949,6 +1955,8 @@
 								'KARDALI': { cat: 'Instrumen Pendukung', title: 'Kartu Kendali Siswa', icon: <ClipboardList size={20} className="text-emerald-600"/> },
 								'CONSENT': { cat: 'Instrumen Pendukung', title: 'Informed Consent', icon: <FileSignature size={20} className="text-blue-600"/> },
 								'REFLEKSI_STANDALONE': { cat: 'Instrumen Pendukung', title: 'Refleksi Pasca Layanan', icon: <MessageCircle size={20} className="text-pink-600"/> },
+								'UMPAN_BALIK_ORTU': { cat: 'Instrumen Pendukung', title: 'Umpan Balik Orang Tua', icon: <ClipboardList size={20} className="text-orange-600"/> },
+								'UMPAN_BALIK_GURU': { cat: 'Instrumen Pendukung', title: 'Umpan Balik Guru / Wali Kelas', icon: <ClipboardList size={20} className="text-teal-600"/> },
 								'REFLEKSI_KELOMPOK': { cat: 'Instrumen Pendukung', title: 'Refleksi Layanan Kelompok', icon: <Users size={20} className="text-purple-600"/> },
                                 'KONTRAK': { cat: 'Pembinaan & Disiplin', title: 'Kontrak Perilaku', icon: <FileCheck size={20} className="text-emerald-600"/> },
                                 'SKORSING': { cat: 'Pembinaan & Disiplin', title: 'Surat Skorsing', icon: <FileWarning size={20} className="text-red-600"/> },
@@ -2852,6 +2860,142 @@
 								</div>
 							)}
 							
+							{viewState === 'umpan_balik_ortu' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-orange-100 text-orange-600 rounded-xl"><ClipboardList size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Umpan Balik Orang Tua</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak dan berikan ke orang tua setelah menerima layanan BK.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Orang Tua / Wali</label>
+												<input type="text" value={umpanBalikData.namaOrangTua} onChange={e => setUmpanBalikData({...umpanBalikData, namaOrangTua: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama orang tua..." />
+											</div>
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={umpanBalikData.namaSiswa} onChange={(e) => {
+													setUmpanBalikData({...umpanBalikData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredUmpanBalikStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowUmpanBalikSuggestions(true);
+													} else { setShowUmpanBalikSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showUmpanBalikSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredUmpanBalikStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-orange-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setUmpanBalikData({...umpanBalikData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas']});
+																setShowUmpanBalikSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={umpanBalikData.kelas} onChange={e => setUmpanBalikData({...umpanBalikData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Layanan BK</label>
+												<select value={umpanBalikData.jenisLayanan} onChange={e => setUmpanBalikData({...umpanBalikData, jenisLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-orange-200 outline-none font-semibold text-slate-700">
+													<option value="Konsultasi Orang Tua / Wali">Konsultasi Orang Tua / Wali</option>
+													<option value="Pemanggilan Orang Tua">Pemanggilan Orang Tua</option>
+													<option value="Home Visit (Kunjungan Rumah)">Home Visit (Kunjungan Rumah)</option>
+													<option value="Mediasi / Konferensi Kasus">Mediasi / Konferensi Kasus</option>
+													<option value="Lainnya">Lainnya...</option>
+												</select>
+											</div>
+											
+											<div className="md:col-span-2 grid grid-cols-2 gap-5">
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat / Kota TTD</label><input type="text" value={umpanBalikData.tempat} onChange={e => setUmpanBalikData({...umpanBalikData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" placeholder="Contoh: Makassar" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal TTD</label><input type="text" value={umpanBalikData.tanggalLayanan} onChange={e => setUmpanBalikData({...umpanBalikData, tanggalLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Konselor / Guru BK</label><input type="text" value={umpanBalikData.namaKonselor} onChange={e => setUmpanBalikData({...umpanBalikData, namaKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NIP Guru BK</label><input type="text" value={umpanBalikData.nipKonselor} onChange={e => setRefleksiData ? setUmpanBalikData({...umpanBalikData, nipKonselor: e.target.value}) : null} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" placeholder="NIP. ..." /></div>
+											</div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-orange-600 hover:bg-orange-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-orange-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK UMPAN BALIK</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'umpan_balik_guru' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-teal-100 text-teal-600 rounded-xl"><ClipboardList size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Umpan Balik Guru / Wali Kelas</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak dan berikan ke Guru Mata Pelajaran atau Wali Kelas untuk evaluasi kolaborasi.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Guru / Wali Kelas</label>
+												<input type="text" value={umpanBalikGuruData.namaGuru} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, namaGuru: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama Guru / Wali Kelas..." />
+											</div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NIP Guru / Wali Kelas</label>
+												<input type="text" value={umpanBalikGuruData.nipGuru} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, nipGuru: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700" placeholder="NIP Guru (atau isi -)..." />
+											</div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jabatan / Guru Mapel</label>
+												<input type="text" value={umpanBalikGuruData.jabatan} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, jabatan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700" placeholder="Contoh: Wali Kelas XI MIPA 1 / Guru Fisika" />
+											</div>
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={umpanBalikGuruData.namaSiswa} onChange={(e) => {
+													setUmpanBalikGuruData({...umpanBalikGuruData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredUmpanBalikGuruStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowUmpanBalikGuruSuggestions(true);
+													} else { setShowUmpanBalikGuruSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showUmpanBalikGuruSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredUmpanBalikGuruStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-teal-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setUmpanBalikGuruData({...umpanBalikGuruData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas']});
+																setShowUmpanBalikGuruSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={umpanBalikGuruData.kelas} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Layanan / Kolaborasi</label>
+												<select value={umpanBalikGuruData.jenisLayanan} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, jenisLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700">
+													<option value="Konferensi Kasus / Kasus Khusus">Konferensi Kasus / Kasus Khusus</option>
+													<option value="Konsultasi Guru Mata Pelajaran / Wali Kelas">Konsultasi Guru Mata Pelajaran / Wali Kelas</option>
+													<option value="Kolaborasi Penanganan Perilaku Siswa">Kolaborasi Penanganan Perilaku Siswa</option>
+													<option value="Observasi Perkembangan Pasca Layanan">Observasi Perkembangan Pasca Layanan</option>
+													<option value="Lainnya">Lainnya...</option>
+												</select>
+											</div>
+											
+											<div className="md:col-span-2 grid grid-cols-2 gap-5">
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat / Kota TTD</label><input type="text" value={umpanBalikGuruData.tempat} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal TTD</label><input type="text" value={umpanBalikGuruData.tanggalLayanan} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, tanggalLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Konselor / Guru BK</label><input type="text" value={umpanBalikGuruData.namaKonselor} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, namaKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NIP Guru BK</label><input type="text" value={umpanBalikGuruData.nipKonselor} onChange={e => setUmpanBalikGuruData({...umpanBalikGuruData, nipKonselor: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-slate-700" /></div>
+											</div>
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-teal-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK UMPAN BALIK GURU</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
 							{viewState === 'consent' && (
 								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
 									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
@@ -3212,6 +3356,207 @@
 							</div>
 						</div>
 					)}
+					{viewState === 'umpan_balik_ortu' && (
+						<div className="print-area hidden bg-white text-black p-[8mm_12mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '10.5pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-1 mb-2 flex items-center justify-between">
+								<div className="w-[1.8cm] h-[1.8cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[1.8cm] h-[1.8cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-2">
+								<h3 className="font-bold underline text-[11.5pt] uppercase tracking-wide">UMPAN BALIK LAYANAN BK (ORANG TUA/WALI)</h3>
+							</div>
+
+							<p className="mb-2 text-justify leading-snug text-[10pt]">Sebagai bagian dari komitmen peningkatan mutu layanan Bimbingan dan Konseling di sekolah, kami mohon kesediaan Bapak/Ibu untuk memberikan evaluasi jujur atas layanan yang baru saja diterima.</p>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">A. IDENTITAS LAYANAN</h4>
+							<table className="w-full mb-2 text-[10.5pt] leading-tight">
+								<tbody>
+									<tr><td className="w-[180px] py-0.5">Nama Orang Tua/Wali</td><td className="w-4">:</td><td className="font-bold">{umpanBalikData.namaOrangTua || '...................................................'}</td></tr>
+									<tr><td className="py-0.5">Nama Siswa / Kelas</td><td>:</td><td className="font-bold">{umpanBalikData.namaSiswa || '...........................................'} / {umpanBalikData.kelas || '.......'}</td></tr>
+									<tr><td className="py-0.5">Jenis Layanan BK</td><td>:</td><td>{umpanBalikData.jenisLayanan}</td></tr>
+									<tr><td className="py-0.5">Nama Guru BK / Konselor</td><td>:</td><td>{umpanBalikData.namaKonselor || '...................................................'}</td></tr>
+								</tbody>
+							</table>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">B. EVALUASI LAYANAN (Berilah tanda ✓ pada kolom yang sesuai)</h4>
+							<table className="w-full border-collapse border border-black mb-0.5 text-[9.5pt]">
+								<thead>
+									<tr className="bg-gray-100">
+										<th className="border border-black p-1 w-8 text-center" rowSpan="2">No</th>
+										<th className="border border-black p-1 text-center" rowSpan="2">Pernyataan Evaluasi (Dari Sudut Pandang Orang Tua)</th>
+										<th className="border border-black p-1 text-center" colSpan="4">Skala Penilaian</th>
+									</tr>
+									<tr className="bg-gray-100">
+										<th className="border border-black p-1 w-8 text-center">1</th>
+										<th className="border border-black p-1 w-8 text-center">2</th>
+										<th className="border border-black p-1 w-8 text-center">3</th>
+										<th className="border border-black p-1 w-8 text-center">4</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">1</td>
+										<td className="border border-black p-1 leading-snug"><strong>Penerimaan & Kenyamanan:</strong> Guru BK menyambut dengan ramah dan membuat saya merasa dihargai dan nyaman saat berdiskusi.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">2</td>
+										<td className="border border-black p-1 leading-snug"><strong>Pemahaman Masalah:</strong> Penjelasan dari Guru BK mengenai kondisi/perkembangan anak di sekolah sangat jelas dan mudah dipahami.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">3</td>
+										<td className="border border-black p-1 leading-snug"><strong>Kerahasiaan:</strong> Saya percaya bahwa masalah atau informasi terkait anak/keluarga saya dijaga kerahasiaannya dengan baik oleh Guru BK.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">4</td>
+										<td className="border border-black p-1 leading-snug"><strong>Solusi & Manfaat:</strong> Solusi, saran, atau rencana tindak lanjut yang disepakati sangat realistis dan bermanfaat bagi kebaikan anak saya.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+								</tbody>
+							</table>
+							<p className="text-[8.5pt] italic mb-2 text-right">Keterangan: 1 (Sangat Kurang), 2 (Kurang), 3 (Baik), 4 (Sangat Baik)</p>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">C. KESAN, PESAN & KOMITMEN (Diisi Tulis Tangan)</h4>
+							<div className="mb-2 text-[10pt]">
+								<p className="mb-0.5 text-justify"><strong>1. Kesan / Perasaan setelah berkonsultasi dengan Tim BK:</strong></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+								
+								<p className="mb-0.5 text-justify mt-1.5"><strong>2. Komitmen Orang Tua / Tindak lanjut pengawasan di rumah:</strong> <br/><em>"Setelah layanan ini, komitmen saya untuk membantu anak di rumah adalah..."</em></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+								
+								<p className="mb-0.5 text-justify mt-1.5"><strong>3. Kritik / Saran untuk perbaikan layanan BK di masa mendatang:</strong></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+							</div>
+
+							<div className="flex justify-between items-end mt-4 px-6 text-center text-[10.5pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="min-w-[200px]">
+									<p className="mb-14">Mengetahui,<br/>Guru BK / Konselor,</p>
+									<p className="font-bold underline">{umpanBalikData.namaKonselor || '.........................................'}</p>
+									<p className="text-[9.5pt]">{umpanBalikData.nipKonselor ? `NIP. ${umpanBalikData.nipKonselor}` : 'NIP. .........................................'}</p>
+								</div>
+								<div className="min-w-[200px]">
+									<p className="mb-14">{umpanBalikData.tempat || 'Makassar'}, {umpanBalikData.tanggalLayanan}<br/>Orang Tua / Wali Siswa,</p>
+									<p className="font-bold underline">{umpanBalikData.namaOrangTua || '.........................................'}</p>
+									<p className="text-[9.5pt]">&nbsp;</p>
+								</div>
+							</div>
+						</div>
+					)}
+					{viewState === 'umpan_balik_guru' && (
+						<div className="print-area hidden bg-white text-black p-[8mm_12mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '10.5pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-1 mb-2 flex items-center justify-between">
+								<div className="w-[1.8cm] h-[1.8cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[1.8cm] h-[1.8cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-2">
+								<h3 className="font-bold underline text-[11.5pt] uppercase tracking-wide">UMPAN BALIK LAYANAN BK (GURU / WALI KELAS)</h3>
+							</div>
+
+							<p className="mb-2 text-justify leading-snug text-[10pt]">Sebagai bagian dari komitmen peningkatan mutu kolaborasi layanan Bimbingan dan Konseling di sekolah, kami mohon kesediaan Bapak/Ibu Rekan Sejawat Guru/Wali Kelas untuk memberikan umpan balik evaluasi atas kolaborasi layanan yang telah dilaksanakan.</p>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">A. IDENTITAS LAYANAN KOLABORASI</h4>
+							<table className="w-full mb-2 text-[10.5pt] leading-tight">
+								<tbody>
+									<tr><td className="w-[180px] py-0.5">Nama Guru / Wali Kelas</td><td className="w-4">:</td><td className="font-bold">{umpanBalikGuruData.namaGuru || '...................................................'}</td></tr>
+									<tr><td className="py-0.5">Jabatan / Guru Mapel</td><td>:</td><td>{umpanBalikGuruData.jabatan || '...................................................'}</td></tr>
+									<tr><td className="py-0.5">Nama Siswa / Kelas</td><td>:</td><td className="font-bold">{umpanBalikGuruData.namaSiswa || '...........................................'} / {umpanBalikGuruData.kelas || '.......'}</td></tr>
+									<tr><td className="py-0.5">Jenis Layanan / Kolaborasi</td><td>:</td><td>{umpanBalikGuruData.jenisLayanan}</td></tr>
+									<tr><td className="py-0.5">Nama Guru BK / Konselor</td><td>:</td><td>{umpanBalikGuruData.namaKonselor || '...................................................'}</td></tr>
+								</tbody>
+							</table>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">B. EVALUASI DAN PERKEMBANGAN (Berilah tanda ✓ pada kolom yang sesuai)</h4>
+							<table className="w-full border-collapse border border-black mb-0.5 text-[9.5pt]">
+								<thead>
+									<tr className="bg-gray-100">
+										<th className="border border-black p-1 w-8 text-center" rowSpan="2">No</th>
+										<th className="border border-black p-1 text-center" rowSpan="2">Pernyataan Evaluasi (Dari Sudut Pandang Guru / Wali Kelas)</th>
+										<th className="border border-black p-1 text-center" colSpan="4">Skala Penilaian</th>
+									</tr>
+									<tr className="bg-gray-100">
+										<th className="border border-black p-1 w-8 text-center">1</th>
+										<th className="border border-black p-1 w-8 text-center">2</th>
+										<th className="border border-black p-1 w-8 text-center">3</th>
+										<th className="border border-black p-1 w-8 text-center">4</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">1</td>
+										<td className="border border-black p-1 leading-snug"><strong>Pemahaman Masalah:</strong> Setelah berdiskusi/berkolaborasi dengan Guru BK, saya menjadi lebih paham mengenai kondisi dan latar belakang masalah siswa.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">2</td>
+										<td className="border border-black p-1 leading-snug"><strong>Kualitas Solusi:</strong> Solusi atau rencana tindak lanjut yang disepakati bersama Guru BK sangat realistis dan dapat diterapkan di lingkungan kelas/sekolah.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">3</td>
+										<td className="border border-black p-1 leading-snug"><strong>Perubahan Perilaku (Observasi):</strong> Siswa menunjukkan perubahan perilaku, sikap, atau kestabilan emosi yang lebih positif di dalam kelas setelah menerima layanan BK.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+									<tr>
+										<td className="border border-black p-1 text-center font-bold">4</td>
+										<td className="border border-black p-1 leading-snug"><strong>Perkembangan Belajar (Observasi):</strong> Siswa menunjukkan peningkatan motivasi, fokus, tanggung jawab tugas, atau tingkat kedisiplinan belajar di kelas.</td>
+										<td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td><td className="border border-black p-1"></td>
+									</tr>
+								</tbody>
+							</table>
+							<p className="text-[8.5pt] italic mb-2 text-right">Keterangan: 1 (Sangat Kurang), 2 (Kurang), 3 (Baik), 4 (Sangat Baik)</p>
+
+							<h4 className="font-bold text-[10.5pt] mb-1">C. OBSERVASI & RENCANA TINDAK LANJUT (Diisi Tulis Tangan)</h4>
+							<div className="mb-2 text-[10pt]">
+								<p className="mb-0.5 text-justify"><strong>1. Catatan Observasi Guru terkait perkembangan spesifik siswa saat ini:</strong></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+								
+								<p className="mb-0.5 text-justify mt-1.5"><strong>2. Rencana Tindak Lanjut / Bentuk pendampingan guru di kelas selanjutnya:</strong></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+								
+								<p className="mb-0.5 text-justify mt-1.5"><strong>3. Kritik / Saran untuk perbaikan kolaborasi layanan BK ke depan:</strong></p>
+								<div className="border-b border-black border-dashed h-5 w-full mb-0.5"></div>
+								<div className="border-b border-black border-dashed h-5 w-full mb-1"></div>
+							</div>
+
+							<div className="flex justify-between items-end mt-4 px-6 text-center text-[10.5pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="min-w-[200px]">
+									<p className="mb-14">Guru BK / Konselor,</p>
+									<p className="font-bold underline">{umpanBalikGuruData.namaKonselor || '.........................................'}</p>
+									<p className="text-[9.5pt]">{umpanBalikGuruData.nipKonselor ? `NIP. ${umpanBalikGuruData.nipKonselor}` : 'NIP. .........................................'}</p>
+								</div>
+								<div className="min-w-[200px]">
+									<p className="mb-14">{umpanBalikGuruData.tempat || 'Makassar'}, {umpanBalikGuruData.tanggalLayanan}<br/>Guru / Wali Kelas,</p>
+									<p className="font-bold underline">{umpanBalikGuruData.namaGuru || '.........................................'}</p>
+									<p className="text-[9.5pt]">{umpanBalikGuruData.nipGuru ? `NIP. ${umpanBalikGuruData.nipGuru}` : 'NIP. .........................................'}</p>
+								</div>
+							</div>
+						</div>
+					)}
 					{viewState === 'consent' && (
 						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border" style={{ fontFamily: 'Times', fontSize: '11pt' }}>
 							<div className="border-b-4 border-double border-black pb-2 mb-4 flex items-center justify-between">
@@ -3465,6 +3810,8 @@
                             <SidebarItem icon={<ClipboardList size={18} className="text-emerald-500"/>} label="Kartu Kendali Siswa" active={activeTab === 'KARDALI'} onClick={() => {setActiveTab('KARDALI'); setViewState('kardali');}} />
                             <SidebarItem icon={<FileSignature size={18} className="text-blue-500"/>} label="Persetujuan Konseling" active={activeTab === 'CONSENT'} onClick={() => {setActiveTab('CONSENT'); setViewState('consent');}} />
                             <SidebarItem icon={<MessageCircle size={18} className="text-pink-500"/>} label="Lembar Refleksi" active={activeTab === 'REFLEKSI_STANDALONE'} onClick={() => {setActiveTab('REFLEKSI_STANDALONE'); setViewState('refleksi_standalone');}} />
+							<SidebarItem icon={<ClipboardList size={18} className="text-orange-500"/>} label="Umpan Balik Orang Tua" active={activeTab === 'UMPAN_BALIK_ORTU'} onClick={() => {setActiveTab('UMPAN_BALIK_ORTU'); setViewState('umpan_balik_ortu');}} />
+							<SidebarItem icon={<ClipboardList size={18} className="text-teal-500"/>} label="Umpan Balik Guru/Wali Kelas" active={activeTab === 'UMPAN_BALIK_GURU'} onClick={() => {setActiveTab('UMPAN_BALIK_GURU'); setViewState('umpan_balik_guru');}} />
 							<SidebarItem icon={<Users size={18} className="text-purple-500"/>} label="Refleksi Kelompok" active={activeTab === 'REFLEKSI_KELOMPOK'} onClick={() => {setActiveTab('REFLEKSI_KELOMPOK'); setViewState('refleksi_kelompok');}} />
                         </SidebarGroup>
                         {/* KATEGORI 1 */}
@@ -5435,7 +5782,7 @@
                             <h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
                             <h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
                             <h2 className="font-bold text-[13pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
-                            {!['SKORSING', 'TUGAS_HOMEVISIT', 'ALIH_KASUS', 'SKBB', 'BERHENTI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'SK_PANITIA'].includes(data.type) && (<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+                            {!['SKORSING', 'TUGAS_HOMEVISIT', 'ALIH_KASUS', 'SKBB', 'BERHENTI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'SK_PANITIA', 'SURAT_IZIN'].includes(data.type) && (<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
                             )}
                             <p className="text-[10pt] italic mt-1 whitespace-pre-line leading-tight">{schoolData.alamat}</p>
                         </div>
