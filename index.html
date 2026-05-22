@@ -7742,37 +7742,73 @@
 											</table>
 										</div>
 
-										{/* Penjelasan Bidang Turun ke Bawah dengan Nomor */}
+										{/* Penjelasan Bidang Turun ke Bawah dengan Penomoran Cerdas */}
 										<div className="space-y-3 text-justify pl-2 mt-4">
 											{data.catatanPribadi && (
 												<div>
 													<p className="font-bold">Bidang Pribadi:</p>
-													<div className="mt-1 text-gray-800">
-														{data.catatanPribadi.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													<div className="mt-1 text-gray-800 text-justify">
+														{data.catatanPribadi.split('\n').filter(t => t.trim() !== '').length > 1 
+															? (
+																<ol className="list-decimal pl-5">
+																	{data.catatanPribadi.split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																		<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																	))}
+																</ol>
+															)
+															: <p className="mb-1">{data.catatanPribadi.trim()}</p>
+														}
 													</div>
 												</div>
 											)}
 											{data.catatanSosial && (
 												<div>
 													<p className="font-bold">Bidang Sosial:</p>
-													<div className="mt-1 text-gray-800">
-														{data.catatanSosial.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													<div className="mt-1 text-gray-800 text-justify">
+														{data.catatanSosial.split('\n').filter(t => t.trim() !== '').length > 1 
+															? (
+																<ol className="list-decimal pl-5">
+																	{data.catatanSosial.split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																		<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																	))}
+																</ol>
+															)
+															: <p className="mb-1">{data.catatanSosial.trim()}</p>
+														}
 													</div>
 												</div>
 											)}
 											{data.catatanBelajar && (
 												<div>
 													<p className="font-bold">Bidang Belajar:</p>
-													<div className="mt-1 text-gray-800">
-														{data.catatanBelajar.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													<div className="mt-1 text-gray-800 text-justify">
+														{data.catatanBelajar.split('\n').filter(t => t.trim() !== '').length > 1 
+															? (
+																<ol className="list-decimal pl-5">
+																	{data.catatanBelajar.split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																		<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																	))}
+																</ol>
+															)
+															: <p className="mb-1">{data.catatanBelajar.trim()}</p>
+														}
 													</div>
 												</div>
 											)}
 											{data.catatanKarir && (
 												<div>
 													<p className="font-bold">Bidang Karir:</p>
-													<div className="mt-1 text-gray-800">
-														{data.catatanKarir.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													<div className="mt-1 text-gray-800 text-justify">
+														{data.catatanKarir.split('\n').filter(t => t.trim() !== '').length > 1 
+															? (
+																<ol className="list-decimal pl-5">
+																	{data.catatanKarir.split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																		<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																	))}
+																</ol>
+															)
+															: <p className="mb-1">{data.catatanKarir.trim()}</p>
+														}
 													</div>
 												</div>
 											)}
@@ -7787,7 +7823,7 @@
 										<h4 className="font-bold text-[11pt] mb-2 mt-4">II. HASIL EVALUASI GURU BK</h4>
 										{/* KALIMAT PENGANTAR BARU */}
 										<p className="text-[11pt] text-justify mb-2 pl-2">
-											Berdasarkan layanan bimbingan, konseling, dan pendampingan yang telah diberikan kepada siswa ananda <strong>{data.namaSiswa}</strong>, berikut adalah rangkuman hasil evaluasinya:
+											Berdasarkan layanan bimbingan dan konseling, dan pendampingan yang telah diberikan kepada siswa ananda <strong>{data.namaSiswa}</strong>, berikut adalah rangkuman hasil evaluasinya:
 										</p>
 										<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
 											<thead>
@@ -7827,13 +7863,31 @@
 											<div>
 												<span className="font-bold">A. Langkah Tindak Lanjut oleh Guru BK di Sekolah:</span>
 												<div className="mt-1 text-justify text-gray-800">
-													{(data.tindakLanjutSekolah || '-').split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													{(data.tindakLanjutSekolah || '-').split('\n').filter(t => t.trim() !== '').length > 1
+														? (
+															<ol className="list-decimal pl-5">
+																{(data.tindakLanjutSekolah || '-').split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																	<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																))}
+															</ol>
+														)
+														: <p className="mb-1">{(data.tindakLanjutSekolah || '-').trim()}</p>
+													}
 												</div>
 											</div>
 											<div>
 												<span className="font-bold">B. Rekomendasi Tindak Lanjut untuk Orang Tua di Rumah:</span>
 												<div className="mt-1 text-justify text-gray-800">
-													{(data.rekomendasiRumah || '-').split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													{(data.rekomendasiRumah || '-').split('\n').filter(t => t.trim() !== '').length > 1
+														? (
+															<ol className="list-decimal pl-5">
+																{(data.rekomendasiRumah || '-').split('\n').filter(t => t.trim() !== '').map((txt, i) => (
+																	<li key={i} className="mb-1 pl-1">{txt.trim()}</li>
+																))}
+															</ol>
+														)
+														: <p className="mb-1">{(data.rekomendasiRumah || '-').trim()}</p>
+													}
 												</div>
 											</div>
 										</div>
