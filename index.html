@@ -1010,7 +1010,7 @@
 
             // --- PILIHAN DROPDOWN DINAMIS ---
             const uniqueCreators = ['Semua', ...new Set(letters.map(l => l.createdBy).filter(Boolean))];
-            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'SURAT_IZIN', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH'];
+            const letterTypesList = ['Semua', 'SKORSING', 'PERNYATAAN', 'KONTRAK', 'REFLEKSI', 'PROBATION', 'UNDANGAN', 'TUGAS_HOMEVISIT', 'LAPORAN_HOMEVISIT', 'ALIH_KASUS', 'MEDIASI', 'KONFERENSI_KASUS', 'ADVOKASI', 'BIMBINGAN_KELOMPOK', 'KONSELING_KELOMPOK', 'SKBB', 'BERHENTI', 'BUKU_TAMU', 'REKOMENDASI_STUDI', 'SURAT_TUGAS_GURU', 'SK_AKTIF', 'UNDANGAN_RAPAT', 'REKOMENDASI_PINDAH', 'DISPENSASI', 'SURAT_IZIN', 'IZIN_PENELITIAN', 'UNDANGAN_KEGIATAN', 'PERMOHONAN_PINDAH', 'SURAT_PERKEMBANGAN'];
             const [historyStudent, setHistoryStudent] = useState(null);
 			const [kardaliData, setKardaliData] = useState({ namaSiswa: '', kelas: '', nisn: '', periode: '1 Minggu' });
 			const [showKardaliSuggestions, setShowKardaliSuggestions] = useState(false);
@@ -1907,6 +1907,30 @@
                                 <p><span className="block text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">Jumlah Panitia</span> {(letter.daftarPanitia || []).length} Orang Personil Terlibat</p>
                             </div>
                         );
+					case 'SURAT_PERKEMBANGAN':
+                        return (
+                            <div className="space-y-2 border-l-4 border-emerald-500 pl-3 bg-emerald-50/50 p-2 rounded-r-lg">
+                                <p>
+                                    <span className="block text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Cakupan Evaluasi</span> 
+                                    {
+                                        [
+                                            letter.catatanPribadi ? 'Pribadi' : '', 
+                                            letter.catatanSosial ? 'Sosial' : '', 
+                                            letter.catatanBelajar ? 'Belajar' : '', 
+                                            letter.catatanKarir ? 'Karir' : ''
+                                        ].filter(Boolean).join(', ') || 'Evaluasi Umum'
+                                    }
+                                </p>
+                                <p>
+                                    <span className="block text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest">Jumlah Aspek Dinilai</span> 
+                                    {(letter.evaluasiList || []).length} Aspek Penilaian
+                                </p>
+                                <div className="mt-2 pt-2 border-t border-emerald-200/60">
+                                    <span className="block text-[10px] font-extrabold text-emerald-600 uppercase tracking-widest mb-0.5">Tindak Lanjut Utama:</span>
+                                    <p className="text-[11px] text-gray-700 italic line-clamp-2">"{letter.tindakLanjutSekolah || '-'}"</p>
+                                </div>
+                            </div>
+                        );
                     default:
                         return (
                             <p className="italic text-slate-500 text-sm">
@@ -1982,6 +2006,7 @@
 								'SURAT_IZIN': { cat: 'Keterangan & Keluar', title: 'Surat Izin Siswa', icon: <FileCheck size={20} className="text-teal-600"/> },
 								'IZIN_PENELITIAN': { cat: 'Kemitraan & Kunjungan', title: 'Izin Penelitian / Observasi', icon: <FileCheck size={20} className="text-emerald-600"/> },
 								'UNDANGAN_KEGIATAN': { cat: 'Tata Usaha', title: 'Undangan Kegiatan / Event', icon: <Sparkles size={20} className="text-amber-600"/> },
+								'SURAT_PERKEMBANGAN': { cat: 'Instrumen Pendukung', title: 'Perkembangan Siswa', icon: <ClipboardList size={20} className="text-emerald-600"/> },
 								// --- MENU ARSIP TRACKING ---
 								'SURAT_MASUK': { cat: 'Pengarsipan & Lacak', title: 'Buku Surat Masuk', icon: <Inbox size={20} className="text-emerald-600"/> },
 								'SURAT_KELUAR': { cat: 'Pengarsipan & Lacak', title: 'Arsip Surat Keluar', icon: <Send size={20} className="text-blue-600"/> },
@@ -3807,6 +3832,7 @@
 						
 						{/* KATEGORI BARU: INSTRUMEN PENDUKUNG (STANDALONE) */}
                         <SidebarGroup icon={<Briefcase size={16}/>} title="Instrumen Pendukung" defaultOpen={['KARDALI', 'CONSENT', 'REFLEKSI_STANDALONE'].includes(activeTab)}>
+							<SidebarItem icon={<ClipboardList size={18} className="text-emerald-500"/>} label="Surat Perkembangan Siswa" active={activeTab === 'SURAT_PERKEMBANGAN'} onClick={() => {setActiveTab('SURAT_PERKEMBANGAN'); setViewState('list');}} />
                             <SidebarItem icon={<ClipboardList size={18} className="text-emerald-500"/>} label="Kartu Kendali Siswa" active={activeTab === 'KARDALI'} onClick={() => {setActiveTab('KARDALI'); setViewState('kardali');}} />
                             <SidebarItem icon={<FileSignature size={18} className="text-blue-500"/>} label="Persetujuan Konseling" active={activeTab === 'CONSENT'} onClick={() => {setActiveTab('CONSENT'); setViewState('consent');}} />
                             <SidebarItem icon={<MessageCircle size={18} className="text-pink-500"/>} label="Lembar Refleksi" active={activeTab === 'REFLEKSI_STANDALONE'} onClick={() => {setActiveTab('REFLEKSI_STANDALONE'); setViewState('refleksi_standalone');}} />
@@ -4143,6 +4169,9 @@
 				daftarPeneliti: [{ nama: '', nim: '', jk: 'Laki-laki', jurusan: '' }],
 				pakaian: 'Batik / Pakaian Bebas Rapi',
 				kategoriSk: '', judulSk: '', menimbangSk: '', mengingatSk: '', memperhatikanSk: '', sumberDanaSk: '', daftarPanitia: [{nama: '', nip: '', jabatanOrganik: '', peranPanitia: ''}],
+				catatanPribadi: '', catatanSosial: '', catatanBelajar: '', catatanKarir: '',
+				evaluasiList: [{ aspek: '', awal: '', saatIni: '', kesimpulan: '' }],
+				tindakLanjutSekolah: '', rekomendasiRumah: '',
                 // Shared fields
                 penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah', 
                 createdBy: currentUser.username 
@@ -4417,6 +4446,9 @@
                                                 <option value="KONTRAK">Kontrak Perilaku Siswa</option>
                                                 <option value="SKORSING">Surat Skorsing</option>
                                             </optgroup>
+											<optgroup label="📋 Instrumen Pendukung">
+												<option value="SURAT_PERKEMBANGAN">Surat Pemberitahuan Perkembangan Siswa</option>
+											</optgroup>
                                             <optgroup label="🤝 Layanan Responsif & Konseling">
                                                 <option value="BUKU_TAMU">Buku Tamu Harian BK</option>
                                                 <option value="KONSELING_KELOMPOK">Konseling Kelompok</option>
@@ -4642,6 +4674,94 @@
 													</div>
 												</div>
 											))}
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{/* SURAT PEMBERITAHUAN PERKEMBANGAN SISWA */}
+							{formData.type === 'SURAT_PERKEMBANGAN' && (
+								<div className="space-y-6 border-t pt-4">
+									{/* IDENTITAS SISWA (MENGGUNAKAN FITUR PENCARIAN CERDAS) */}
+									<div className="grid grid-cols-2 gap-4">
+										<div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
+										<div className="relative">
+											<label className="block text-sm font-medium text-gray-700">Nama Siswa (Pencarian)</label>
+											<input type="text" value={formData.namaSiswa} onChange={handleSearchStudent} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Ketik nama siswa..." required />
+											{showStudentSuggestions && (
+												<div className="absolute z-50 w-full bg-white border border-gray-200 mt-1 max-h-40 overflow-y-auto rounded-md shadow-lg">
+													{filteredStudents.map((s, idx) => (
+														<div key={idx} className="p-2 hover:bg-blue-50 cursor-pointer text-sm" onClick={() => handleSelectStudent(s)}>
+															<strong>{s['Nama Lengkap']}</strong> ({s['Kelas']})
+														</div>
+													))}
+												</div>
+											)}
+										</div>
+										<div><label className="block text-sm font-medium text-gray-700">Kelas</label><input type="text" name="kelas" value={formData.kelas} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md bg-gray-50" readOnly /></div>
+									</div>
+									<div className="grid grid-cols-2 gap-4">
+										<div>
+											<label className="block text-sm font-medium text-gray-700">Nama Guru BK</label>
+											<input 
+												type="text" 
+												name="guruBK" 
+												value={formData.guruBK || ''} 
+												onChange={(e) => setFormData({...formData, guruBK: e.target.value})} 
+												className="w-full p-2 border border-gray-300 rounded-md" 
+												placeholder="Ketik nama Guru BK..." 
+												required 
+											/>
+										</div>
+										<div>
+											<label className="block text-sm font-medium text-gray-700">NIP Guru BK</label>
+											<input 
+												type="text" 
+												name="nipGuruBK" 
+												value={formData.nipGuruBK || ''} 
+												onChange={(e) => setFormData({...formData, nipGuruBK: e.target.value})} 
+												className="w-full p-2 border border-gray-300 rounded-md" 
+												placeholder="Ketik NIP (Kosongkan jika tidak ada)" 
+											/>
+										</div>
+									</div>
+
+									{/* BAGIAN I: PROFIL DAN CATATAN */}
+									<div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+										<h4 className="font-bold text-sm text-slate-800 mb-3">I. Profil & Catatan Perkembangan (Isi yang diperlukan saja)</h4>
+										<div className="space-y-3">
+											<div><label className="block text-xs font-bold text-gray-600">Catatan Pribadi</label><textarea name="catatanPribadi" value={formData.catatanPribadi} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Kosongkan jika tidak ada catatan pribadi..." /></div>
+											<div><label className="block text-xs font-bold text-gray-600">Catatan Sosial</label><textarea name="catatanSosial" value={formData.catatanSosial} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Kosongkan jika tidak ada catatan sosial..." /></div>
+											<div><label className="block text-xs font-bold text-gray-600">Catatan Belajar</label><textarea name="catatanBelajar" value={formData.catatanBelajar} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Kosongkan jika tidak ada catatan belajar..." /></div>
+											<div><label className="block text-xs font-bold text-gray-600">Catatan Karir</label><textarea name="catatanKarir" value={formData.catatanKarir} onChange={handleChange} rows="2" className="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Kosongkan jika tidak ada catatan karir..." /></div>
+										</div>
+									</div>
+
+									{/* BAGIAN II: EVALUASI DINAMIS */}
+									<div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+										<div className="flex justify-between items-center mb-3">
+											<h4 className="font-bold text-sm text-blue-800">II. Hasil Evaluasi Guru BK</h4>
+											<button type="button" onClick={() => setFormData(prev => ({...prev, evaluasiList: [...(prev.evaluasiList || []), {aspek: '', awal: '', saatIni: '', kesimpulan: ''}]}))} className="text-xs bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700">+ Tambah Baris Evaluasi</button>
+										</div>
+										{(formData.evaluasiList || []).map((ev, i) => (
+											<div key={i} className="flex flex-col gap-2 mb-4 p-3 bg-white border border-blue-100 rounded-lg relative">
+												<button type="button" onClick={() => setFormData(prev => ({...prev, evaluasiList: prev.evaluasiList.filter((_, idx) => idx !== i)}))} className="absolute top-2 right-2 text-red-500 hover:text-red-700"><Trash2 size={16}/></button>
+												<div className="pr-6"><label className="block text-[10px] font-bold text-gray-600">Aspek Evaluasi</label><input type="text" value={ev.aspek} onChange={(e) => {const n = [...formData.evaluasiList]; n[i].aspek = e.target.value; setFormData({...formData, evaluasiList: n});}} className="w-full p-2 text-sm border rounded-md" placeholder="Contoh: Kedisiplinan / Semangat Belajar"/></div>
+												<div className="grid grid-cols-2 gap-2">
+													<div><label className="block text-[10px] font-bold text-gray-600">Kondisi Awal</label><textarea value={ev.awal} onChange={(e) => {const n = [...formData.evaluasiList]; n[i].awal = e.target.value; setFormData({...formData, evaluasiList: n});}} rows="2" className="w-full p-2 text-sm border rounded-md"/></div>
+													<div><label className="block text-[10px] font-bold text-gray-600">Kondisi Saat Ini</label><textarea value={ev.saatIni} onChange={(e) => {const n = [...formData.evaluasiList]; n[i].saatIni = e.target.value; setFormData({...formData, evaluasiList: n});}} rows="2" className="w-full p-2 text-sm border rounded-md"/></div>
+												</div>
+												<div><label className="block text-[10px] font-bold text-gray-600">Kesimpulan Guru BK</label><input type="text" value={ev.kesimpulan} onChange={(e) => {const n = [...formData.evaluasiList]; n[i].kesimpulan = e.target.value; setFormData({...formData, evaluasiList: n});}} className="w-full p-2 text-sm border rounded-md"/></div>
+											</div>
+										))}
+									</div>
+
+									{/* BAGIAN III: TINDAK LANJUT */}
+									<div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200">
+										<h4 className="font-bold text-sm text-emerald-800 mb-3">III. Rencana Tindak Lanjut</h4>
+										<div className="space-y-3">
+											<div><label className="block text-xs font-bold text-gray-600">A. Langkah di Sekolah</label><textarea name="tindakLanjutSekolah" value={formData.tindakLanjutSekolah} onChange={handleChange} rows="2" className="w-full p-2 border border-emerald-200 rounded-md text-sm" placeholder="Tindakan yang akan dilakukan oleh guru..." /></div>
+											<div><label className="block text-xs font-bold text-gray-600">B. Rekomendasi di Rumah</label><textarea name="rekomendasiRumah" value={formData.rekomendasiRumah} onChange={handleChange} rows="2" className="w-full p-2 border border-emerald-200 rounded-md text-sm" placeholder="Tindakan yang diharapkan dari orang tua..." /></div>
 										</div>
 									</div>
 								</div>
@@ -7506,6 +7626,244 @@
 											<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 											{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 											<p>NIP. {data.nipPenandaTangan || '-'}</p>
+										</div>
+									</div>
+								</div>
+
+							</div>
+						)}
+						
+						{/* KERTAS CETAK SURAT PERKEMBANGAN SISWA */}
+						{data.type === 'SURAT_PERKEMBANGAN' && (
+							<div className="text-[11pt]" style={{ fontFamily: 'Times New Roman, serif', color: 'black' }}>
+								
+								{/* === HALAMAN 1: PENGANTAR RESMI === */}
+								<div className="text-center mb-6">
+									<h3 className="font-bold underline text-[12pt] uppercase tracking-wider">SURAT PEMBERITAHUAN PERKEMBANGAN SISWA</h3>
+								</div>
+								
+								<table className="w-full mb-6 align-top">
+									<tbody>
+										<tr><td className="w-24 pb-1">Nomor</td><td className="w-4 pb-1">:</td><td className="pb-1">{data.nomorSurat}</td></tr>
+										<tr><td className="w-24 pb-1">Lampiran</td><td className="w-4 pb-1">:</td><td className="pb-1">1 (Satu) Bundel Evaluasi</td></tr>
+										<tr><td className="w-24 pb-1">Perihal</td><td className="w-4 pb-1">:</td><td className="pb-1 font-bold">Pemberitahuan Perkembangan Siswa</td></tr>
+									</tbody>
+								</table>
+
+								<div className="mb-6">
+									<p>Kepada Yth.</p>
+									<p>Bapak/Ibu Orang Tua / Wali dari:</p>
+									<p className="font-bold">{data.namaSiswa} (Kelas: {data.kelas})</p>
+									<p>di Tempat</p>
+								</div>
+
+								<p className="mb-2 text-justify">Assalamualaikum Warahmatullahi Wabarakatuh,</p>
+								<p className="mb-2 text-justify">Salam sejahtera bagi kita semua.</p>
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
+									Semoga Bapak/Ibu sekalian senantiasa berada dalam keadaan sehat walafiat dan sukses dalam menjalankan aktivitas sehari-hari.
+								</p>
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
+									Melalui surat ini, kami dari Layanan Bimbingan dan Konseling (BK) ingin menyampaikan laporan berkala mengenai perkembangan ananda <strong>{data.namaSiswa}</strong> selama mengikuti kegiatan pembelajaran di sekolah pada semester ini.
+								</p>
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
+									Sebagai bagian dari upaya optimalisasi potensi ananda, kami telah melakukan pengamatan, pendampingan, serta evaluasi menyeluruh baik dari aspek akademik, sikap (perilaku), maupun sosial-emosional. Berdasarkan hasil layanan BK yang telah berjalan, berikut kami lampirkan catatan perkembangan, hasil evaluasi, serta rencana tindak lanjut yang perlu kita sinergikan bersama.
+								</p>
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
+									Kami sangat mengharapkan kerja sama Bapak/Ibu untuk terus memantau dan memberikan motivasi kepada ananda di rumah, agar perubahan positif yang diharapkan dapat tercapai dengan maksimal.
+								</p>
+								<p className="mb-2 text-justify indent-8 leading-relaxed">
+									Demikian surat pemberitahuan ini kami sampaikan. Atas perhatian, kepercayaan, dan kerja sama yang baik dari Bapak/Ibu, kami ucapkan terima kasih.
+								</p>
+								<p className="mb-8 text-justify">Wassalamualaikum Warahmatullahi Wabarakatuh.</p>
+
+								{/* TANDA TANGAN YANG SEJAJAR SEMPURNA & ADA BARCODE DITENGAH */}
+								<div className="flex justify-between mt-12 px-6 relative" style={{ pageBreakInside: 'avoid' }}>
+									<div className="text-center min-w-[200px]">
+										<p>Mengetahui,</p>
+										<p className="mb-16">Kepala Sekolah,</p>
+										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
+										<p className="text-[10pt]">NIP. {data.nipPenandaTangan || '-'}</p>
+									</div>
+									
+									{/* BARCODE VALIDASI DI TENGAH */}
+									<div className="absolute left-1/2 bottom-6 transform -translate-x-1/2 flex flex-col items-center">
+										<img 
+											src={`https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=${encodeURIComponent(`Dokumen Resmi Sekolah\nPerihal: Surat Perkembangan Siswa\nNama: ${data.namaSiswa}\nKelas: ${data.kelas}\nTanggal: ${formatDateNoDay(data.tanggal)}\nStatus: VALID`)}`} 
+											alt="QR Code" 
+											className="w-[65px] h-[65px]"
+										/>
+										<p className="text-[7pt] mt-1 text-gray-500 font-bold tracking-widest">VALIDASI</p>
+									</div>
+
+									<div className="text-center min-w-[200px]">
+										<p>{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
+										<p className="mb-16">Guru Bimbingan dan Konseling,</p>
+										<p className="font-bold underline whitespace-nowrap">{data.guruBK || data.createdBy}</p>
+										<p className="text-[10pt]">NIP. {data.nipGuruBK || '-'}</p>
+									</div>
+								</div>
+
+								{/* === HALAMAN 2: LAMPIRAN EVALUASI (OTOMATIS PINDAH HALAMAN) === */}
+								<div style={{ pageBreakBefore: 'always', paddingTop: '10px' }}>
+									<div className="text-center mb-6">
+										<h3 className="font-bold text-[12pt] uppercase tracking-wider">LAMPIRAN SURAT PEMBERITAHUAN</h3>
+										<h3 className="font-bold text-[12pt] uppercase tracking-wider underline">RINCIAN PERKEMBANGAN DAN EVALUASI SISWA</h3>
+									</div>
+
+									{/* I. PROFIL & CATATAN */}
+									<div className="mb-4">
+										<h4 className="font-bold text-[11pt] mb-4">I. PROFIL DAN CATATAN PERKEMBANGAN</h4>
+										
+										{/* Identitas Siswa & Guru BK (Format Susun Bawah & Spasi 1.5) */}
+										<div className="mb-6 pl-4">
+											<table className="w-full text-[11pt] leading-relaxed">
+												<tbody>
+													<tr>
+														<td className="w-32 align-top">Nama Siswa</td>
+														<td className="w-4 align-top">:</td>
+														<td className="align-top font-bold">{data.namaSiswa}</td>
+													</tr>
+													<tr>
+														<td className="w-32 align-top pb-3">Kelas</td>
+														<td className="w-4 align-top pb-3">:</td>
+														<td className="align-top pb-3">{data.kelas}</td>
+													</tr>
+													<tr>
+														<td className="w-32 align-top">Guru BK</td>
+														<td className="w-4 align-top">:</td>
+														<td className="align-top font-bold">{data.guruBK || data.createdBy}</td>
+													</tr>
+													<tr>
+														<td className="w-32 align-top">NIP</td>
+														<td className="w-4 align-top">:</td>
+														<td className="align-top">{data.nipGuruBK || '-'}</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+
+										{/* Penjelasan Bidang Turun ke Bawah dengan Nomor */}
+										<div className="space-y-3 text-justify pl-2 mt-4">
+											{data.catatanPribadi && (
+												<div>
+													<p className="font-bold">Bidang Pribadi:</p>
+													<div className="mt-1 text-gray-800">
+														{data.catatanPribadi.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													</div>
+												</div>
+											)}
+											{data.catatanSosial && (
+												<div>
+													<p className="font-bold">Bidang Sosial:</p>
+													<div className="mt-1 text-gray-800">
+														{data.catatanSosial.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													</div>
+												</div>
+											)}
+											{data.catatanBelajar && (
+												<div>
+													<p className="font-bold">Bidang Belajar:</p>
+													<div className="mt-1 text-gray-800">
+														{data.catatanBelajar.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													</div>
+												</div>
+											)}
+											{data.catatanKarir && (
+												<div>
+													<p className="font-bold">Bidang Karir:</p>
+													<div className="mt-1 text-gray-800">
+														{data.catatanKarir.split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+													</div>
+												</div>
+											)}
+											{(!data.catatanPribadi && !data.catatanSosial && !data.catatanBelajar && !data.catatanKarir) && (
+												<p className="italic text-gray-500 pl-2">- Tidak ada catatan khusus untuk profil siswa -</p>
+											)}
+										</div>
+									</div>
+
+									{/* II. HASIL EVALUASI */}
+									<div className="mb-4">
+										<h4 className="font-bold text-[11pt] mb-2 mt-4">II. HASIL EVALUASI GURU BK</h4>
+										{/* KALIMAT PENGANTAR BARU */}
+										<p className="text-[11pt] text-justify mb-2 pl-2">
+											Berdasarkan layanan bimbingan, konseling, dan pendampingan yang telah diberikan kepada siswa ananda <strong>{data.namaSiswa}</strong>, berikut adalah rangkuman hasil evaluasinya:
+										</p>
+										<table className="w-full border-collapse border border-black mb-4 text-[10.5pt]">
+											<thead>
+												<tr className="bg-gray-100 text-center">
+													<th className="border border-black p-2 w-10">No</th>
+													<th className="border border-black p-2 w-40">Aspek Evaluasi</th>
+													<th className="border border-black p-2">Kondisi Awal</th>
+													<th className="border border-black p-2">Kondisi Saat Ini</th>
+													<th className="border border-black p-2">Kesimpulan Guru BK</th>
+												</tr>
+											</thead>
+											<tbody>
+												{(data.evaluasiList || []).map((ev, i) => (
+													<tr key={i} className="text-justify align-top">
+														<td className="border border-black p-2 text-center">{i + 1}</td>
+														<td className="border border-black p-2 font-bold">{ev.aspek}</td>
+														<td className="border border-black p-2">{ev.awal}</td>
+														<td className="border border-black p-2">{ev.saatIni}</td>
+														<td className="border border-black p-2">{ev.kesimpulan}</td>
+													</tr>
+												))}
+												{(!data.evaluasiList || data.evaluasiList.length === 0) && (
+													<tr><td colSpan="5" className="border border-black p-4 text-center italic text-gray-500">Tidak ada data evaluasi.</td></tr>
+												)}
+											</tbody>
+										</table>
+									</div>
+
+									{/* III. RENCANA TINDAK LANJUT */}
+									<div className="mb-6 text-[11pt]">
+										<h4 className="font-bold mb-2">III. RENCANA TINDAK LANJUT</h4>
+										{/* KALIMAT PENGANTAR BARU */}
+										<p className="text-[11pt] text-justify mb-2 pl-2">
+											Untuk menjaga kesinambungan perkembangan positif ananda <strong>{data.namaSiswa}</strong>, berikut langkah-langkah tindak lanjut yang akan dilaksanakan:
+										</p>
+										<div className="pl-2 space-y-3">
+											<div>
+												<span className="font-bold">A. Langkah Tindak Lanjut oleh Guru BK di Sekolah:</span>
+												<div className="mt-1 text-justify text-gray-800">
+													{(data.tindakLanjutSekolah || '-').split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+												</div>
+											</div>
+											<div>
+												<span className="font-bold">B. Rekomendasi Tindak Lanjut untuk Orang Tua di Rumah:</span>
+												<div className="mt-1 text-justify text-gray-800">
+													{(data.rekomendasiRumah || '-').split('\n').map((txt, i) => <p key={i} className="pl-5 -indent-5 mb-1">{txt}</p>)}
+												</div>
+											</div>
+										</div>
+									</div>
+
+									{/* GARIS GUNTING & LEMBAR KONFIRMASI */}
+									<div style={{ pageBreakInside: 'avoid' }}>
+										<div className="w-full flex items-center gap-2 my-6 text-gray-400">
+											<span>✂️</span>
+											<div className="border-t-2 border-dashed border-gray-400 flex-1"></div>
+										</div>
+
+										<div className="border border-black p-4 rounded-md relative">
+											<div className="text-center mb-4">
+												<h4 className="font-bold text-[11pt] underline uppercase tracking-wider">LEMBAR KONFIRMASI ORANG TUA/WALI</h4>
+												<p className="text-[9pt] italic">(Mohon diisi, digunting, dan dikembalikan kepada Wali Kelas / Guru BK)</p>
+											</div>
+											
+											<p className="mb-2 text-justify">Saya yang bertanda tangan di bawah ini, selaku orang tua/wali dari siswa bernama <strong>{data.namaSiswa}</strong> (Kelas {data.kelas}), menyatakan telah membaca dan memahami surat pemberitahuan perkembangan anak kami yang dikirimkan oleh pihak sekolah.</p>
+											<p className="mb-1 text-justify">Tanggapan / Catatan Orang Tua:</p>
+											<div className="border-b border-black border-dashed h-6 w-full mb-2"></div>
+											<div className="border-b border-black border-dashed h-6 w-full mb-2"></div>
+											<div className="border-b border-black border-dashed h-6 w-full mb-4"></div>
+
+											<div className="flex justify-end text-center mt-6">
+												<div className="min-w-[200px]">
+													<p className="mb-16">..........................., ................................ 20......<br/>Orang Tua / Wali Siswa,</p>
+													<p className="font-bold underline">( .............................................................. )</p>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
