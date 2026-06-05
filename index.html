@@ -6037,7 +6037,7 @@
 										
 										<div className="flex justify-between text-center px-4">
 											<div className="min-w-[250px]">
-												<p className="mb-16">Kepala Sekolah,</p>
+												<p className="mb-16">{data.jabatan},</p>
 												<p className="font-bold underline">{data.penandaTangan}</p>
 												<p>NIP. {data.nipPenandaTangan || '-'}</p>
 											</div>
@@ -6124,7 +6124,7 @@
                                     </div>
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="mb-16">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -6257,7 +6257,7 @@
                                         <img src={qrUrl} alt="Validasi" className="w-[2.2cm] h-[2.2cm]" />
                                     </div>
                                     <div className="text-center min-w-[250px]">
-                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="mb-16">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -6338,7 +6338,7 @@
                                     </div>
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="mb-16">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -6612,7 +6612,7 @@
 									</div>
 									<div className="text-center min-w-[250px]">
 										<p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-										<p className="mb-16 font-bold">{data.jabatan}</p>
+										<p className="mb-16">{data.jabatan}</p>
 										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 										<p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -6679,7 +6679,7 @@
 									</div>
 									<div className="text-center min-w-[250px]">
 										<p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-										<p className="mb-16 font-bold">{data.jabatan}</p>
+										<p className="mb-16">{data.jabatan}</p>
 										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
 										<p>NIP. {data.nipPenandaTangan || '-'}</p>
@@ -7045,7 +7045,7 @@
 											<tr><td className="border border-black p-3 text-center">1</td><td className="border border-black p-3">{data.namaSiswa}</td><td className="border border-black p-3 text-center">Siswa</td><td className="border border-black p-3"></td></tr>
 											<tr><td className="border border-black p-3 text-center">2</td><td className="border border-black p-3">{data.namaOrangTua}</td><td className="border border-black p-3 text-center">Orang Tua / Wali</td><td className="border border-black p-3"></td></tr>
 											<tr><td className="border border-black p-3 text-center">3</td><td className="border border-black p-3">{data.namaPetugas}</td><td className="border border-black p-3 text-center">Guru BK</td><td className="border border-black p-3"></td></tr>
-											<tr><td className="border border-black p-3 text-center">4</td><td className="border border-black p-3">{data.penandaTangan}</td><td className="border border-black p-3 text-center">Kepala Sekolah</td><td className="border border-black p-3"></td></tr>
+											<tr><td className="border border-black p-3 text-center">4</td><td className="border border-black p-3">{data.penandaTangan}</td><td className="border border-black p-3 text-center">{data.jabatan}</td><td className="border border-black p-3"></td></tr>
 											{(data.pesertaKonferensi || []).map((p, i) => (
 												<tr key={i}><td className="border border-black p-3 text-center">{i + 5}</td><td className="border border-black p-3">{p.nama}</td><td className="border border-black p-3 text-center">{p.unsur}</td><td className="border border-black p-3"></td></tr>
 											))}
@@ -7429,7 +7429,7 @@
 									<div className="flex justify-between px-4">
 										<div className="w-1/2">
 											<p className="mb-1">Mengetahui,</p>
-											<p className="mb-16">Kepala Sekolah,</p>
+											<p className="mb-16">{data.jabatan},</p>
 											<p className="font-bold underline">{data.penandaTangan}</p>
 											<p>NIP. {data.nipPenandaTangan || '-'}</p>
 										</div>
@@ -7487,7 +7487,7 @@
                                     <div className="flex flex-col items-center justify-end h-full pb-2"><img src={qrUrl} alt="Validasi" className="w-[2cm] h-[2cm]" /></div>
                                     <div className="text-center min-w-[250px]">
                                         <p className="mb-2">{data.tempat || 'Makassar'}, {formatDateNoDay(data.tanggal)}</p>
-                                        <p className="mb-16 font-bold">{data.jabatan},</p>
+                                        <p className="mb-16">{data.jabatan},</p>
                                         <p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										{data.pangkatPejabat && <p>{data.pangkatPejabat}</p>}
                                         <p>NIP. {data.nipPenandaTangan}</p>
@@ -7555,7 +7555,7 @@
 
                                     {/* SAKSI DAN KEPSEK */}
                                     <div><p>Saksi (Guru BK),</p><br/><br/><br/><p className="font-bold underline">{data.namaSaksi}</p><p>NIP. {data.nipSaksi}</p></div>
-                                    <div><p>Mengetahui Kepala Sekolah,</p><br/><br/><br/><p className="font-bold underline">{data.penandaTangan}</p><p>NIP. {data.nipPenandaTangan}</p></div>
+                                    <div><p>Mengetahui {data.jabatan},</p><br/><br/><br/><p className="font-bold underline">{data.penandaTangan}</p><p>NIP. {data.nipPenandaTangan}</p></div>
                                 </div>
                             </div>
                         )}
@@ -7790,7 +7790,7 @@
 								<div className="flex justify-between mt-12 px-6 relative" style={{ pageBreakInside: 'avoid' }}>
 									<div className="text-center min-w-[200px]">
 										<p>Mengetahui,</p>
-										<p className="mb-16">Kepala Sekolah,</p>
+										<p className="mb-16">{data.jabatan},</p>
 										<p className="font-bold underline whitespace-nowrap">{data.penandaTangan}</p>
 										<p className="text-[10pt]">NIP. {data.nipPenandaTangan || '-'}</p>
 									</div>
@@ -8208,21 +8208,46 @@
                                 
                                 <p className="mb-6 text-justify">Demikian surat pernyataan pengunduran diri ini saya buat dengan kesadaran sendiri tanpa paksaan dari pihak manapun.</p>
 
-                                <div className="grid grid-cols-2 gap-y-8 gap-x-4 text-center mt-8">
-                                    <div>
-                                        <p>Siswa yang bersangkutan,</p><br/><br/><br/><p className="font-bold underline">{data.namaSiswa}</p>
-                                    </div>
-                                    <div>
-                                        <p>{data.tempat}, {formatDateNoDay(data.tanggal)}</p>
-                                        <p>Orang Tua / Wali,</p><br/><br/><br/><p className="font-bold underline">{data.namaOrangTua}</p>
-                                    </div>
-                                    <div>
-                                        <p>Saksi ({data.statusSaksi}),</p><br/><br/><br/><p className="font-bold underline">{data.namaSaksi}</p>
-                                    </div>
-                                    <div>
-                                        <p>Mengetahui Kepala Sekolah,</p><br/><br/><br/><p className="font-bold underline">{data.penandaTangan}</p><p>NIP. {data.nipPenandaTangan}</p>
-                                    </div>
-                                </div>
+                                <div className="mt-8 space-y-12 text-center text-sm">
+								  {/* Baris Atas: Siswa & Orang Tua */}
+								  <div className="grid grid-cols-2 gap-x-8">
+									<div className="flex flex-col justify-between h-36">
+									  <p>Siswa yang bersangkutan,</p>
+									  <div>
+										<p className="font-bold underline">{data.namaSiswa}</p>
+									  </div>
+									</div>
+									
+									<div className="flex flex-col justify-between h-36">
+									  <div>
+										<p>{data.tempat}, {formatDateNoDay(data.tanggal)}</p>
+										<p>Orang Tua / Wali,</p>
+									  </div>
+									  <div>
+										<p className="font-bold underline">{data.namaOrangTua}</p>
+									  </div>
+									</div>
+								  </div>
+
+								  {/* Baris Bawah: Saksi & Mengetahui (Pejabat/Sekolah) */}
+								  <div className="grid grid-cols-2 gap-x-8">
+									<div className="flex flex-col justify-between h-36">
+									  <p>Saksi ({data.statusSaksi}),</p>
+									  <div>
+										<p className="font-bold underline">{data.namaSaksi}</p>
+										<p className="text-xs">NIP. {data.nipSaksi}</p>
+									  </div>
+									</div>
+
+									<div className="flex flex-col justify-between h-36">
+									  <p>Mengetahui,<br />{data.jabatan},</p>
+									  <div>
+										<p className="font-bold underline">{data.penandaTangan}</p>
+										<p className="text-xs">NIP. {data.nipPenandaTangan}</p>
+									  </div>
+									</div>
+								  </div>
+								</div>
                             </div>
                         )}
 
