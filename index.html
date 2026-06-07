@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AKSARA - 16</title>
+    <title>AKSARA - Pro</title>
 
 	<link rel="icon" href="https://drive.google.com/thumbnail?id=1Z6g-sCdw-k7W8dnw12NeagPkroLlmk-L" type="image/png">
     <link rel="shortcut icon" href="https://drive.google.com/thumbnail?id=1Z6g-sCdw-k7W8dnw12NeagPkroLlmk-L" type="image/png">
@@ -1426,7 +1426,12 @@
 						if (historyStudent === 'Arsip Rapat & Dinas') return l.type === 'UNDANGAN_RAPAT';
 						if (historyStudent === 'Arsip Kesiswaan') return l.type === 'DISPENSASI';
 						if (historyStudent === 'Arsip SK Kepanitiaan') return l.type === 'SK_PANITIA';
-						return l.namaSiswa && l.namaSiswa.toLowerCase() === historyStudent.toLowerCase();
+						return historyStudent.split(' & ').some(nama => {
+							const n = nama.trim().toLowerCase();
+							if (l.namaSiswa && l.namaSiswa.toLowerCase() === n) return true;
+							const semuaPihak = [...(l.pihak1 || []), ...(l.pihak2 || [])];
+							return semuaPihak.some(s => s.namaSiswa && s.namaSiswa.toLowerCase() === n);
+						});
 					}
                     
                     // 1. Filter Menu Samping (Active Tab)
@@ -2534,7 +2539,7 @@
                                                                             {letter.type === 'SURAT_TUGAS_GURU' ? (letter.daftarPegawai && letter.daftarPegawai.length > 0 ? letter.daftarPegawai[0].nama + (letter.daftarPegawai.length > 1 ? ` (+${letter.daftarPegawai.length - 1} lainnya)` : '') : 'Belum ada pegawai') : 
                                                                              letter.type === 'DISPENSASI' ? (letter.daftarSiswa && letter.daftarSiswa.length > 0 ? letter.daftarSiswa[0].nama + (letter.daftarSiswa.length > 1 ? ` (+${letter.daftarSiswa.length - 1} lainnya)` : '') : 'Belum ada siswa') : 
                                                                              letter.type === 'IZIN_PENELITIAN' ? (letter.daftarPeneliti && letter.daftarPeneliti.length > 0 ? letter.daftarPeneliti[0].nama + (letter.daftarPeneliti.length > 1 ? ` (+${letter.daftarPeneliti.length - 1} lainnya)` : '') : 'Belum ada peneliti') : 
-                                                                             letter.type === 'SK_PANITIA' ? letter.kategoriSk : (letter.type === 'UNDANGAN_RAPAT' || letter.type === 'UNDANGAN_KEGIATAN') ? letter.sasaranUndangan : (letter.namaSiswa || 'Siswa Tidak Diketahui')}
+                                                                             letter.type === 'SK_PANITIA' ? letter.kategoriSk : (letter.type === 'UNDANGAN_RAPAT' || letter.type === 'UNDANGAN_KEGIATAN') ? letter.sasaranUndangan : letter.type === 'MEDIASI' ? [...(letter.pihak1 || []), ...(letter.pihak2 || [])].map(s => s.namaSiswa).filter(Boolean).join(' & ') || letter.namaSiswa || 'Siswa Tidak Diketahui' : (letter.namaSiswa || 'Siswa Tidak Diketahui')}
                                                                         </div>
                                                                         <div className="text-slate-500 text-[9px] mt-0.5 font-black tracking-widest uppercase">
                                                                             {letter.type === 'DISPENSASI' ? 'ROMBONGAN / TIM' : 
@@ -2565,7 +2570,7 @@
 																		<button onClick={() => checkAccess(letter, () => handleSendWA(letter))} className="p-2 text-emerald-600 bg-emerald-50 hover:bg-emerald-500 hover:text-white rounded-full transition-all transform hover:scale-110 hover:shadow-md" title="Kirim WA"><MessageCircle size={16} strokeWidth={2.5}/></button>
 																		
 																		{/* Tombol Riwayat (Logo Jam) */}
-																		<button onClick={() => checkAccess(letter, () => {setHistoryStudent(letter.type === 'SK_PANITIA' ? 'Arsip SK Kepanitiaan' : letter.type === 'SURAT_TUGAS_GURU' ? 'Arsip Pegawai' : letter.type === 'UNDANGAN_RAPAT' ? 'Arsip Rapat & Dinas' : letter.type === 'DISPENSASI' ? 'Arsip Kesiswaan' : letter.namaSiswa); setViewState('history');})} className="p-2 text-purple-600 bg-purple-50 hover:bg-purple-600 hover:text-white rounded-full transition-all transform hover:scale-110 hover:shadow-md" title="Buka Riwayat"><History size={16} strokeWidth={2.5}/></button>
+																		<button onClick={() => checkAccess(letter, () => {setHistoryStudent(letter.type === 'SK_PANITIA' ? 'Arsip SK Kepanitiaan' : letter.type === 'SURAT_TUGAS_GURU' ? 'Arsip Pegawai' : letter.type === 'UNDANGAN_RAPAT' ? 'Arsip Rapat & Dinas' : letter.type === 'DISPENSASI' ? 'Arsip Kesiswaan' : letter.type === 'MEDIASI' ? [...(letter.pihak1 || []), ...(letter.pihak2 || [])].map(s => s.namaSiswa).filter(Boolean).join(' & ') || letter.namaSiswa : letter.namaSiswa); setViewState('history');})} className="p-2 text-purple-600 bg-purple-50 hover:bg-purple-600 hover:text-white rounded-full transition-all transform hover:scale-110 hover:shadow-md" title="Buka Riwayat"><History size={16} strokeWidth={2.5}/></button>
 																		
 																		<div className="w-[2px] h-6 bg-slate-200 mx-0.5 rounded-full"></div>
 																		
@@ -4156,7 +4161,8 @@
                 tanggalKontrak: new Date().toISOString().split('T')[0], tanggalTinjauan: '', deskripsiPerilaku: '', tujuanPerubahan: '', rencanaTindakan: '', konsekuensi: '', statusKontrak: 'Aktif', 
                 // NEW FIELDS for V2
                 namaPetugas: '', nipPetugas: '', 
-                pihakDitemui: '', statusPihakDitemui: 'Orang Tua', 
+                pihakDitemui: '', statusPihakDitemui: 'Orang Tua',
+                daftarPihakDitemui: [{ nama: '', status: 'Orang Tua' }], 
                 gambaranMasalah: '', hasilPembicaraan: '', tindakLanjut: '', 
                 pihakTujuan: '', rincianMasalah: '', riwayatPenanganan: '', 
 				// NEW FIELDS FOR V3 (MEDIASI & BERHENTI)
@@ -4165,6 +4171,8 @@
 				sanksiAkhir: 'Dikembalikan kepada Orang Tua (Dikeluarkan)',
                 namaSiswa2: '', kelas2: '', nisn2: '', jenisKelamin2: 'Laki-laki', namaOrangTua2: '',
                 namaWaliKelas2: '', nipWaliKelas2: '',
+                pihak1: [{ namaSiswa: '', nisn: '', kelas: '', jenisKelamin: 'Laki-laki', namaOrangTua: '', namaWaliKelas: '', nipWaliKelas: '' }],
+                pihak2: [{ namaSiswa: '', nisn: '', kelas: '', jenisKelamin: 'Laki-laki', namaOrangTua: '', namaWaliKelas: '', nipWaliKelas: '' }],
                 hasilMediasi: '', kesepakatan: '',
                 namaSaksi: '', nipSaksi: '', statusSaksi: 'Wali Kelas', // Saksi BK or General
                 alasanBerhenti: '',
@@ -4194,6 +4202,86 @@
             const [formData, setFormData] = useState(initialData || defaults);
             const [showStudentSuggestions, setShowStudentSuggestions] = useState(false);
 			const [showStudentSuggestions2, setShowStudentSuggestions2] = useState(false); // For Student 2
+			const [activeMediasiPihak, setActiveMediasiPihak] = useState(null);
+			
+			const handleAddPihakDitemui = () => setFormData(prev => ({ ...prev, daftarPihakDitemui: [...(prev.daftarPihakDitemui || []), { nama: '', status: 'Orang Tua' }] }));
+			const handleRemovePihakDitemui = (index) => setFormData(prev => ({ ...prev, daftarPihakDitemui: prev.daftarPihakDitemui.filter((_, i) => i !== index) }));
+			const handleChangePihakDitemui = (index, field, value) => {
+				const list = [...(formData.daftarPihakDitemui || [])];
+				list[index] = { ...list[index], [field]: value };
+				setFormData(prev => ({ ...prev, daftarPihakDitemui: list }));
+			};
+
+			const handleAddSiswaMediasi = (pihak) => {
+				const key = pihak === '1' ? 'pihak1' : 'pihak2';
+				setFormData(prev => ({
+					...prev,
+					[key]: [...(prev[key] || []), { namaSiswa: '', nisn: '', kelas: '', jenisKelamin: 'Laki-laki', namaOrangTua: '', namaWaliKelas: '', nipWaliKelas: '' }]
+				}));
+			};
+
+			const handleRemoveSiswaMediasi = (pihak, index) => {
+				const key = pihak === '1' ? 'pihak1' : 'pihak2';
+				setFormData(prev => {
+					const list = [...(prev[key] || [])];
+					if (list.length <= 1) return prev;
+					list.splice(index, 1);
+					return { ...prev, [key]: list };
+				});
+			};
+
+			const handleChangeMediasiSiswa = (pihak, index, field, value) => {
+				const key = pihak === '1' ? 'pihak1' : 'pihak2';
+				setFormData(prev => {
+					const list = [...(prev[key] || [])];
+					list[index] = { ...list[index], [field]: value };
+					return { ...prev, [key]: list };
+				});
+			};
+
+			const handleSearchMediasiSiswa = (pihak, index, value) => {
+				handleChangeMediasiSiswa(pihak, index, 'namaSiswa', value);
+				if (value.length > 2 && students.length > 0) {
+					const filtered = students.filter(s =>
+						s['Nama Lengkap'].toLowerCase().includes(value.toLowerCase()) ||
+						String(s['NISN']).includes(value)
+					);
+					setFilteredStudents(filtered);
+					setActiveMediasiPihak({ pihak, index });
+				} else {
+					setActiveMediasiPihak(null);
+				}
+			};
+
+			const handleSelectMediasiSiswa = (student, pihak, index) => {
+				const key = pihak === '1' ? 'pihak1' : 'pihak2';
+				const list = [...(formData[key] || [])];
+				list[index] = {
+					...list[index],
+					namaSiswa: student['Nama Lengkap'],
+					nisn: student['NISN'] || '',
+					kelas: student['Kelas'] || '',
+					jenisKelamin: student['Jenis Kelamin'] || 'Laki-laki',
+					namaWaliKelas: '',
+					nipWaliKelas: ''
+				};
+				if (classes && classes.length > 0) {
+					const kelasInfo = classes.find(c =>
+						String(c['Nama Kelas']).toLowerCase() === String(student['Kelas']).toLowerCase()
+					);
+					if (kelasInfo) {
+						const sudahAda = list.some((s, i) =>
+							i !== index && s.namaWaliKelas === kelasInfo['Nama Wali Kelas']
+						);
+						if (!sudahAda) {
+							list[index].namaWaliKelas = kelasInfo['Nama Wali Kelas'] || '';
+							list[index].nipWaliKelas = kelasInfo['NIP Wali Kelas'] || '';
+						}
+					}
+				}
+				setFormData(prev => ({ ...prev, [key]: list }));
+				setActiveMediasiPihak(null);
+			};
 			const [activePesertaIndex, setActivePesertaIndex] = useState(null);
 			const [activeKlienIndex, setActiveKlienIndex] = useState(null);
             const [filteredStudents, setFilteredStudents] = useState([]);
@@ -4783,7 +4871,7 @@
 							)}
                             
                             {/* IDENTITAS SISWA */}
-                            {formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && formData.type !== 'SURAT_TUGAS_GURU' && formData.type !== 'UNDANGAN_RAPAT' && formData.type !== 'DISPENSASI' && formData.type !== 'IZIN_PENELITIAN' && formData.type !== 'UNDANGAN_KEGIATAN' && formData.type !== 'SK_PANITIA' && (
+                            {formData.type !== 'BIMBINGAN_KELOMPOK' && formData.type !== 'KONSELING_KELOMPOK' && formData.type !== 'SURAT_TUGAS_GURU' && formData.type !== 'UNDANGAN_RAPAT' && formData.type !== 'DISPENSASI' && formData.type !== 'IZIN_PENELITIAN' && formData.type !== 'UNDANGAN_KEGIATAN' && formData.type !== 'SK_PANITIA' && formData.type !== 'MEDIASI' && (
                                 <div className="bg-blue-50 p-4 rounded-lg space-y-4 border border-blue-100 relative">
 									<h3 className="font-semibold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa</h3>
 									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -4811,34 +4899,89 @@
 								</div>
 							)}
 							
-							{/* KHUSUS MEDIASI: IDENTITAS SISWA 2 */}
-                             {formData.type === 'MEDIASI' && (
-                                <div className="bg-pink-50 p-4 rounded-lg space-y-4 border border-pink-100 relative">
-                                    <h3 className="font-semibold text-pink-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Siswa (Pihak 2)</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div className="relative">
-                                            <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa Pihak 2</label>
-                                            <input type="text" name="namaSiswa2" value={formData.namaSiswa2} onChange={handleSearchStudent2} autoComplete="off" className="w-full p-2 border border-pink-200 rounded-md focus:ring-2 focus:ring-pink-200 focus:outline-none font-semibold" required />
-                                            {showStudentSuggestions2 && (
-                                                <div className="autocomplete-items">
-                                                    {filteredStudents.map((s, idx) => (
-                                                        <div key={idx} onClick={() => handleSelectStudent(s, true)}>
-                                                            <strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
-                                                        </div>
-                                                    ))}
-                                                    {filteredStudents.length === 0 && <div className="text-gray-400 italic">Siswa tidak ditemukan</div>}
-                                                </div>
-                                            )}
+							{/* KHUSUS MEDIASI: FORM MULTI-SISWA PIHAK 1 & 2 */}
+                            {formData.type === 'MEDIASI' && (
+                                <div className="space-y-4">
+
+                                    {/* PIHAK I */}
+                                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h3 className="font-bold text-blue-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Pihak I (Pemicu Masalah)</h3>
+                                            <button type="button" onClick={() => handleAddSiswaMediasi('1')} className="text-[11px] font-bold bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700 transition-all">+ Tambah Siswa</button>
                                         </div>
-                                        <div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" name="nisn2" value={formData.nisn2} onChange={handleChange} className="w-full p-2 border border-pink-200 rounded-md" /></div>
-                                        <div><label className="block text-xs font-medium text-gray-600 mb-1">Jenis Kelamin</label><select name="jenisKelamin2" value={formData.jenisKelamin2} onChange={handleChange} className="w-full p-2 border border-pink-200 rounded-md"><option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option></select></div>
-                                        <div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" name="kelas2" value={formData.kelas2} onChange={handleChange} className="w-full p-2 border border-pink-200 rounded-md" required /></div>
+                                        {(formData.pihak1 || []).map((siswa, index) => (
+                                            <div key={index} className="bg-white border border-blue-100 rounded-lg p-3 mb-3 relative">
+                                                {(formData.pihak1 || []).length > 1 && (
+                                                    <button type="button" onClick={() => handleRemoveSiswaMediasi('1', index)} className="absolute top-2 right-2 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                                )}
+                                                <p className="text-[10px] font-bold text-blue-500 uppercase mb-2">Siswa Pihak I — #{index + 1}</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    <div className="relative">
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa</label>
+                                                        <input type="text" value={siswa.namaSiswa} onChange={(e) => handleSearchMediasiSiswa('1', index, e.target.value)} autoComplete="off" className="w-full p-2 border border-blue-200 rounded-md focus:ring-2 focus:ring-blue-200 focus:outline-none font-semibold text-sm" placeholder="Ketik nama siswa..." />
+                                                        {activeMediasiPihak && activeMediasiPihak.pihak === '1' && activeMediasiPihak.index === index && (
+                                                            <div className="autocomplete-items">
+                                                                {filteredStudents.map((s, idx) => (
+                                                                    <div key={idx} onClick={() => handleSelectMediasiSiswa(s, '1', index)}>
+                                                                        <strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
+                                                                    </div>
+                                                                ))}
+                                                                {filteredStudents.length === 0 && <div className="text-gray-400 italic">Tidak ditemukan</div>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" value={siswa.nisn} onChange={(e) => handleChangeMediasiSiswa('1', index, 'nisn', e.target.value)} className="w-full p-2 border border-blue-200 rounded-md text-sm" /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" value={siswa.kelas} onChange={(e) => handleChangeMediasiSiswa('1', index, 'kelas', e.target.value)} className="w-full p-2 border border-blue-200 rounded-md text-sm bg-gray-50" /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nama Orang Tua / Wali</label><input type="text" value={siswa.namaOrangTua} onChange={(e) => handleChangeMediasiSiswa('1', index, 'namaOrangTua', e.target.value)} className="w-full p-2 border border-blue-200 rounded-md text-sm" placeholder="Nama orang tua..." /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Wali Kelas (otomatis)</label><input type="text" value={siswa.namaWaliKelas} onChange={(e) => handleChangeMediasiSiswa('1', index, 'namaWaliKelas', e.target.value)} className="w-full p-2 border border-blue-200 rounded-md text-sm bg-gray-50" placeholder="Otomatis terisi..." /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">NIP Wali Kelas</label><input type="text" value={siswa.nipWaliKelas} onChange={(e) => handleChangeMediasiSiswa('1', index, 'nipWaliKelas', e.target.value)} className="w-full p-2 border border-blue-200 rounded-md text-sm bg-gray-50" /></div>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
+
+                                    {/* PIHAK II */}
+                                    <div className="bg-pink-50 p-4 rounded-lg border border-pink-200">
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h3 className="font-bold text-pink-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Pihak II (Pihak Berseberangan)</h3>
+                                            <button type="button" onClick={() => handleAddSiswaMediasi('2')} className="text-[11px] font-bold bg-pink-600 text-white px-3 py-1.5 rounded-lg hover:bg-pink-700 transition-all">+ Tambah Siswa</button>
+                                        </div>
+                                        {(formData.pihak2 || []).map((siswa, index) => (
+                                            <div key={index} className="bg-white border border-pink-100 rounded-lg p-3 mb-3 relative">
+                                                {(formData.pihak2 || []).length > 1 && (
+                                                    <button type="button" onClick={() => handleRemoveSiswaMediasi('2', index)} className="absolute top-2 right-2 text-red-400 hover:text-red-600 text-xs font-bold">✕</button>
+                                                )}
+                                                <p className="text-[10px] font-bold text-pink-500 uppercase mb-2">Siswa Pihak II — #{index + 1}</p>
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                    <div className="relative">
+                                                        <label className="block text-xs font-medium text-gray-600 mb-1">Nama Siswa</label>
+                                                        <input type="text" value={siswa.namaSiswa} onChange={(e) => handleSearchMediasiSiswa('2', index, e.target.value)} autoComplete="off" className="w-full p-2 border border-pink-200 rounded-md focus:ring-2 focus:ring-pink-200 focus:outline-none font-semibold text-sm" placeholder="Ketik nama siswa..." />
+                                                        {activeMediasiPihak && activeMediasiPihak.pihak === '2' && activeMediasiPihak.index === index && (
+                                                            <div className="autocomplete-items">
+                                                                {filteredStudents.map((s, idx) => (
+                                                                    <div key={idx} onClick={() => handleSelectMediasiSiswa(s, '2', index)}>
+                                                                        <strong>{s['Nama Lengkap']}</strong> <span className="text-gray-500 text-xs">({s['Kelas']})</span>
+                                                                    </div>
+                                                                ))}
+                                                                {filteredStudents.length === 0 && <div className="text-gray-400 italic">Tidak ditemukan</div>}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">NISN</label><input type="text" value={siswa.nisn} onChange={(e) => handleChangeMediasiSiswa('2', index, 'nisn', e.target.value)} className="w-full p-2 border border-pink-200 rounded-md text-sm" /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Kelas</label><input type="text" value={siswa.kelas} onChange={(e) => handleChangeMediasiSiswa('2', index, 'kelas', e.target.value)} className="w-full p-2 border border-pink-200 rounded-md text-sm bg-gray-50" /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Nama Orang Tua / Wali</label><input type="text" value={siswa.namaOrangTua} onChange={(e) => handleChangeMediasiSiswa('2', index, 'namaOrangTua', e.target.value)} className="w-full p-2 border border-pink-200 rounded-md text-sm" placeholder="Nama orang tua..." /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">Wali Kelas (otomatis)</label><input type="text" value={siswa.namaWaliKelas} onChange={(e) => handleChangeMediasiSiswa('2', index, 'namaWaliKelas', e.target.value)} className="w-full p-2 border border-pink-200 rounded-md text-sm bg-gray-50" placeholder="Otomatis terisi..." /></div>
+                                                    <div><label className="block text-xs font-medium text-gray-600 mb-1">NIP Wali Kelas</label><input type="text" value={siswa.nipWaliKelas} onChange={(e) => handleChangeMediasiSiswa('2', index, 'nipWaliKelas', e.target.value)} className="w-full p-2 border border-pink-200 rounded-md text-sm bg-gray-50" /></div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+
                                 </div>
                             )}
 
                             {/* IDENTITAS ORANG TUA */}
-                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'LAPORAN_HOMEVISIT' || formData.type === 'MEDIASI' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI' || formData.type === 'REFLEKSI' || formData.type === 'PROBATION' || formData.type === 'REKOMENDASI_PINDAH') && (
+                            {(formData.type === 'PERNYATAAN' || formData.type === 'UNDANGAN' || formData.type === 'SKORSING' || formData.type === 'BERHENTI' || formData.type === 'KONFERENSI_KASUS' || formData.type === 'ADVOKASI' || formData.type === 'REFLEKSI' || formData.type === 'PROBATION' || formData.type === 'REKOMENDASI_PINDAH') && (
                                 <div className="bg-green-50 p-4 rounded-lg space-y-4 border border-green-100">
                                     <h3 className="font-semibold text-green-800 text-sm uppercase flex items-center gap-2"><User size={16}/> Identitas Orang Tua / Wali {formData.type === 'MEDIASI' ? '(Pihak 1 & 2)' : ''}</h3>
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -5433,11 +5576,39 @@
                                         <div><label className="block text-sm font-medium text-gray-700">Waktu</label><input type="text" name="waktuAcara" value={formData.waktuAcara} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="10.00 WITA" /></div>
                                     </div>
                                     <div className="bg-gray-100 p-4 rounded-md">
-                                        <h4 className="font-semibold text-xs text-gray-600 uppercase mb-2">Pihak yang Ditemui</h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div><label className="block text-xs font-medium text-gray-600">Nama Ditemui</label><input type="text" name="pihakDitemui" value={formData.pihakDitemui} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">Status Hubungan</label><select name="statusPihakDitemui" value={formData.statusPihakDitemui} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md"><option value="">Pilih Hubungan</option><option value="Orang Tua">Orang Tua</option><option value="Suami/Istri">Suami/Istri</option><option value="Kakak">Kakak</option><option value="Adik">Adik</option><option value="Anak">Anak</option><option value="Kakek/Nenek">Kakek/Nenek</option><option value="Paman">Paman</option><option value="Bibi">Bibi</option><option value="Om">Om</option><option value="Tante">Tante</option><option value="Sepupu">Sepupu</option><option value="Keponakan">Keponakan</option><option value="Wali">Wali</option><option value="Tetangga">Tetangga</option><option value="Teman">Teman</option><option value="Lainnya">Lainnya</option></select></div>
+                                        <div className="flex justify-between items-center mb-3">
+                                            <h4 className="font-semibold text-xs text-gray-600 uppercase">Pihak yang Ditemui</h4>
+                                            <button type="button" onClick={handleAddPihakDitemui} className="text-[11px] font-bold bg-cyan-600 text-white px-3 py-1.5 rounded-lg hover:bg-cyan-700 transition-all">+ Tambah Pihak</button>
                                         </div>
+                                        {(formData.daftarPihakDitemui || []).map((p, index) => (
+                                            <div key={index} className="flex gap-2 items-end mb-2 relative">
+                                                <div className="flex-1">
+                                                    <label className="block text-xs font-medium text-gray-600 mb-1">Nama Pihak #{index + 1}</label>
+                                                    <input type="text" value={p.nama} onChange={(e) => handleChangePihakDitemui(index, 'nama', e.target.value)} className="w-full p-2 border border-gray-300 rounded-md text-sm" placeholder="Nama lengkap..." />
+                                                </div>
+                                                <div className="w-44">
+                                                    <label className="block text-xs font-medium text-gray-600 mb-1">Status Hubungan</label>
+                                                    <select value={p.status} onChange={(e) => handleChangePihakDitemui(index, 'status', e.target.value)} className="w-full p-2 border border-gray-300 rounded-md text-sm">
+                                                        <option value="Orang Tua">Orang Tua</option>
+                                                        <option value="Ayah">Ayah</option>
+                                                        <option value="Ibu">Ibu</option>
+                                                        <option value="Suami/Istri">Kakek</option>
+                                                        <option value="Kakak">Kakak</option>
+                                                        <option value="Adik">Adik</option>
+                                                        <option value="Kakek/Nenek">Nenek</option>
+                                                        <option value="Paman">Paman</option>
+                                                        <option value="Bibi">Bibi</option>
+                                                        <option value="Wali">Tante</option>
+														<option value="Wali">Om</option>
+                                                        <option value="Tetangga">Tetangga</option>
+                                                        <option value="Lainnya">Lainnya</option>
+                                                    </select>
+                                                </div>
+                                                {(formData.daftarPihakDitemui || []).length > 1 && (
+                                                    <button type="button" onClick={() => handleRemovePihakDitemui(index)} className="bg-red-50 text-red-500 p-2 border border-red-100 rounded-md hover:bg-red-100 mb-[1px]"><Trash2 size={16}/></button>
+                                                )}
+                                            </div>
+                                        ))}
                                     </div>
                                     <div><AILabel label="Gambaran Masalah" stateKey="gambaranMasalah" /><textarea name="gambaranMasalah" value={formData.gambaranMasalah} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Deskripsi kondisi siswa/rumah..."></textarea></div>
                                     <div><AILabel label="Hasil Pembicaraan" stateKey="hasilPembicaraan" /><textarea name="hasilPembicaraan" value={formData.hasilPembicaraan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Tanggapan orang tua..."></textarea></div>
@@ -5793,17 +5964,7 @@
                                     <div><label className="block text-sm font-medium text-gray-700">Nomor Surat</label><input type="text" name="nomorSurat" value={formData.nomorSurat} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
                                     <div><AILabel label="Permasalahan" stateKey="permasalahan" /><textarea name="permasalahan" value={formData.permasalahan} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Kronologi masalah antar kedua pihak..."></textarea></div>
                                     <div><AILabel label="Hasil Mediasi / Kesepakatan" stateKey="hasilMediasi" /><textarea name="hasilMediasi" value={formData.hasilMediasi} onChange={handleChange} rows="3" className="w-full p-2 border border-gray-300 rounded-md" placeholder="Poin-poin kesepakatan damai..." required></textarea></div>
-                                    
-                                    <div className="bg-purple-50 p-4 rounded-md border border-purple-100">
-                                        <h4 className="font-semibold text-xs text-purple-800 uppercase mb-2">Data Saksi - Wali Kelas (Otomatis)</h4>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div><label className="block text-xs font-medium text-gray-600">Wali Kelas Pihak 1</label><input type="text" name="namaWaliKelas" value={formData.namaWaliKelas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">NIP Wali Kelas 1</label><input type="text" name="nipWaliKelas" value={formData.nipWaliKelas} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">Wali Kelas Pihak 2</label><input type="text" name="namaWaliKelas2" value={formData.namaWaliKelas2} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
-                                            <div><label className="block text-xs font-medium text-gray-600">NIP Wali Kelas 2</label><input type="text" name="nipWaliKelas2" value={formData.nipWaliKelas2} onChange={handleChange} className="w-full p-2 border border-purple-200 rounded-md" /></div>
-                                        </div>
-                                    </div>
-
+                               
                                     <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
                                         <h4 className="font-semibold text-xs text-orange-800 uppercase mb-2">Saksi Guru BK / Konselor</h4>
                                         <div className="grid grid-cols-2 gap-4">
@@ -6634,7 +6795,6 @@
 										<tr><td className="w-40 py-1">Nama</td><td>: <strong>{data.penandaTangan}</strong></td></tr>
 										<tr><td className="py-0.5">NIP</td><td>: {data.nipPenandaTangan || '-'}</td></tr>
 										{data.pangkatPejabat && <tr><td className="py-0.5 align-top">Pangkat/Gol.</td><td>: {data.pangkatPejabat} {data.golonganPejabat ? `/ ${data.golonganPejabat}` : ''}</td></tr>}
-										<tr><td className="py-0.5">Jabatan</td><td>: {data.jabatan || '-'}</td></tr>
 										<tr><td className="py-0.5">Unit Kerja</td><td>: {schoolData.namaSekolah}</td></tr>
 									</tbody>
 								</table>
@@ -6890,7 +7050,7 @@
                                         <tr><td className="border border-black p-2 font-bold w-48 bg-gray-100">Nama Siswa</td><td className="border border-black p-2">{data.namaSiswa}</td></tr>
                                         <tr><td className="border border-black p-2 font-bold bg-gray-100">Kelas</td><td className="border border-black p-2">{data.kelas}</td></tr>
                                         <tr><td className="border border-black p-2 font-bold bg-gray-100">Hari / Tanggal</td><td className="border border-black p-2">{data.hariTanggalAcara}</td></tr>
-                                        <tr><td className="border border-black p-2 font-bold bg-gray-100">Pihak yang Ditemui</td><td className="border border-black p-2">{data.pihakDitemui} ({data.statusPihakDitemui})</td></tr>
+                                        <tr><td className="border border-black p-2 font-bold bg-gray-100">Pihak yang Ditemui</td><td className="border border-black p-2">{(data.daftarPihakDitemui && data.daftarPihakDitemui.length > 0) ? data.daftarPihakDitemui.map((p, i) => `${p.nama} (${p.status})`).join(', ') : `${data.pihakDitemui} (${data.statusPihakDitemui})`}</td></tr>
                                     </tbody>
                                 </table>
                                 <div className="mb-4">
@@ -6956,29 +7116,51 @@
                                                 <td className="border border-black p-3 text-center">Siswa</td>
                                                 <td className="border border-black p-3"></td>
                                             </tr>
-                                            {/* Baris 2: Orang Tua */}
-                                            <tr>
-                                                <td className="border border-black p-3 text-center">2</td>
-                                                <td className="border border-black p-3">{data.pihakDitemui}</td>
-                                                <td className="border border-black p-3 text-center">{data.statusPihakDitemui}</td>
-                                                <td className="border border-black p-3"></td>
-                                            </tr>
-                                            {/* Baris 3: Guru BK Utama */}
-                                            <tr>
-                                                <td className="border border-black p-3 text-center">3</td>
-                                                <td className="border border-black p-3">{data.namaPetugas}</td>
-                                                <td className="border border-black p-3 text-center">Guru BK</td>
-                                                <td className="border border-black p-3"></td>
-                                            </tr>
-                                            {/* Looping Tambahan (Wali Kelas, dll) */}
-                                            {(data.daftarPegawai || []).map((p, i) => (
-                                                <tr key={i}>
-                                                    <td className="border border-black p-3 text-center">{i + 4}</td>
-                                                    <td className="border border-black p-3">{p.nama}</td>
-                                                    <td className="border border-black p-3 text-center">{p.jabatan}</td>
-                                                    <td className="border border-black p-3"></td>
-                                                </tr>
-                                            ))}
+                                            {/* Baris Pihak Ditemui (dinamis) */}
+                                            {(() => {
+                                                const daftar = (data.daftarPihakDitemui && data.daftarPihakDitemui.length > 0)
+                                                    ? data.daftarPihakDitemui
+                                                    : [{ nama: data.pihakDitemui, status: data.statusPihakDitemui }];
+                                                let no = data.namaSiswa ? 2 : 1;
+                                                return daftar.map((p, i) => (
+                                                    <tr key={'pd'+i}>
+                                                        <td className="border border-black p-3 text-center">{no + i}</td>
+                                                        <td className="border border-black p-3">{p.nama}</td>
+                                                        <td className="border border-black p-3 text-center">{p.status}</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ));
+                                            })()}
+                                            {/* Guru BK Utama */}
+                                            {(() => {
+                                                const daftar = (data.daftarPihakDitemui && data.daftarPihakDitemui.length > 0)
+                                                    ? data.daftarPihakDitemui
+                                                    : [{ nama: data.pihakDitemui, status: data.statusPihakDitemui }];
+                                                const no = (data.namaSiswa ? 1 : 0) + daftar.length + 1;
+                                                return (
+                                                    <tr>
+                                                        <td className="border border-black p-3 text-center">{no}</td>
+                                                        <td className="border border-black p-3">{data.namaPetugas}</td>
+                                                        <td className="border border-black p-3 text-center">Guru BK</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                );
+                                            })()}
+                                            {/* Tim Pendamping */}
+                                            {(() => {
+                                                const daftar = (data.daftarPihakDitemui && data.daftarPihakDitemui.length > 0)
+                                                    ? data.daftarPihakDitemui
+                                                    : [{ nama: data.pihakDitemui, status: data.statusPihakDitemui }];
+                                                const baseNo = (data.namaSiswa ? 1 : 0) + daftar.length + 2;
+                                                return (data.daftarPegawai || []).map((p, i) => (
+                                                    <tr key={'dp'+i}>
+                                                        <td className="border border-black p-3 text-center">{baseNo + i}</td>
+                                                        <td className="border border-black p-3">{p.nama}</td>
+                                                        <td className="border border-black p-3 text-center">{p.jabatan}</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ));
+                                            })()}
                                         </tbody>
                                     </table>
                                 </div>
@@ -7497,69 +7679,157 @@
                             </div>
                         )}
 						
-						{data.type === 'MEDIASI' && (
-                            <div>
-                                <div className="text-center mb-6">
-                                    <h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA MEDIASI</h3>
-                                    <p>Nomor: {data.nomorSurat}</p>
-                                </div>
-                                <p className="mb-4">Pada hari ini, <strong>{formatDate(data.tanggal)}</strong>, bertempat di Ruang Bimbingan dan Konseling {schoolData.namaSekolah}, telah dilaksanakan mediasi antara:</p>
-                                
-                                <div className="flex gap-4 mb-4">
-                                    <div className="flex-1 border border-black p-2">
-                                        <p className="font-bold text-center underline mb-2">PIHAK I</p>
-                                        <table className="w-full text-sm">
+						{data.type === 'MEDIASI' && (() => {
+                            const p1 = data.pihak1 || [];
+                            const p2 = data.pihak2 || [];
+
+                            const narasiPihak = (list) => list.map((s, i) => {
+                                const sambung = i < list.length - 2 ? ', ' : i === list.length - 2 ? ', dan ' : '';
+                                return `${s.namaSiswa} siswa kelas ${s.kelas} yang diwakili oleh orang tua/wali bernama ${s.namaOrangTua}${sambung}`;
+                            }).join('');
+
+                            const namaWkP2 = new Set(p2.filter(s => s.namaWaliKelas).map(s => s.namaWaliKelas));
+                            const seenWk = new Set();
+                            const wk1 = [];
+                            p1.forEach(s => { if (s.namaWaliKelas && !seenWk.has(s.namaWaliKelas)) { seenWk.add(s.namaWaliKelas); wk1.push({ ...s, labelPihak: namaWkP2.has(s.namaWaliKelas) ? 'Pihak I & II' : 'Pihak I' }); } });
+                            const wk2 = [];
+                            p2.forEach(s => { if (s.namaWaliKelas && !seenWk.has(s.namaWaliKelas)) { seenWk.add(s.namaWaliKelas); wk2.push({ ...s, labelPihak: 'Pihak II' }); } });
+
+                            let rowNum = 0;
+
+                            return (
+                                <div>
+                                    {/* LEMBAR 1: BERITA ACARA */}
+                                    <div className="text-center mb-6">
+                                        <h3 className="font-bold underline text-[12pt] uppercase">BERITA ACARA MEDIASI</h3>
+                                        <p>Nomor: {data.nomorSurat}</p>
+                                    </div>
+
+                                    <p className="mb-4 text-justify">
+                                        Pada hari ini, <strong>{formatDate(data.tanggal)}</strong>, bertempat di Ruang Bimbingan dan Konseling {schoolData.namaSekolah}, telah dilaksanakan mediasi antara:
+                                    </p>
+
+                                    <p className="mb-3 text-justify">
+                                        <strong>Pihak I</strong> yaitu {narasiPihak(p1)};
+                                    </p>
+
+                                    <p className="mb-3 text-center font-bold italic">dengan</p>
+
+                                    <p className="mb-6 text-justify">
+                                        <strong>Pihak II</strong> yaitu {narasiPihak(p2)}.
+                                    </p>
+
+                                    <div className="mb-4">
+                                        <h4 className="font-bold text-sm mb-1">A. PERMASALAHAN</h4>
+                                        <div className="text-justify whitespace-pre-line pl-4">{data.permasalahan}</div>
+                                    </div>
+
+                                    <div className="mb-6">
+                                        <h4 className="font-bold text-sm mb-1">B. HASIL MEDIASI / KESEPAKATAN</h4>
+                                        <div className="text-justify whitespace-pre-line pl-4">{data.hasilMediasi}</div>
+                                    </div>
+
+                                    <p className="mb-8 text-sm">Demikian berita acara ini dibuat untuk dipatuhi bersama.</p>
+
+                                    {/* TANDA TANGAN LEMBAR 1 */}
+                                    <div className="flex justify-between items-end px-4 text-[11pt]">
+                                        <div className="text-center min-w-[240px]">
+                                            <p>Mengetahui,</p>
+                                            <p className="mb-16">{data.jabatan},</p>
+                                            <p className="font-bold underline">{data.penandaTangan}</p>
+                                            <p className="text-xs">NIP. {data.nipPenandaTangan || '-'}</p>
+                                        </div>
+                                        <div className="text-center min-w-[240px]">
+                                            <p className="invisible">Mengetahui,</p>
+                                            <p className="mb-16">Guru BK / Konselor,</p>
+                                            <p className="font-bold underline">{data.namaSaksi}</p>
+                                            <p className="text-xs">NIP. {data.nipSaksi || '-'}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* LEMBAR 2: TABEL TANDA TANGAN */}
+                                    <div style={{ pageBreakBefore: 'always' }} className="pt-6">
+                                        <div className="text-center mb-6">
+                                            <h3 className="font-bold underline text-[12pt] uppercase">DAFTAR HADIR & TANDA TANGAN</h3>
+                                            <p className="text-sm">Berita Acara Mediasi — {formatDate(data.tanggal)}</p>
+                                        </div>
+
+                                        <table className="w-full border-collapse border border-black text-sm">
+                                            <thead>
+                                                <tr className="bg-gray-100">
+                                                    <th className="border border-black p-2 w-10">No</th>
+                                                    <th className="border border-black p-2">Nama Lengkap</th>
+                                                    <th className="border border-black p-2 w-44">Unsur / Jabatan</th>
+                                                    <th className="border border-black p-2 w-40">Tanda Tangan</th>
+                                                </tr>
+                                            </thead>
                                             <tbody>
-                                                <tr><td className="w-16">Nama</td><td>: <strong>{data.namaSiswa}</strong></td></tr>
-                                                <tr><td>Kelas</td><td>: {data.kelas}</td></tr>
-                                                <tr><td>Ortu</td><td>: {data.namaOrangTua}</td></tr>
+                                                {p1.map((s, i) => { rowNum++; return (
+                                                    <tr key={'p1s'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaSiswa} ({s.kelas})</td>
+                                                        <td className="border border-black p-3 text-center">Siswa Pihak I</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                {p2.map((s, i) => { rowNum++; return (
+                                                    <tr key={'p2s'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaSiswa} ({s.kelas})</td>
+                                                        <td className="border border-black p-3 text-center">Siswa Pihak II</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                {p1.map((s, i) => { rowNum++; return (
+                                                    <tr key={'p1o'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaOrangTua}</td>
+                                                        <td className="border border-black p-3 text-center">Orang Tua Pihak I</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                {p2.map((s, i) => { rowNum++; return (
+                                                    <tr key={'p2o'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaOrangTua}</td>
+                                                        <td className="border border-black p-3 text-center">Orang Tua Pihak II</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                {wk1.map((s, i) => { rowNum++; return (
+                                                    <tr key={'wk1'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaWaliKelas}</td>
+                                                        <td className="border border-black p-3 text-center">Wali Kelas {s.labelPihak}</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                {wk2.map((s, i) => { rowNum++; return (
+                                                    <tr key={'wk2'+i}>
+                                                        <td className="border border-black p-3 text-center">{rowNum}</td>
+                                                        <td className="border border-black p-3">{s.namaWaliKelas}</td>
+                                                        <td className="border border-black p-3 text-center">Wali Kelas {s.labelPihak}</td>
+                                                        <td className="border border-black p-3"></td>
+                                                    </tr>
+                                                ); })}
+                                                <tr>
+                                                    <td className="border border-black p-3 text-center">{++rowNum}</td>
+                                                    <td className="border border-black p-3">{data.namaSaksi}</td>
+                                                    <td className="border border-black p-3 text-center">Guru BK / Konselor</td>
+                                                    <td className="border border-black p-3"></td>
+                                                </tr>
+                                                <tr>
+                                                    <td className="border border-black p-3 text-center">{++rowNum}</td>
+                                                    <td className="border border-black p-3">{data.penandaTangan}</td>
+                                                    <td className="border border-black p-3 text-center">{data.jabatan}</td>
+                                                    <td className="border border-black p-3"></td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div className="flex-1 border border-black p-2">
-                                        <p className="font-bold text-center underline mb-2">PIHAK II</p>
-                                        <table className="w-full text-sm">
-                                            <tbody>
-                                                <tr><td className="w-16">Nama</td><td>: <strong>{data.namaSiswa2}</strong></td></tr>
-                                                <tr><td>Kelas</td><td>: {data.kelas2}</td></tr>
-                                                <tr><td>Ortu</td><td>: {data.namaOrangTua2}</td></tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
                                 </div>
-
-                                <div className="mb-4">
-                                    <h4 className="font-bold text-sm mb-1">A. PERMASALAHAN</h4>
-                                    <div className="text-justify border border-gray-300 p-2 min-h-[50px] whitespace-pre-line">{data.permasalahan}</div>
-                                </div>
-
-                                <div className="mb-6">
-                                    <h4 className="font-bold text-sm mb-1">B. HASIL MEDIASI / KESEPAKATAN</h4>
-                                    <div className="text-justify border border-gray-300 p-2 min-h-[50px] whitespace-pre-line">{data.hasilMediasi}</div>
-                                </div>
-
-                                <p className="mb-4 text-sm">Demikian berita acara ini dibuat untuk dipatuhi bersama.</p>
-
-                                {/* TANDA TANGAN KOMPLEKS GRID */}
-                                <div className="grid grid-cols-2 gap-y-6 gap-x-4 text-center text-xs">
-                                    {/* SISWA */}
-                                    <div><p>Pihak I (Siswa),</p><br/><br/><br/><p className="font-bold underline">{data.namaSiswa}</p></div>
-                                    <div><p>Pihak II (Siswa),</p><br/><br/><br/><p className="font-bold underline">{data.namaSiswa2}</p></div>
-                                    
-                                    {/* ORTU */}
-                                    <div><p>Orang Tua Pihak I,</p><br/><br/><br/><p className="font-bold underline">{data.namaOrangTua}</p></div>
-                                    <div><p>Orang Tua Pihak II,</p><br/><br/><br/><p className="font-bold underline">{data.namaOrangTua2}</p></div>
-                                    
-                                    {/* WALI KELAS */}
-                                    <div><p>Wali Kelas Pihak I,</p><br/><br/><br/><p className="font-bold underline">{data.namaWaliKelas}</p></div>
-                                    <div><p>Wali Kelas Pihak II,</p><br/><br/><br/><p className="font-bold underline">{data.namaWaliKelas2}</p></div>
-
-                                    {/* SAKSI DAN KEPSEK */}
-                                    <div><p>Saksi (Guru BK),</p><br/><br/><br/><p className="font-bold underline">{data.namaSaksi}</p><p>NIP. {data.nipSaksi}</p></div>
-                                    <div><p>Mengetahui {data.jabatan},</p><br/><br/><br/><p className="font-bold underline">{data.penandaTangan}</p><p>NIP. {data.nipPenandaTangan}</p></div>
-                                </div>
-                            </div>
-                        )}
+                            );
+                        })()}
 						
 						{/* KERTAS CETAK SK PANITIA SEKOLAH (DENGAN LAMPIRAN OTOMATIS HALAMAN BARU) */}
 						{data.type === 'SK_PANITIA' && (
