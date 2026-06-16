@@ -1035,6 +1035,67 @@
 				namaKonselor: schoolData?.namaPetugas || '', 
 				tempatTtd: schoolData?.kota || '' 
 			});
+			const [observasiData, setObservasiData] = useState({ 
+				namaSiswa: '', kelas: '', nisn: '', jenisKelamin: 'Laki-laki', 
+				semester: 'Genap', tahunAjaran: schoolData?.tahunPelajaran || '2025/2026', 
+				bulanPelaksanaan: '', tempat: schoolData?.kota || '', 
+				tanggalLayanan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+				penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah'
+			});
+			const [showObservasiSuggestions, setShowObservasiSuggestions] = useState(false);
+			const [filteredObservasiStudents, setFilteredObservasiStudents] = useState([]);
+			
+			// STATE UNTUK ANGKET WAWANCARA
+			const [wawancaraData, setWawancaraData] = useState({ 
+				namaSiswa: '', kelas: '', nisn: '', jenisKelamin: 'Laki-laki', 
+				semester: 'Genap', tahunAjaran: schoolData?.tahunPelajaran || '2025/2026', 
+				tanggalWawancara: new Date().toISOString().split('T')[0], // Tambahan Baru
+				lokasiWawancara: 'Ruang BK', // Tambahan Baru
+				tempat: schoolData?.kota || '', 
+				tanggalLayanan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+				penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah',
+				pertanyaan: [''] 
+			});
+			const [showWawancaraSuggestions, setShowWawancaraSuggestions] = useState(false);
+			const [filteredWawancaraStudents, setFilteredWawancaraStudents] = useState([]);
+
+			// Fungsi untuk menambah, menghapus, dan mengubah pertanyaan wawancara
+			const handleAddPertanyaanWawancara = () => {
+				setWawancaraData(prev => ({ ...prev, pertanyaan: [...prev.pertanyaan, ''] }));
+			};
+			const handleRemovePertanyaanWawancara = (index) => {
+				setWawancaraData(prev => ({ ...prev, pertanyaan: prev.pertanyaan.filter((_, i) => i !== index) }));
+			};
+			const handleChangePertanyaanWawancara = (index, value) => {
+				const newPertanyaan = [...wawancaraData.pertanyaan];
+				newPertanyaan[index] = value;
+				setWawancaraData(prev => ({ ...prev, pertanyaan: newPertanyaan }));
+			};
+			// STATE UNTUK CATATAN ANEKDOTAL
+			const [anekdotData, setAnekdotData] = useState({ 
+				namaSiswa: '', kelas: '', nisn: '', jenisKelamin: 'Laki-laki', 
+				tanggalKejadian: new Date().toISOString().split('T')[0],
+				waktuKejadian: '', lokasiKejadian: '',
+				namaObserver: currentUser?.username || '', jabatanObserver: 'Guru Bimbingan dan Konseling',
+				tempat: schoolData?.kota || '', 
+				tanggalLaporan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+				penandaTangan: 'Drs. Kepala Sekolah', nipPenandaTangan: '', jabatan: 'Kepala Sekolah'
+			});
+			const [showAnekdotSuggestions, setShowAnekdotSuggestions] = useState(false);
+			const [filteredAnekdotStudents, setFilteredAnekdotStudents] = useState([]);
+			// STATE UNTUK SURAT PENGANTAR MASUK KELAS
+			const [pengantarData, setPengantarData] = useState({ 
+				namaSiswa: '', kelas: '', nisn: '', jenisKelamin: 'Laki-laki', 
+				hariTanggal: new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }),
+				jamPelajaran: '',
+				alasan: 'Terlambat datang ke sekolah (Telah didata / dibina)',
+				alasanLainnya: '',
+				tempat: schoolData?.kota || '', 
+				namaPetugas: currentUser?.username || '', 
+				jabatanPetugas: 'Guru Bimbingan dan Konseling', nipPetugas: ''
+			});
+			const [showPengantarSuggestions, setShowPengantarSuggestions] = useState(false);
+			const [filteredPengantarStudents, setFilteredPengantarStudents] = useState([]);
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
 
@@ -3130,6 +3191,369 @@
 									</div>
 								</div>
 							)}
+							
+							{viewState === 'observasi' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><Eye size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Angket Observasi (Ceklist)</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak kosong, diisi dengan tulisan tangan untuk durasi 1 bulan.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={observasiData.namaSiswa} onChange={(e) => {
+													setObservasiData({...observasiData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredObservasiStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowObservasiSuggestions(true);
+													} else { setShowObservasiSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showObservasiSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredObservasiStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setObservasiData({...observasiData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN'], jenisKelamin: s['Jenis Kelamin'] || 'Laki-laki'});
+																setShowObservasiSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={observasiData.kelas} onChange={e => setObservasiData({...observasiData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={observasiData.nisn} onChange={e => setObservasiData({...observasiData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Kelamin</label>
+												<select value={observasiData.jenisKelamin} onChange={e => setObservasiData({...observasiData, jenisKelamin: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+													<option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+												</select>
+											</div>
+
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Semester</label><input type="text" value={observasiData.semester} onChange={e => setObservasiData({...observasiData, semester: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" placeholder="Contoh: Genap" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tahun Ajaran</label><input type="text" value={observasiData.tahunAjaran} onChange={e => setObservasiData({...observasiData, tahunAjaran: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div className="md:col-span-2"><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Bulan Pelaksanaan Observasi</label><input type="text" value={observasiData.bulanPelaksanaan} onChange={e => setObservasiData({...observasiData, bulanPelaksanaan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-blue-700" placeholder="Contoh: Maret 2026" /></div>
+											
+											{/* TANDA TANGAN PEJABAT */}
+											<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-slate-100 pt-5 mt-2">
+												<div>
+													<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Pilih Penandatangan (Pejabat)</label>
+													<select onChange={(e) => {
+														const off = officials.find(o => o['Nama Pejabat'] === e.target.value);
+														if (off) setObservasiData({...observasiData, penandaTangan: off['Nama Pejabat'], nipPenandaTangan: off['NIP'], jabatan: off['Jabatan']});
+													}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+														<option value="">-- Pilih Pejabat Sekolah --</option>
+														{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+													</select>
+												</div>
+												<div className="grid grid-cols-2 gap-3">
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat TTD</label><input type="text" value={observasiData.tempat} onChange={e => setObservasiData({...observasiData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal TTD</label><input type="text" value={observasiData.tanggalLayanan} onChange={e => setObservasiData({...observasiData, tanggalLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+												</div>
+											</div>
+
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK LEMBAR OBSERVASI</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'wawancara' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-blue-100 text-blue-600 rounded-xl"><MessageCircle size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Angket Wawancara</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Ketik daftar pertanyaan, cetak, dan isi respon siswa secara manual.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											{/* BIODATA SISWA */}
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={wawancaraData.namaSiswa} onChange={(e) => {
+													setWawancaraData({...wawancaraData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredWawancaraStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowWawancaraSuggestions(true);
+													} else { setShowWawancaraSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showWawancaraSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredWawancaraStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setWawancaraData({...wawancaraData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN'], jenisKelamin: s['Jenis Kelamin'] || 'Laki-laki'});
+																setShowWawancaraSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={wawancaraData.kelas} onChange={e => setWawancaraData({...wawancaraData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={wawancaraData.nisn} onChange={e => setWawancaraData({...wawancaraData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Kelamin</label>
+												<select value={wawancaraData.jenisKelamin} onChange={e => setWawancaraData({...wawancaraData, jenisKelamin: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+													<option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+												</select>
+											</div>
+
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Semester</label><input type="text" value={wawancaraData.semester} onChange={e => setWawancaraData({...wawancaraData, semester: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" placeholder="Contoh: Genap" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tahun Ajaran</label><input type="text" value={wawancaraData.tahunAjaran} onChange={e => setWawancaraData({...wawancaraData, tahunAjaran: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal Pelaksanaan Wawancara</label><input type="date" value={wawancaraData.tanggalWawancara} onChange={e => setWawancaraData({...wawancaraData, tanggalWawancara: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Lokasi Wawancara</label><input type="text" value={wawancaraData.lokasiWawancara} onChange={e => setWawancaraData({...wawancaraData, lokasiWawancara: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" placeholder="Contoh: Ruang BK / Ruang Kelas" /></div>
+											
+											{/* DAFTAR PERTANYAAN DINAMIS */}
+											<div className="md:col-span-2 border-t border-slate-100 pt-5 mt-2">
+												<div className="flex justify-between items-center mb-4">
+													<label className="block text-sm font-bold text-gray-800 uppercase tracking-wider border-l-4 border-blue-500 pl-2">Daftar Pertanyaan Wawancara</label>
+													<button type="button" onClick={handleAddPertanyaanWawancara} className="bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-colors">
+														+ Tambah Pertanyaan
+													</button>
+												</div>
+												
+												<div className="space-y-3">
+													{wawancaraData.pertanyaan.map((tanya, idx) => (
+														<div key={idx} className="flex items-start gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200">
+															<span className="bg-blue-500 text-white w-8 h-8 rounded-lg flex items-center justify-center font-bold shrink-0">{idx + 1}</span>
+															<textarea 
+																value={tanya} 
+																onChange={(e) => handleChangePertanyaanWawancara(idx, e.target.value)} 
+																className="w-full p-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-200 outline-none text-sm" 
+																rows="2" 
+																placeholder="Ketik topik atau pertanyaan di sini..." 
+															/>
+															{wawancaraData.pertanyaan.length > 1 && (
+																<button type="button" onClick={() => handleRemovePertanyaanWawancara(idx)} className="text-red-500 hover:bg-red-100 p-2 rounded-lg transition-colors shrink-0">
+																	<Trash2 size={18}/>
+																</button>
+															)}
+														</div>
+													))}
+												</div>
+											</div>
+
+											{/* TANDA TANGAN PEJABAT */}
+											<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-slate-100 pt-5 mt-2">
+												<div>
+													<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Pilih Penandatangan (Pejabat)</label>
+													<select onChange={(e) => {
+														const off = officials.find(o => o['Nama Pejabat'] === e.target.value);
+														if (off) setWawancaraData({...wawancaraData, penandaTangan: off['Nama Pejabat'], nipPenandaTangan: off['NIP'], jabatan: off['Jabatan']});
+													}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+														<option value="">-- Pilih Pejabat Sekolah --</option>
+														{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+													</select>
+												</div>
+												<div className="grid grid-cols-2 gap-3">
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat TTD</label><input type="text" value={wawancaraData.tempat} onChange={e => setWawancaraData({...wawancaraData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal TTD</label><input type="text" value={wawancaraData.tanggalLayanan} onChange={e => setWawancaraData({...wawancaraData, tanggalLayanan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+												</div>
+											</div>
+
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-blue-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK LEMBAR WAWANCARA</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'anekdot' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-amber-100 text-amber-600 rounded-xl"><ClipboardList size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Catatan Anekdotal</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak lembar rekam jejak perilaku/peristiwa insidental siswa.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											{/* BIODATA SISWA */}
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={anekdotData.namaSiswa} onChange={(e) => {
+													setAnekdotData({...anekdotData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredAnekdotStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowAnekdotSuggestions(true);
+													} else { setShowAnekdotSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showAnekdotSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredAnekdotStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-amber-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setAnekdotData({...anekdotData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN'], jenisKelamin: s['Jenis Kelamin'] || 'Laki-laki'});
+																setShowAnekdotSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={anekdotData.kelas} onChange={e => setAnekdotData({...anekdotData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={anekdotData.nisn} onChange={e => setAnekdotData({...anekdotData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Kelamin</label>
+												<select value={anekdotData.jenisKelamin} onChange={e => setAnekdotData({...anekdotData, jenisKelamin: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+													<option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+												</select>
+											</div>
+
+											{/* DATA KEJADIAN */}
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal Kejadian</label><input type="date" value={anekdotData.tanggalKejadian} onChange={e => setAnekdotData({...anekdotData, tanggalKejadian: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-amber-700" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Waktu Kejadian</label><input type="text" value={anekdotData.waktuKejadian} onChange={e => setAnekdotData({...anekdotData, waktuKejadian: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-amber-700" placeholder="Misal: Jam Istirahat Ke-2" /></div>
+											<div className="md:col-span-2"><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Lokasi / Tempat Kejadian</label><input type="text" value={anekdotData.lokasiKejadian} onChange={e => setAnekdotData({...anekdotData, lokasiKejadian: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-amber-700" placeholder="Misal: Kantin Sekolah, Koridor Kelas, dll" /></div>
+
+											{/* OBSERVER */}
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Observer (Pencatat)</label><input type="text" value={anekdotData.namaObserver} onChange={e => setAnekdotData({...anekdotData, namaObserver: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jabatan Observer</label><input type="text" value={anekdotData.jabatanObserver} onChange={e => setAnekdotData({...anekdotData, jabatanObserver: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" placeholder="Misal: Guru BK / Wali Kelas" /></div>
+
+											{/* PENGESAHAN */}
+											<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-slate-100 pt-5 mt-2">
+												<div>
+													<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Mengetahui (Pimpinan)</label>
+													<select onChange={(e) => {
+														const off = officials.find(o => o['Nama Pejabat'] === e.target.value);
+														if (off) setAnekdotData({...anekdotData, penandaTangan: off['Nama Pejabat'], nipPenandaTangan: off['NIP'], jabatan: off['Jabatan']});
+													}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+														<option value="">-- Pilih Pejabat Sekolah --</option>
+														{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+													</select>
+												</div>
+												<div className="grid grid-cols-2 gap-3">
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat TTD</label><input type="text" value={anekdotData.tempat} onChange={e => setAnekdotData({...anekdotData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+													<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tanggal TTD</label><input type="text" value={anekdotData.tanggalLaporan} onChange={e => setAnekdotData({...anekdotData, tanggalLaporan: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+												</div>
+											</div>
+
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-amber-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK CATATAN ANEKDOT</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
+							{viewState === 'pengantar_kelas' && (
+								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-teal-100 text-teal-600 rounded-xl"><UserCheck size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Form Surat Pengantar Masuk Kelas</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak slip izin masuk kelas setelah siswa selesai dibina/ditangani.</p>
+											</div>
+										</div>
+										
+										<div className="grid grid-cols-1 md:grid-cols-2 gap-5 mt-8 border-t border-slate-100 pt-6">
+											{/* BIODATA SISWA */}
+											<div className="relative">
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Nama Siswa (Ketik / Cari)</label>
+												<input type="text" value={pengantarData.namaSiswa} onChange={(e) => {
+													setPengantarData({...pengantarData, namaSiswa: e.target.value});
+													if (e.target.value.length > 2) {
+														setFilteredPengantarStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(e.target.value.toLowerCase())));
+														setShowPengantarSuggestions(true);
+													} else { setShowPengantarSuggestions(false); }
+												}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-200 outline-none font-semibold text-slate-700" placeholder="Ketik nama siswa..." />
+												{showPengantarSuggestions && (
+													<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+														{filteredPengantarStudents.map((s, idx) => (
+															<div key={idx} className="p-3 hover:bg-teal-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																setPengantarData({...pengantarData, namaSiswa: s['Nama Lengkap'], kelas: s['Kelas'], nisn: s['NISN'], jenisKelamin: s['Jenis Kelamin'] || 'Laki-laki'});
+																setShowPengantarSuggestions(false);
+															}}>
+																<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+															</div>
+														))}
+													</div>
+												)}
+											</div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Kelas</label><input type="text" value={pengantarData.kelas} onChange={e => setPengantarData({...pengantarData, kelas: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">NISN</label><input type="text" value={pengantarData.nisn} onChange={e => setPengantarData({...pengantarData, nisn: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											<div>
+												<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jenis Kelamin</label>
+												<select value={pengantarData.jenisKelamin} onChange={e => setPengantarData({...pengantarData, jenisKelamin: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+													<option value="Laki-laki">Laki-laki</option><option value="Perempuan">Perempuan</option>
+												</select>
+											</div>
+
+											{/* DATA PELAKSANAAN */}
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Hari / Tanggal</label><input type="text" value={pengantarData.hariTanggal} onChange={e => setPengantarData({...pengantarData, hariTanggal: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-teal-700" placeholder="Misal: Senin, 16 Juni 2026" /></div>
+											<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Jam Pelajaran Ke-</label><input type="text" value={pengantarData.jamPelajaran} onChange={e => setPengantarData({...pengantarData, jamPelajaran: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold text-teal-700" placeholder="Misal: 1 - 2" /></div>
+											
+											{/* ALASAN PENGANTAR */}
+											<div className="md:col-span-2 border-t border-slate-100 pt-5 mt-2">
+												<label className="block text-xs font-bold text-gray-600 mb-2 uppercase tracking-wider">Keterangan / Alasan Surat Pengantar</label>
+												<div className="space-y-2">
+													{[
+														"Terlambat datang ke sekolah (Telah didata / dibina)",
+														"Selesai mengikuti layanan Bimbingan dan Konseling (BK)",
+														"Selesai mengikuti pembinaan indisipliner / Kesiswaan",
+														"Selesai melaksanakan tugas sekolah / kepanitiaan / OSIS",
+														"Selesai penanganan medis ringan / istirahat di UKS",
+														"Baru kembali dari izin keluar lingkungan sekolah",
+														"Lainnya"
+													].map((alasan, idx) => (
+														<label key={idx} className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border border-slate-200 cursor-pointer hover:bg-teal-50 hover:border-teal-200 transition-colors">
+															<input 
+																type="radio" 
+																name="alasanPengantar" 
+																value={alasan} 
+																checked={pengantarData.alasan === alasan}
+																onChange={(e) => setPengantarData({...pengantarData, alasan: e.target.value})}
+																className="w-4 h-4 text-teal-600 focus:ring-teal-500" 
+															/>
+															<span className="text-sm font-semibold text-gray-700">{alasan}</span>
+														</label>
+													))}
+												</div>
+												{pengantarData.alasan === 'Lainnya' && (
+													<input type="text" value={pengantarData.alasanLainnya} onChange={e => setPengantarData({...pengantarData, alasanLainnya: e.target.value})} className="w-full mt-3 p-3 bg-white border border-teal-300 rounded-xl font-semibold focus:ring-2 focus:ring-teal-200 outline-none" placeholder="Ketik alasan spesifik lainnya..." />
+												)}
+											</div>
+
+											{/* PENGESAHAN */}
+											<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 border-t border-slate-100 pt-5 mt-2">
+												<div>
+													<label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Pilih Penandatangan (Petugas/Guru)</label>
+													<select onChange={(e) => {
+														const off = officials.find(o => o['Nama Pejabat'] === e.target.value);
+														if (off) setPengantarData({...pengantarData, namaPetugas: off['Nama Pejabat'], nipPetugas: off['NIP'], jabatanPetugas: off['Jabatan']});
+													}} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold">
+														<option value="">-- Pilih Pejabat Sekolah --</option>
+														{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+													</select>
+												</div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase tracking-wider">Tempat TTD</label><input type="text" value={pengantarData.tempat} onChange={e => setPengantarData({...pengantarData, tempat: e.target.value})} className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl font-semibold" /></div>
+											</div>
+
+										</div>
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-teal-600 hover:bg-teal-700 text-white px-8 py-3 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-teal-600/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK SURAT PENGANTAR</button>
+										</div>
+									</div>
+								</div>
+							)}
                             
                             {viewState === 'school_settings' && (
                                 <SettingsView 
@@ -3776,6 +4200,510 @@
 							</div>
 						</div>
 					)}
+					
+					{viewState === 'observasi' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-2 mb-4 flex items-center justify-between">
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[14pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-5">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-widest">LEMBAR OBSERVASI SISWA (CEKLIST)</h3>
+							</div>
+
+							{/* A. IDENTITAS SISWA */}
+							<div className="mb-4">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">A. IDENTITAS SISWA</h4>
+								<table className="w-full text-[11pt] leading-snug ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Nama Siswa</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{observasiData.namaSiswa || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">NISN</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{observasiData.nisn || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Kelas</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{observasiData.kelas || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Jenis Kelamin</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{observasiData.jenisKelamin}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							{/* B. INFORMASI PELAKSANAAN */}
+							<div className="mb-5">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">B. INFORMASI PELAKSANAAN</h4>
+								<table className="w-full text-[11pt] leading-snug ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Bulan Pelaksanaan</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{observasiData.bulanPelaksanaan || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Semester</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{observasiData.semester || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Tahun Ajaran</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{observasiData.tahunAjaran || '...................................................'}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							{/* C. ASPEK OBSERVASI */}
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-3 bg-gray-100 p-1.5 border border-black text-center tracking-wide">C. ASPEK OBSERVASI (CEKLIST)</h4>
+								<table className="w-full border-collapse border border-black mb-2 text-[10.5pt]">
+									<thead>
+										<tr className="bg-gray-100">
+											<th className="border border-black p-2 w-10 text-center" rowSpan="2">No</th>
+											<th className="border border-black p-2 text-center" rowSpan="2">Uraian / Aspek Observasi</th>
+											<th className="border border-black p-1 text-center" colSpan="5">Minggu Ke-</th>
+										</tr>
+										<tr className="bg-gray-100">
+											<th className="border border-black p-1 w-10 text-center">1</th>
+											<th className="border border-black p-1 w-10 text-center">2</th>
+											<th className="border border-black p-1 w-10 text-center">3</th>
+											<th className="border border-black p-1 w-10 text-center">4</th>
+											<th className="border border-black p-1 w-10 text-center">5</th>
+										</tr>
+									</thead>
+									<tbody>
+										{[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+											<tr key={i} className="h-[40px]">
+												<td className="border border-black p-1 text-center font-bold">{i}</td>
+												<td className="border border-black p-2 text-left"></td>
+												<td className="border border-black p-1 text-center text-gray-300 font-bold">[ ]</td>
+												<td className="border border-black p-1 text-center text-gray-300 font-bold">[ ]</td>
+												<td className="border border-black p-1 text-center text-gray-300 font-bold">[ ]</td>
+												<td className="border border-black p-1 text-center text-gray-300 font-bold">[ ]</td>
+												<td className="border border-black p-1 text-center text-gray-300 font-bold">[ ]</td>
+											</tr>
+										))}
+									</tbody>
+								</table>
+							</div>
+
+							{/* ==================================================================== */}
+							{/* PEMISAH HALAMAN (MEMAKSA BAGIAN D PINDAH KE LEMBAR KERTAS KE-2)      */}
+							{/* ==================================================================== */}
+							<div style={{ pageBreakBefore: 'always' }} className="pt-2">
+								{/* D. HEADER ANALISIS & TINDAK LANJUT */}
+								<div className="mb-4">
+									<h4 className="font-bold text-[11pt] mb-3 bg-gray-100 p-1.5 border border-black text-center tracking-wide">D. ANALISIS DAN TINDAK LANJUT HASIL OBSERVASI</h4>
+								</div>
+
+								{/* Kolom Manual 1, 2, 3, 4 */}
+								<div className="mb-5 text-[11pt]">
+									<p className="mb-1.5 font-bold">1. Analisis Hasil Observasi:</p>
+									<div className="border border-black w-full h-40 p-2"></div>
+								</div>
+								
+								<div className="mb-5 text-[11pt]">
+									<p className="mb-1.5 font-bold">2. Evaluasi Perkembangan:</p>
+									<div className="border border-black w-full h-40 p-2"></div>
+								</div>
+								
+								<div className="mb-5 text-[11pt]">
+									<p className="mb-1.5 font-bold">3. Tindak Lanjut:</p>
+									<div className="border border-black w-full h-40 p-2"></div>
+								</div>
+
+								<div className="mb-6 text-[11pt]">
+									<p className="mb-1.5 font-bold">4. Catatan Tambahan / Kesimpulan Akhir:</p>
+									<div className="border border-black w-full h-40 p-2"></div>
+								</div>
+
+								{/* Tanda Tangan */}
+								<div className="flex justify-end mt-8 px-6 text-center text-[11pt]" style={{ pageBreakInside: 'avoid' }}>
+									<div className="min-w-[220px]">
+										<p className="mb-24">{observasiData.tempat || 'Makassar'}, {observasiData.tanggalLayanan}<br/>{observasiData.jabatan},</p>
+										<p className="font-bold underline">{observasiData.penandaTangan || '.........................................'}</p>
+										<p className="text-[10.5pt]">{observasiData.nipPenandaTangan ? `NIP. ${observasiData.nipPenandaTangan}` : 'NIP. .........................................'}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+					
+					{viewState === 'wawancara' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-2 mb-4 flex items-center justify-between">
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[14pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-5">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-widest">LEMBAR PANDUAN & HASIL WAWANCARA</h3>
+							</div>
+
+							{/* IDENTITAS SISWA */}
+							<div className="mb-4">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">A. IDENTITAS SISWA</h4>
+								<table className="w-full text-[11pt] leading-snug ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Nama Siswa</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{wawancaraData.namaSiswa || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">NISN</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.nisn || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Kelas</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.kelas || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Jenis Kelamin</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.jenisKelamin}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							{/* INFORMASI PELAKSANAAN */}
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">B. INFORMASI PELAKSANAAN</h4>
+								<table className="w-full text-[11pt] leading-snug ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Tanggal Wawancara</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{wawancaraData.tanggalWawancara ? formatDate(wawancaraData.tanggalWawancara) : '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Tempat / Lokasi</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.lokasiWawancara || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Semester</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.semester || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Tahun Ajaran</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{wawancaraData.tahunAjaran || '...................................................'}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-3 bg-gray-100 p-1.5 border border-black text-center">C. DAFTAR PERTANYAAN & CATATAN RESPON SISWA</h4>
+								
+								{/* Render Pertanyaan Dinamis */}
+								{wawancaraData.pertanyaan.map((tanya, idx) => (
+									<div key={idx} className="mb-5" style={{ pageBreakInside: 'avoid' }}>
+										<table className="w-full text-[11pt] leading-snug mb-1">
+											<tbody>
+												<tr>
+													<td className="w-6 font-bold align-top">{idx + 1}.</td>
+													<td className="font-bold align-top">Topik / Pertanyaan:</td>
+												</tr>
+												<tr>
+													<td></td>
+													<td className="pb-1 text-justify">{tanya || '.....................................................................................................................'}</td>
+												</tr>
+												<tr>
+													<td></td>
+													<td className="italic text-gray-700">Catatan Respon (Verbal & Non-Verbal):</td>
+												</tr>
+											</tbody>
+										</table>
+										{/* Kotak Kosong Jawaban */}
+										<div className="border border-black w-full h-32 p-2 ml-6" style={{ width: 'calc(100% - 1.5rem)' }}></div>
+									</div>
+								))}
+							</div>
+
+							{/* HEADER BAGIAN KESIMPULAN */}
+							<div className="mt-8 mb-4" style={{ pageBreakInside: 'avoid' }}>
+								<h4 className="font-bold text-[11pt] mb-3 bg-gray-100 p-1.5 border border-black text-center">D. KESIMPULAN & TINDAK LANJUT HASIL WAWANCARA</h4>
+							</div>
+
+							{/* Kolom Manual A, B, C (Dikunci agar tidak terpotong halaman) */}
+							<div style={{ pageBreakInside: 'avoid' }} className="mb-5 text-[11pt]">
+								<p className="mb-1.5 font-bold">1. Analisis Hasil Wawancara:</p>
+								<div className="border border-black w-full h-40 p-2"></div>
+							</div>
+							
+							<div style={{ pageBreakInside: 'avoid' }} className="mb-5 text-[11pt]">
+								<p className="mb-1.5 font-bold">2. Evaluasi & Kesimpulan Sementara:</p>
+								<div className="border border-black w-full h-40 p-2"></div>
+							</div>
+							
+							<div style={{ pageBreakInside: 'avoid' }} className="mb-6 text-[11pt]">
+								<p className="mb-1.5 font-bold">3. Tindak Lanjut / Rekomendasi:</p>
+								<div className="border border-black w-full h-40 p-2"></div>
+							</div>
+
+							{/* Tanda Tangan */}
+							<div className="flex justify-end mt-4 px-6 text-center text-[11pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="min-w-[220px]">
+									<p className="mb-24">{wawancaraData.tempat || 'Makassar'}, {wawancaraData.tanggalLayanan}<br/>{wawancaraData.jabatan},</p>
+									<p className="font-bold underline">{wawancaraData.penandaTangan || '.........................................'}</p>
+									<p className="text-[10.5pt]">{wawancaraData.nipPenandaTangan ? `NIP. ${wawancaraData.nipPenandaTangan}` : 'NIP. .........................................'}</p>
+								</div>
+							</div>
+						</div>
+					)}
+					
+					{viewState === 'anekdot' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-2 mb-4 flex items-center justify-between">
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[14pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-5">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-widest">CATATAN ANEKDOTAL SISWA</h3>
+								<p className="text-[10pt] uppercase font-bold mt-1">(ANECDOTAL RECORD)</p>
+							</div>
+
+							{/* A. IDENTITAS SISWA & KEJADIAN */}
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">A. IDENTITAS SISWA & KEJADIAN</h4>
+								<table className="w-full text-[11pt] leading-snug ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Nama Siswa</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{anekdotData.namaSiswa || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">NISN</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{anekdotData.nisn || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Kelas / Jenis Kelamin</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{anekdotData.kelas || '......................'} / {anekdotData.jenisKelamin}</td>
+										</tr>
+										<tr><td colSpan="3" className="py-1.5"></td></tr>
+										<tr>
+											<td className="align-top py-0.5">Tanggal Kejadian</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{anekdotData.tanggalKejadian ? formatDate(anekdotData.tanggalKejadian) : '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Waktu Kejadian</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{anekdotData.waktuKejadian || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Lokasi Kejadian</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{anekdotData.lokasiKejadian || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Nama Observer (Pencatat)</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{anekdotData.namaObserver || '...................................................'} ({anekdotData.jabatanObserver || '..................'})</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							{/* B. DESKRIPSI PERISTIWA (HALAMAN 1) */}
+							<div className="mb-6" style={{ pageBreakInside: 'avoid' }}>
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">B. DESKRIPSI PERISTIWA (FAKTUAL)</h4>
+								<p className="text-[10.5pt] italic text-gray-700 mb-1 ml-1">Catat secara objektif apa yang dilihat dan didengar (tanpa opini/penilaian pribadi):</p>
+								{/* Box dengan garis bantu (ruled lines) untuk menulis */}
+								<div className="border border-black w-full h-[400px] p-3 leading-loose">
+								</div>
+							</div>
+
+							{/* ==================================================================== */}
+							{/* PEMISAH HALAMAN (MEMAKSA BAGIAN C PINDAH KE LEMBAR KERTAS KE-2)      */}
+							{/* ==================================================================== */}
+							<div style={{ pageBreakBefore: 'always' }} className="pt-2">
+								
+								{/* C. INTERPRETASI / ANALISIS */}
+								<div className="mb-6">
+									<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">C. INTERPRETASI / ANALISIS GURU BK</h4>
+									<p className="text-[10.5pt] italic text-gray-700 mb-1 ml-1">Makna, kesan, atau simpulan profesional terhadap perilaku siswa tersebut:</p>
+									{/* Box dengan garis bantu (ruled lines) untuk menulis */}
+									<div className="border border-black w-full h-[350px] p-3 leading-loose">
+									</div>
+								</div>
+
+								{/* D. RENCANA TINDAK LANJUT */}
+								<div className="mb-6">
+									<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">D. RENCANA TINDAK LANJUT</h4>
+									<p className="text-[10.5pt] italic text-gray-700 mb-1 ml-1">Langkah atau intervensi yang akan dilakukan selanjutnya:</p>
+									{/* Box dengan garis bantu (ruled lines) untuk menulis */}
+									<div className="border border-black w-full h-[300px] p-3 leading-loose">
+									</div>
+								</div>
+
+								{/* E. PENGESAHAN */}
+								<div className="flex justify-between items-end mt-12 px-6 text-center text-[11pt]" style={{ pageBreakInside: 'avoid' }}>
+									<div className="min-w-[220px]">
+										<p className="mb-24">Mengetahui,<br/>{anekdotData.jabatan},</p>
+										<p className="font-bold underline">{anekdotData.penandaTangan || '.........................................'}</p>
+										<p className="text-[10.5pt]">{anekdotData.nipPenandaTangan ? `NIP. ${anekdotData.nipPenandaTangan}` : 'NIP. .........................................'}</p>
+									</div>
+									<div className="min-w-[220px]">
+										<p className="mb-24">{anekdotData.tempat || 'Makassar'}, {anekdotData.tanggalLaporan}<br/>Observer / Pencatat,</p>
+										<p className="font-bold underline">{anekdotData.namaObserver || '.........................................'}</p>
+										<p className="text-[10.5pt]">{anekdotData.jabatanObserver}</p>
+									</div>
+								</div>
+							</div>
+						</div>
+					)}
+					
+					{viewState === 'pengantar_kelas' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+							{/* Kop Surat Otomatis */}
+							<div className="border-b-[3px] border-double border-black pb-2 mb-6 flex items-center justify-between">
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+								<div className="text-center flex-1 px-2 leading-tight">
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+									<h2 className="font-bold text-[14pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+									<h2 className="font-bold text-[12pt] uppercase leading-tight">BIMBINGAN DAN KONSELING</h2>
+									<p className="text-[10pt] italic mt-0.5 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+								</div>
+								<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+							</div>
+
+							<div className="text-center mb-8">
+								<h3 className="font-bold underline text-[12pt] uppercase tracking-widest">SURAT PENGANTAR IZIN MASUK KELAS</h3>
+							</div>
+
+							{/* A. IDENTITAS SISWA */}
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">A. IDENTITAS SISWA</h4>
+								<table className="w-full text-[11pt] leading-loose ml-2">
+									<tbody>
+										<tr>
+											<td className="w-[180px] align-top py-0.5">Nama Siswa</td>
+											<td className="w-[15px] align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{pengantarData.namaSiswa || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">NISN</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{pengantarData.nisn || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Kelas / Jenis Kelamin</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="align-top py-0.5">{pengantarData.kelas || '......................'} / {pengantarData.jenisKelamin}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Hari / Tanggal</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{pengantarData.hariTanggal || '...................................................'}</td>
+										</tr>
+										<tr>
+											<td className="align-top py-0.5">Jam Pelajaran Ke-</td>
+											<td className="align-top py-0.5">:</td>
+											<td className="font-bold align-top py-0.5">{pengantarData.jamPelajaran || '...................................................'}</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+
+							{/* B. KETERANGAN / ALASAN PENGANTAR */}
+							<div className="mb-6">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">B. KETERANGAN / ALASAN PENGANTAR</h4>
+								<p className="text-[11pt] mb-2 ml-1 text-justify">Menyatakan bahwa siswa tersebut di atas diizinkan untuk masuk ke kelas dan mengikuti proses Belajar Mengajar kembali dengan alasan:</p>
+								
+								<div className="ml-2 space-y-2 mt-3 text-[11pt]">
+									{[
+										"Terlambat datang ke sekolah (Telah didata / dibina)",
+										"Selesai mengikuti layanan Bimbingan dan Konseling (BK)",
+										"Selesai mengikuti pembinaan indisipliner / Kesiswaan",
+										"Selesai melaksanakan tugas sekolah / kepanitiaan / OSIS",
+										"Selesai penanganan medis ringan / istirahat di UKS",
+										"Baru kembali dari izin keluar lingkungan sekolah"
+									].map((alasan, idx) => (
+										<div key={idx} className="flex items-start gap-2">
+											<span className="font-bold">{pengantarData.alasan === alasan ? '[ √ ]' : '[   ]'}</span>
+											<span>{alasan}</span>
+										</div>
+									))}
+									
+									<div className="flex items-start gap-2">
+										<span className="font-bold">{pengantarData.alasan === 'Lainnya' ? '[ √ ]' : '[   ]'}</span>
+										<span>Lainnya: <span className="font-bold">{pengantarData.alasan === 'Lainnya' ? pengantarData.alasanLainnya : '..........................................................................'}</span></span>
+									</div>
+								</div>
+							</div>
+
+							{/* C. CATATAN UNTUK GURU MATA PELAJARAN */}
+							<div className="mb-8">
+								<h4 className="font-bold text-[11pt] mb-2 bg-gray-100 p-1.5 border border-black text-center tracking-wide">C. CATATAN UNTUK GURU MATA PELAJARAN</h4>
+								<p className="text-[11pt] ml-1 text-justify leading-relaxed">
+									Mohon Bapak/Ibu Guru Mata Pelajaran yang sedang berada di kelas berkenan menerima dan mengizinkan siswa bersangkutan untuk mengikuti kegiatan belajar mengajar seperti biasa. Terima kasih atas kerja samanya.
+								</p>
+							</div>
+
+							{/* D. PENGESAHAN */}
+							<div className="flex justify-between items-end mt-12 px-6 text-center text-[11pt]" style={{ pageBreakInside: 'avoid' }}>
+								<div className="min-w-[220px]">
+									<p className="mb-24">Siswa yang Bersangkutan,</p>
+									<p className="font-bold underline">{pengantarData.namaSiswa || '.........................................'}</p>
+									<p className="text-[10.5pt]">NISN. {pengantarData.nisn || '...........................'}</p>
+								</div>
+								<div className="min-w-[220px]">
+									<p className="mb-24">{pengantarData.tempat || 'Makassar'}, .........................................<br/>{pengantarData.jabatanPetugas || 'Guru Bimbingan & Konseling'},</p>
+									<p className="font-bold underline">{pengantarData.namaPetugas || '.........................................'}</p>
+									<p className="text-[10.5pt]">{pengantarData.nipPetugas ? `NIP. ${pengantarData.nipPetugas}` : 'NIP. .........................................'}</p>
+								</div>
+							</div>
+						</div>
+					)}
+					
 				</div>
 			);
 		}
@@ -3856,6 +4784,10 @@
 							<SidebarItem icon={<ClipboardList size={18} className="text-orange-500"/>} label="Umpan Balik Orang Tua" active={activeTab === 'UMPAN_BALIK_ORTU'} onClick={() => {setActiveTab('UMPAN_BALIK_ORTU'); setViewState('umpan_balik_ortu');}} />
 							<SidebarItem icon={<ClipboardList size={18} className="text-teal-500"/>} label="Umpan Balik Guru/Wali Kelas" active={activeTab === 'UMPAN_BALIK_GURU'} onClick={() => {setActiveTab('UMPAN_BALIK_GURU'); setViewState('umpan_balik_guru');}} />
 							<SidebarItem icon={<Users size={18} className="text-purple-500"/>} label="Refleksi Kelompok" active={activeTab === 'REFLEKSI_KELOMPOK'} onClick={() => {setActiveTab('REFLEKSI_KELOMPOK'); setViewState('refleksi_kelompok');}} />
+							<SidebarItem icon={<Eye size={18} className="text-blue-500"/>} label="Angket Observasi Ceklist" active={activeTab === 'OBSERVASI'} onClick={() => {setActiveTab('OBSERVASI'); setViewState('observasi');}} />
+							<SidebarItem icon={<MessageCircle size={18} className="text-blue-500"/>} label="Angket Wawancara" active={activeTab === 'WAWANCARA'} onClick={() => {setActiveTab('WAWANCARA'); setViewState('wawancara');}} />
+							<SidebarItem icon={<ClipboardList size={18} className="text-amber-500"/>} label="Catatan Anekdotal" active={activeTab === 'ANEKDOT'} onClick={() => {setActiveTab('ANEKDOT'); setViewState('anekdot');}} />
+							<SidebarItem icon={<UserCheck size={18} className="text-teal-500"/>} label="Pengantar Masuk Kelas" active={activeTab === 'PENGANTAR_KELAS'} onClick={() => {setActiveTab('PENGANTAR_KELAS'); setViewState('pengantar_kelas');}} />
                         </SidebarGroup>
                         {/* KATEGORI 1 */}
                         <SidebarGroup icon={<ShieldCheck size={16}/>} title="Pembinaan & Disiplin" defaultOpen={['SKORSING', 'PERNYATAAN', 'KONTRAK', 'SURAT_PERINGATAN'].includes(activeTab)}>
