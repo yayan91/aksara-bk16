@@ -6241,6 +6241,21 @@
 							{/* MASA PERCOBAAN */}
 							{formData.type === 'PROBATION' && (
 								<div className="space-y-4 border-t pt-4">
+									
+									{/* TAMBAHAN KITA: PARAGRAF PEMBUKA */}
+									<div>
+										<label className="block text-xs font-medium text-gray-600 mb-1">Paragraf Pembuka Surat</label>
+										<textarea 
+											name="paragrafPembuka" 
+											value={formData.paragrafPembuka !== undefined ? formData.paragrafPembuka : "Sehubungan dengan pelanggaran tata tertib sekolah berupa [...] yang dilakukan secara berulang, serta berdasarkan hasil kesepakatan pembinaan pada tanggal [...], maka dengan ini pihak sekolah menetapkan status Masa Percobaan bagi siswa yang bersangkutan."} 
+											onChange={handleChange} 
+											rows="4"
+											className="w-full p-3 border border-gray-300 rounded-md text-sm leading-relaxed" 
+											placeholder="Ketik paragraf pembuka di sini..."
+										/>
+										<p className="text-[10px] text-gray-500 mt-1 italic">*Contoh kalimat di atas bisa diedit manual sesuai dengan kronologi kasus siswa.</p>
+									</div>
+
 									<div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 										<div><label className="block text-xs font-medium text-gray-600">Durasi Percobaan</label><input type="text" name="durasiPercobaan" value={formData.durasiPercobaan} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" placeholder="Contoh: 30 Hari / 1 Semester" required /></div>
 										<div><label className="block text-xs font-medium text-gray-600">Mulai Tanggal</label><input type="date" name="tanggalMulai" value={formData.tanggalMulai} onChange={handleChange} className="w-full p-2 border border-gray-300 rounded-md" required /></div>
@@ -7080,9 +7095,11 @@
 									</tbody>
 								</table>
 								
-								<p className="mb-4 text-justify">
-									Sehubungan dengan pelanggaran tata tertib yang telah saya lakukan berulang kali, dengan ini saya memohon kepada pihak sekolah untuk memberikan kesempatan terakhir melalui <strong>Masa Percobaan</strong> dengan ketentuan sebagai berikut:
-								</p>
+								<div className="mb-4 text-justify leading-relaxed text-[11pt]">
+									<p className="indent-8">
+										{data.paragrafPembuka || "Sehubungan dengan pelanggaran tata tertib sekolah berupa [...] yang dilakukan secara berulang, serta berdasarkan hasil kesepakatan pembinaan pada tanggal [...], maka dengan ini pihak sekolah menetapkan status Masa Percobaan bagi siswa yang bersangkutan."}
+									</p>
+								</div>
 
 								<div className="mb-4 text-justify">
 									<h4 className="font-bold text-sm mb-1">1. Durasi Masa Percobaan</h4>
@@ -7111,7 +7128,7 @@
 								</div>
 
 								<div style={{ pageBreakInside: 'avoid' }}>
-									<p className="mb-6 text-sm text-justify">Demikian surat perjanjian ini saya buat dengan penuh kesadaran dan tanpa paksaan.</p>
+									<p className="mb-6 text-sm text-justify">Demikian Surat Masa Percobaan ini saya buat dengan penuh kesadaran dan tanpa paksaan.</p>
 
 									<div className="mt-4 text-[11pt]">
 										<div className="flex justify-between text-center px-4 mb-10">
