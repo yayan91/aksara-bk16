@@ -1096,6 +1096,28 @@
 			});
 			const [showPengantarSuggestions, setShowPengantarSuggestions] = useState(false);
 			const [filteredPengantarStudents, setFilteredPengantarStudents] = useState([]);
+			// STATE UNTUK BERITA ACARA TINGGAL KELAS
+			const [tinggalKelasData, setTinggalKelasData] = useState({
+				dasarKeputusan: 'Hasil Rapat Pleno Dewan Guru tanggal 18 Juni 2026',
+				tempat: schoolData?.kota || 'Makassar',
+				tanggalLaporan: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }),
+				kepsekNama: '', kepsekNip: '', kepsekJabatan: 'Kepala Sekolah',
+				wakasekNama: '', wakasekNip: '', wakasekJabatan: 'Wakasek Kesiswaan',
+				guruBKNama: '', guruBKNip: '', guruBKJabatan: 'Guru Bimbingan dan Konseling',
+				siswaList: [
+					{
+						namaSiswa: '', nisn: '', kelas: '', jenisKelamin: 'Laki-laki',
+						alasan: '', kinerja: '', rekomendasi: '',
+						namaOrangTua: '', noHpOrangTua: '',
+						waliKelasNama: '', waliKelasNip: '',
+						waliMuridNama: '', waliMuridNip: ''
+					}
+				]
+			});
+
+			// State Khusus untuk Fitur Autofill Nama Siswa di Form Multi-Input
+			const [showTinggalKelasSuggestions, setShowTinggalKelasSuggestions] = useState(null); 
+			const [filteredTinggalKelasStudents, setFilteredTinggalKelasStudents] = useState([]);
 
             useEffect(() => { setCurrentPage(1); }, [activeTab, searchTerm, itemsPerPage, filterType, filterCreator, filterStartDate, filterEndDate]);
 
@@ -3452,6 +3474,147 @@
 								</div>
 							)}
 							
+							{viewState === 'tinggal_kelas' && (
+								<div className="max-w-5xl mx-auto animate-fade-in-up pb-10">
+									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
+										<div className="flex items-center gap-3 mb-2">
+											<div className="p-3 bg-red-100 text-red-600 rounded-xl"><FileWarning size={24}/></div>
+											<div>
+												<h2 className="text-xl font-black text-slate-800 tracking-tight">Berita Acara Tinggal Kelas</h2>
+												<p className="text-xs text-slate-500 font-medium mt-0.5">Cetak 2 Lembar/Siswa (Lembar Penetapan & Tabel Daftar Tanda Tangan)</p>
+											</div>
+										</div>
+										
+										{/* BAGIAN A: INFORMASI UMUM & PEJABAT */}
+										<div className="bg-slate-50 p-5 rounded-2xl border border-slate-200 mt-6 mb-6">
+											<h4 className="font-bold text-sm text-slate-800 mb-4 border-b border-slate-200 pb-2">A. Dasar Keputusan & Pejabat Sekolah</h4>
+											<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+												<div className="md:col-span-2"><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Dasar Keputusan (Konsideran)</label><input type="text" value={tinggalKelasData.dasarKeputusan} onChange={e => setTinggalKelasData({...tinggalKelasData, dasarKeputusan: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl font-semibold" placeholder="Contoh: Hasil Rapat Pleno Dewan Guru..." /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Tempat TTD</label><input type="text" value={tinggalKelasData.tempat} onChange={e => setTinggalKelasData({...tinggalKelasData, tempat: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl font-semibold" /></div>
+												<div><label className="block text-xs font-bold text-gray-600 mb-1.5 uppercase">Tanggal TTD</label><input type="text" value={tinggalKelasData.tanggalLaporan} onChange={e => setTinggalKelasData({...tinggalKelasData, tanggalLaporan: e.target.value})} className="w-full p-3 border border-slate-200 rounded-xl font-semibold" /></div>
+												
+												<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-slate-200 pt-4 mt-2">
+													<div>
+														<label className="block text-xs font-bold text-red-600 mb-1.5 uppercase">Kepala Sekolah (Lembar 1 & 2)</label>
+														<select onChange={(e) => { const off = officials.find(o => o['Nama Pejabat'] === e.target.value); if (off) setTinggalKelasData({...tinggalKelasData, kepsekNama: off['Nama Pejabat'], kepsekNip: off['NIP'], kepsekJabatan: off['Jabatan'] || 'Kepala Sekolah'}); }} className="w-full p-3 bg-white border border-red-200 rounded-xl font-semibold">
+															<option value="">-- Pilih Pejabat --</option>
+															{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+														</select>
+													</div>
+													<div>
+														<label className="block text-xs font-bold text-blue-600 mb-1.5 uppercase">Wakasek Kesiswaan (Lembar 2)</label>
+														<select onChange={(e) => { const off = officials.find(o => o['Nama Pejabat'] === e.target.value); if (off) setTinggalKelasData({...tinggalKelasData, wakasekNama: off['Nama Pejabat'], wakasekNip: off['NIP'], wakasekJabatan: off['Jabatan'] || 'Wakasek Kesiswaan'}); }} className="w-full p-3 bg-white border border-blue-200 rounded-xl font-semibold">
+															<option value="">-- Pilih Pejabat --</option>
+															{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+														</select>
+													</div>
+													<div>
+														<label className="block text-xs font-bold text-emerald-600 mb-1.5 uppercase">Guru BK / Konselor (Lembar 2)</label>
+														<select onChange={(e) => { const off = officials.find(o => o['Nama Pejabat'] === e.target.value); if (off) setTinggalKelasData({...tinggalKelasData, guruBKNama: off['Nama Pejabat'], guruBKNip: off['NIP'], guruBKJabatan: off['Jabatan'] || 'Guru Bimbingan dan Konseling'}); }} className="w-full p-3 bg-white border border-emerald-200 rounded-xl font-semibold">
+															<option value="">-- Pilih Pejabat --</option>
+															{officials.map((o, i) => <option key={i} value={o['Nama Pejabat']}>{o['Jabatan']} - {o['Nama Pejabat']}</option>)}
+														</select>
+													</div>
+												</div>
+											</div>
+										</div>
+
+										{/* BAGIAN B: DAFTAR SISWA (DINAMIS & AUTOFILL) */}
+										<div className="flex justify-between items-center mb-4">
+											<h4 className="font-bold text-sm text-slate-800">B. Data Siswa & Rincian Kasus</h4>
+											<button onClick={() => setTinggalKelasData({...tinggalKelasData, siswaList: [...tinggalKelasData.siswaList, {namaSiswa: '', nisn: '', kelas: '', jenisKelamin: 'Laki-laki', alasan: '', kinerja: '', rekomendasi: '', namaOrangTua: '', noHpOrangTua: '', waliKelasNama: '', waliKelasNip: '', waliMuridNama: '', waliMuridNip: ''}]})} className="bg-blue-100 text-blue-700 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all">+ Tambah Siswa</button>
+										</div>
+										
+										<div className="space-y-6">
+											{tinggalKelasData.siswaList.map((siswa, idx) => (
+												<div key={idx} className="border-2 border-slate-100 rounded-2xl p-5 relative bg-white shadow-sm">
+													<div className="absolute -top-4 -left-4 bg-red-600 text-white w-8 h-8 rounded-full flex items-center justify-center font-black border-4 border-white shadow-sm">{idx + 1}</div>
+													{tinggalKelasData.siswaList.length > 1 && (
+														<button onClick={() => { const newList = [...tinggalKelasData.siswaList]; newList.splice(idx, 1); setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="absolute -top-4 -right-4 bg-red-100 text-red-600 w-8 h-8 rounded-full flex items-center justify-center hover:bg-red-600 hover:text-white border-4 border-white transition-colors shadow-sm"><Trash2 size={14}/></button>
+													)}
+													
+													<div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+														{/* BOKS PENCARIAN & IDENTITAS */}
+														<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+															<div className="col-span-1 md:col-span-2 relative">
+																<label className="block text-[10px] font-bold text-blue-600 uppercase">Nama Siswa (Ketik & Pilih)</label>
+																<input type="text" value={siswa.namaSiswa} onChange={(e) => { 
+																	const val = e.target.value;
+																	const newList = [...tinggalKelasData.siswaList]; 
+																	newList[idx].namaSiswa = val; 
+																	setTinggalKelasData({...tinggalKelasData, siswaList: newList});
+																	if (val.length > 2) {
+																		setFilteredTinggalKelasStudents(students.filter(s => s['Nama Lengkap'].toLowerCase().includes(val.toLowerCase())));
+																		setShowTinggalKelasSuggestions(idx);
+																	} else { setShowTinggalKelasSuggestions(null); }
+																}} className="w-full mt-1 p-2.5 bg-white border border-blue-200 rounded-lg text-sm font-bold" placeholder="Ketik nama untuk Autofill..." />
+																
+																{showTinggalKelasSuggestions === idx && (
+																	<div className="absolute z-50 w-full bg-white shadow-xl rounded-xl border border-slate-200 mt-1 max-h-40 overflow-y-auto custom-scrollbar">
+																		{filteredTinggalKelasStudents.map((s, sIdx) => (
+																			<div key={sIdx} className="p-3 hover:bg-blue-50 cursor-pointer border-b border-slate-100 last:border-0" onClick={() => {
+																				const newList = [...tinggalKelasData.siswaList];
+																				newList[idx].namaSiswa = s['Nama Lengkap']; newList[idx].nisn = s['NISN'] || '-';
+																				newList[idx].kelas = s['Kelas']; newList[idx].jenisKelamin = s['Jenis Kelamin'] || 'Laki-laki';
+																				newList[idx].namaOrangTua = s['Nama Ayah'] || s['Nama Ibu'] || s['Nama Wali'] || '';
+																				newList[idx].noHpOrangTua = s['No HP Ortu'] || s['No HP'] || '';
+																				
+																				// Logika Cerdas Tarik Data Wali Kelas (Membaca semua variasi nama kolom)
+																				if (classes && classes.length > 0) {
+																					const klsData = classes.find(c => c['Kelas'] === s['Kelas'] || c['Nama Kelas'] === s['Kelas'] || c.namaKelas === s['Kelas'] || c.kelas === s['Kelas']);
+																					if (klsData) {
+																						newList[idx].waliKelasNama = klsData['Wali Kelas'] || klsData['Nama Wali Kelas'] || klsData.waliKelas || klsData.namaWaliKelas || '';
+																						newList[idx].waliKelasNip = klsData['NIP Wali Kelas'] || klsData['NIP'] || klsData.nipWaliKelas || klsData.nip || '';
+																					}
+																				}
+																				setTinggalKelasData({...tinggalKelasData, siswaList: newList});
+																				setShowTinggalKelasSuggestions(null);
+																			}}>
+																				<strong className="text-slate-700">{s['Nama Lengkap']}</strong> <span className="text-xs text-gray-500">({s['Kelas']})</span>
+																			</div>
+																		))}
+																	</div>
+																)}
+															</div>
+															<div><label className="block text-[10px] font-bold text-gray-500 uppercase">NISN</label><input type="text" value={siswa.nisn} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].nisn = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2.5 border border-slate-200 bg-white rounded-lg text-sm" /></div>
+															<div className="grid grid-cols-2 gap-2">
+																<div><label className="block text-[10px] font-bold text-gray-500 uppercase">Kelas</label><input type="text" value={siswa.kelas} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].kelas = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2.5 border border-slate-200 bg-white rounded-lg text-sm" /></div>
+																<div><label className="block text-[10px] font-bold text-gray-500 uppercase">Kelamin</label><select value={siswa.jenisKelamin} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].jenisKelamin = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2.5 border border-slate-200 bg-white rounded-lg text-sm px-1"><option value="Laki-laki">L</option><option value="Perempuan">P</option></select></div>
+															</div>
+														</div>
+														
+														{/* BOKS WALI KELAS & ORANG TUA */}
+														<div className="grid grid-cols-2 gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+															<div><label className="block text-[10px] font-bold text-gray-500 uppercase">Nama Wali Kelas</label><input type="text" value={siswa.waliKelasNama} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].waliKelasNama = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm font-semibold" /></div>
+															<div><label className="block text-[10px] font-bold text-gray-500 uppercase">NIP Wali Kelas</label><input type="text" value={siswa.waliKelasNip} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].waliKelasNip = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm" /></div>
+														</div>
+														<div className="grid grid-cols-2 gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-sm">
+															<div><label className="block text-[10px] font-bold text-gray-500 uppercase">Ortu Kandung (Tanpa NIP)</label><input type="text" value={siswa.namaOrangTua} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].namaOrangTua = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm font-semibold" placeholder="Nama Ayah/Ibu" /></div>
+															<div><label className="block text-[10px] font-bold text-gray-500 uppercase">No. HP Orang Tua</label><input type="text" value={siswa.noHpOrangTua} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].noHpOrangTua = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2 border border-slate-200 rounded-lg text-sm" placeholder="08..." /></div>
+														</div>
+
+														{/* BOKS WALI MURID (PEGAWAI) */}
+														<div className="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+															<div><label className="block text-[10px] font-bold text-indigo-700 uppercase">Nama Wali Murid (Pegawai/Guru - Opsional)</label><input type="text" value={siswa.waliMuridNama} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].waliMuridNama = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2.5 bg-white border border-indigo-200 rounded-lg text-sm" placeholder="Isi jika siswa memiliki Wali Murid di sekolah..." /></div>
+															<div><label className="block text-[10px] font-bold text-indigo-700 uppercase">NIP Wali Murid (Pegawai/Guru)</label><input type="text" value={siswa.waliMuridNip} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].waliMuridNip = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-2.5 bg-white border border-indigo-200 rounded-lg text-sm" placeholder="NIP..." /></div>
+														</div>
+
+														{/* BOKS ANALISIS BK */}
+														<div className="md:col-span-2"><label className="block text-[10px] font-bold text-gray-600 uppercase border-l-2 border-red-500 pl-2">A. Alasan Tinggal Kelas</label><textarea rows="2" value={siswa.alasan} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].alasan = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-3 border border-slate-200 rounded-xl text-sm leading-relaxed" placeholder="Misal: Kehadiran hanya 65%, tidak tuntas pada 5 mata pelajaran..." /></div>
+														<div className="md:col-span-2"><label className="block text-[10px] font-bold text-gray-600 uppercase border-l-2 border-blue-500 pl-2">B. Rekam Jejak Kinerja & Pembinaan BK</label><textarea rows="2" value={siswa.kinerja} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].kinerja = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-3 border border-slate-200 rounded-xl text-sm leading-relaxed" placeholder="Misal: Telah dilakukan 3x pemanggilan orang tua, 1x home visit, namun..." /></div>
+														<div className="md:col-span-2"><label className="block text-[10px] font-bold text-gray-600 uppercase border-l-2 border-emerald-500 pl-2">C. Rekomendasi Tindak Lanjut Tahun Depan</label><textarea rows="2" value={siswa.rekomendasi} onChange={(e) => { const newList = [...tinggalKelasData.siswaList]; newList[idx].rekomendasi = e.target.value; setTinggalKelasData({...tinggalKelasData, siswaList: newList}); }} className="w-full mt-1 p-3 border border-slate-200 rounded-xl text-sm leading-relaxed" placeholder="Misal: Siswa diwajibkan mengikuti konseling intensif 1x seminggu di semester awal..." /></div>
+													</div>
+												</div>
+											))}
+										</div>
+
+										<div className="flex justify-end mt-8">
+											<button onClick={() => window.print()} className="bg-slate-800 hover:bg-slate-900 text-white px-8 py-3.5 rounded-xl flex items-center gap-2 font-black shadow-lg shadow-slate-800/30 transition-all transform hover:-translate-y-1"><Printer size={20}/> CETAK {tinggalKelasData.siswaList.length} BERITA ACARA</button>
+										</div>
+									</div>
+								</div>
+							)}
+							
 							{viewState === 'pengantar_kelas' && (
 								<div className="max-w-3xl mx-auto animate-fade-in-up pb-10">
 									<div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 md:p-8">
@@ -4704,6 +4867,235 @@
 						</div>
 					)}
 					
+					{viewState === 'tinggal_kelas' && (
+						<div className="print-area hidden bg-white text-black p-[10mm_15mm] w-[215mm] min-h-[330mm] box-border mx-auto" style={{ fontFamily: 'Times New Roman, Times, serif', fontSize: '11pt' }}>
+							{tinggalKelasData.siswaList.map((siswa, idx) => (
+								<React.Fragment key={idx}>
+									{/* ======================================================== */}
+									{/* HALAMAN 1: LEMBAR PENETAPAN KEPUTUSAN */}
+									{/* ======================================================== */}
+									<div className="flex flex-col relative w-full" style={{ pageBreakAfter: 'always' }}>
+										{/* KOP SURAT */}
+										<div className="border-b-[3px] border-double border-black pb-2 mb-5 flex items-center justify-between">
+											<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKiri ? <img src={schoolData.logoKiri} className="max-h-full max-w-full object-contain" /> : null}</div>
+											<div className="text-center flex-1 px-2 leading-tight">
+												<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.pemerintah}</h2>
+												<h2 className="font-bold text-[12pt] uppercase tracking-wider leading-tight">{schoolData.instansi}</h2>
+												<h2 className="font-bold text-[14pt] uppercase leading-tight">{schoolData.namaSekolah}</h2>
+												<p className="text-[11pt] italic mt-1 leading-tight whitespace-pre-line">{schoolData.alamat}</p>
+											</div>
+											<div className="w-[2cm] h-[2cm] flex items-center justify-center shrink-0">{schoolData?.logoKanan ? <img src={schoolData.logoKanan} className="max-h-full max-w-full object-contain" /> : null}</div>
+										</div>
+
+										<div className="text-center mb-5">
+											<h3 className="font-bold underline text-[12pt] uppercase tracking-widest">BERITA ACARA PENETAPAN TINGGAL KELAS SISWA</h3>
+											<p className="text-[11pt] uppercase font-bold mt-1">(DOKUMEN RAHASIA)</p>
+										</div>
+
+										{/* SPASI DIRAPATKAN DENGAN leading-snug */}
+										<p className="mb-3 text-justify leading-snug">
+											Berdasarkan <strong>{tinggalKelasData.dasarKeputusan || '...........................................'}</strong>, serta memperhatikan hasil evaluasi akademik dan catatan rekam jejak kedisiplinan selama satu tahun ajaran, maka dengan ini pihak sekolah menetapkan keputusan bagi siswa:
+										</p>
+
+										{/* BIODATA SISWA (Spasi Dirapatkan) */}
+										<table className="w-full text-[11pt] leading-normal ml-4 mb-4">
+											<tbody>
+												<tr><td className="w-[220px] font-bold py-0.5">Nama Lengkap</td><td className="w-[15px] py-0.5">:</td><td className="font-bold py-0.5">{siswa.namaSiswa || '...........................................'}</td></tr>
+												<tr><td className="font-bold py-0.5">NISN</td><td className="py-0.5">:</td><td className="py-0.5">{siswa.nisn || '...........................................'}</td></tr>
+												<tr><td className="font-bold py-0.5">Kelas</td><td className="py-0.5">:</td><td className="py-0.5">{siswa.kelas || '......................'}</td></tr>
+												<tr><td className="font-bold py-0.5">Jenis Kelamin</td><td className="py-0.5">:</td><td className="py-0.5">{siswa.jenisKelamin}</td></tr>
+												<tr><td className="font-bold py-0.5">Nama Orang Tua/Wali</td><td className="py-0.5">:</td><td className="py-0.5">{siswa.namaOrangTua || '...........................................'}</td></tr>
+												<tr><td className="font-bold py-0.5">Nomor Telepon / HP</td><td className="py-0.5">:</td><td className="py-0.5">{siswa.noHpOrangTua || '...........................................'}</td></tr>
+											</tbody>
+										</table>
+
+										<p className="mb-1.5 font-bold uppercase underline">A. ALASAN PENETAPAN TINGGAL KELAS</p>
+										<div className="mb-4">
+											{siswa.alasan ? siswa.alasan.split('\n').map((line, i) => {
+												// ALGORITMA PENOMORAN SEJAJAR (FLEXBOX)
+												const match = line.match(/^(\d+[\.\)]|\-|\•)\s+(.*)/);
+												if (match) {
+													return (
+														<div key={i} className="flex items-start ml-2 mb-0.5 leading-snug">
+															<span className="shrink-0 w-6">{match[1]}</span>
+															<p className="text-justify flex-1">{match[2]}</p>
+														</div>
+													);
+												}
+												return <p key={i} className="text-justify leading-snug ml-2 mb-0.5">{line}</p>;
+											}) : <p className="text-justify leading-snug ml-2">....................................................................................................................</p>}
+										</div>
+
+										<p className="mb-1.5 font-bold uppercase underline">B. HASIL KINERJA & PEMBINAAN SEKOLAH</p>
+										<p className="mb-1.5 text-justify leading-snug ml-2">Sebelum keputusan ini ditetapkan, pihak sekolah melalui Guru Mata Pelajaran, Wali Kelas, Guru Wali serta Guru Bimbingan dan Konseling telah melakukan upaya pembinaan dan pemanggilan sebagai berikut:</p>
+										<div className="mb-4">
+											{siswa.kinerja ? siswa.kinerja.split('\n').map((line, i) => {
+												// ALGORITMA PENOMORAN SEJAJAR (FLEXBOX)
+												const match = line.match(/^(\d+[\.\)]|\-|\•)\s+(.*)/);
+												if (match) {
+													return (
+														<div key={i} className="flex items-start ml-2 mb-0.5 leading-snug">
+															<span className="shrink-0 w-6">{match[1]}</span>
+															<p className="text-justify flex-1">{match[2]}</p>
+														</div>
+													);
+												}
+												return <p key={i} className="text-justify leading-snug ml-2 mb-0.5">{line}</p>;
+											}) : <p className="text-justify leading-snug ml-2">....................................................................................................................</p>}
+										</div>
+
+										<p className="mb-1.5 font-bold uppercase underline">C. REKOMENDASI TINDAK LANJUT</p>
+										<div className="mb-6">
+											{siswa.rekomendasi ? siswa.rekomendasi.split('\n').map((line, i) => {
+												// ALGORITMA PENOMORAN SEJAJAR (FLEXBOX)
+												const match = line.match(/^(\d+[\.\)]|\-|\•)\s+(.*)/);
+												if (match) {
+													return (
+														<div key={i} className="flex items-start ml-2 mb-0.5 leading-snug">
+															<span className="shrink-0 w-6">{match[1]}</span>
+															<p className="text-justify flex-1">{match[2]}</p>
+														</div>
+													);
+												}
+												return <p key={i} className="text-justify leading-snug ml-2 mb-0.5">{line}</p>;
+											}) : <p className="text-justify leading-snug ml-2">....................................................................................................................</p>}
+										</div>
+
+										<div className="mt-auto">
+											{/* HURUF NORMAL, SPASI RAPAT */}
+											<p className="text-justify mb-8 text-[11pt] leading-snug">
+												Demikian Berita Acara ini dibuat dengan sebenarnya, melalui pertimbangan yang komprehensif, terukur, dan objektif untuk dipergunakan sebagaimana mestinya demi kebaikan pendidikan siswa bersangkutan di masa depan.
+											</p>
+											
+											{/* TANDA TANGAN KEPSEK */}
+											<div className="flex justify-end px-4 text-center text-[11pt] mt-6" style={{ pageBreakInside: 'avoid' }}>
+												<div className="min-w-[280px]">
+													<p className="mb-1">{tinggalKelasData.tempat}, {tinggalKelasData.tanggalLaporan}</p>
+													<p className="mb-24">{tinggalKelasData.kepsekJabatan || 'Kepala Sekolah'},</p>
+													<p className="font-bold underline">{tinggalKelasData.kepsekNama || '.........................................'}</p>
+													<p className="text-[11pt]">NIP. {tinggalKelasData.kepsekNip || '.........................................'}</p>
+												</div>
+											</div>
+										</div>
+									</div>
+
+									{/* ======================================================== */}
+									{/* HALAMAN 2: LEMBAR PENGESAHAN (TABEL RESMI) */}
+									{/* ======================================================== */}
+									<div className="flex flex-col relative w-full pt-4" style={idx < tinggalKelasData.siswaList.length - 1 ? { pageBreakAfter: 'always' } : {}}>
+										<div className="text-center mb-6">
+											<h3 className="font-bold text-[13pt] uppercase tracking-widest border-b-2 border-black pb-2 inline-block">DAFTAR HADIR DAN PENGESAHAN KEPUTUSAN</h3>
+											<p className="text-[11pt] mt-4">Lampiran Berita Acara Penetapan Tinggal Kelas untuk siswa atas nama:</p>
+											<p className="text-[14pt] font-black uppercase mt-1">"{siswa.namaSiswa || '...........................................'}"</p>
+											<p className="text-[12pt] font-bold mt-1 uppercase">Kelas: {siswa.kelas || '......................'}</p>
+										</div>
+
+										<p className="mb-6 text-justify leading-snug text-[11pt]">
+											Dengan membubuhkan tanda tangan di bawah ini, kami selaku pihak-pihak terkait menyatakan telah hadir dalam rapat/pertemuan, menyetujui, dan mengesahkan keputusan penetapan tinggal kelas bagi siswa tersebut di atas berdasarkan fakta dan prosedur yang berlaku.
+										</p>
+
+										{/* TABEL 1: PIHAK SEKOLAH */}
+										<h4 className="font-bold text-[11pt] mt-2 mb-2">I. PIHAK SEKOLAH</h4>
+										<table className="w-full border-collapse border border-black text-[11pt]">
+											<thead>
+												<tr className="bg-gray-100">
+													<th className="border border-black py-2 px-2 text-center w-[8%]">No.</th>
+													<th className="border border-black py-2 px-2 text-center w-[42%]">Nama / NIP</th>
+													<th className="border border-black py-2 px-2 text-center w-[25%]">Jabatan</th>
+													<th className="border border-black py-2 px-2 text-center w-[25%]">TTD</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">1.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{tinggalKelasData.kepsekNama || '..............................'}</span><br/>
+														<span className="text-[10.5pt]">NIP. {tinggalKelasData.kepsekNip || '-'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">{tinggalKelasData.kepsekJabatan || 'Kepala Sekolah'}</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+												
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">2.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{tinggalKelasData.wakasekNama || '..............................'}</span><br/>
+														<span className="text-[10.5pt]">NIP. {tinggalKelasData.wakasekNip || '-'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">{tinggalKelasData.wakasekJabatan || 'Wakasek Kesiswaan'}</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">3.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{tinggalKelasData.guruBKNama || '..............................'}</span><br/>
+														<span className="text-[10.5pt]">NIP. {tinggalKelasData.guruBKNip || '-'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">{tinggalKelasData.guruBKJabatan || 'Guru BK'}</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">4.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{siswa.waliKelasNama || '..............................'}</span><br/>
+														<span className="text-[10.5pt]">NIP. {siswa.waliKelasNip || '-'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">Wali Kelas {siswa.kelas}</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+
+												{siswa.waliMuridNama && (
+													<tr>
+														<td className="border border-black py-2.5 px-2 text-center font-bold">5.</td>
+														<td className="border border-black py-2.5 px-3">
+															<span className="font-bold whitespace-nowrap">{siswa.waliMuridNama}</span><br/>
+															<span className="text-[10.5pt]">NIP. {siswa.waliMuridNip || '-'}</span>
+														</td>
+														<td className="border border-black py-2.5 px-3 text-center">Wali Murid Siswa</td>
+														<td className="border border-black py-2.5 px-3"></td>
+													</tr>
+												)}
+											</tbody>
+										</table>
+
+										{/* TABEL 2: PIHAK KELUARGA & SISWA */}
+										<h4 className="font-bold text-[11pt] mt-6 mb-2">II. PIHAK KELUARGA & SISWA</h4>
+										<table className="w-full border-collapse border border-black text-[11pt]">
+											<thead>
+												<tr className="bg-gray-100">
+													<th className="border border-black py-2 px-2 text-center w-[8%]">No.</th>
+													<th className="border border-black py-2 px-2 text-center w-[42%]">Nama Lengkap</th>
+													<th className="border border-black py-2 px-2 text-center w-[25%]">Status Pihak</th>
+													<th className="border border-black py-2 px-2 text-center w-[25%]">TTD</th>
+												</tr>
+											</thead>
+											<tbody>
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">1.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{siswa.namaOrangTua || '..............................'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">Orang Tua / Wali</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+												<tr>
+													<td className="border border-black py-2.5 px-2 text-center font-bold">2.</td>
+													<td className="border border-black py-2.5 px-3">
+														<span className="font-bold whitespace-nowrap">{siswa.namaSiswa || '..............................'}</span>
+													</td>
+													<td className="border border-black py-2.5 px-3 text-center">Siswa Bersangkutan</td>
+													<td className="border border-black py-2.5 px-3"></td>
+												</tr>
+											</tbody>
+										</table>
+									</div>
+								</React.Fragment>
+							))}
+						</div>
+					)}
+					
 				</div>
 			);
 		}
@@ -4788,7 +5180,8 @@
 							<SidebarItem icon={<MessageCircle size={18} className="text-blue-500"/>} label="Angket Wawancara" active={activeTab === 'WAWANCARA'} onClick={() => {setActiveTab('WAWANCARA'); setViewState('wawancara');}} />
 							<SidebarItem icon={<ClipboardList size={18} className="text-amber-500"/>} label="Catatan Anekdotal" active={activeTab === 'ANEKDOT'} onClick={() => {setActiveTab('ANEKDOT'); setViewState('anekdot');}} />
 							<SidebarItem icon={<UserCheck size={18} className="text-teal-500"/>} label="Pengantar Masuk Kelas" active={activeTab === 'PENGANTAR_KELAS'} onClick={() => {setActiveTab('PENGANTAR_KELAS'); setViewState('pengantar_kelas');}} />
-                        </SidebarGroup>
+							<SidebarItem icon={<FileWarning size={18} className="text-red-600"/>} label="B.A. Tinggal Kelas" active={activeTab === 'TINGGAL_KELAS'} onClick={() => {setActiveTab('TINGGAL_KELAS'); setViewState('tinggal_kelas');}} />
+						</SidebarGroup>
                         {/* KATEGORI 1 */}
                         <SidebarGroup icon={<ShieldCheck size={16}/>} title="Pembinaan & Disiplin" defaultOpen={['SKORSING', 'PERNYATAAN', 'KONTRAK', 'SURAT_PERINGATAN'].includes(activeTab)}>
                             <SidebarItem icon={<FileSignature size={18}/>} label="Surat Pernyataan" active={activeTab === 'PERNYATAAN'} onClick={() => {setActiveTab('PERNYATAAN'); setViewState('list');}} />
